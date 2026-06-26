@@ -19,11 +19,18 @@ def temp_sleep(seconds=0.1):
 def ChatGPT_single_request(prompt): 
   temp_sleep()
 
-  completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
-    messages=[{"role": "user", "content": prompt}]
+  # completion = openai.ChatCompletion.create(
+  #   model="gpt-3.5-turbo", 
+  #   messages=[{"role": "user", "content": prompt}]
+  # )
+  client = openai.OpenAI(api_key=openai_api_key, base_url="https://openrouter.ai/api/v1")
+  completion = client.chat.completions.create(
+      model="gpt-3.5-turbo",
+      messages=[{"role": "user", "content": prompt}],
+      max_tokens=1500,
+      temperature=0.7
   )
-  return completion["choices"][0]["message"]["content"]
+  return completion.choices[0].message.content
 
 
 # ============================================================================
@@ -45,15 +52,23 @@ def GPT4_request(prompt):
   temp_sleep()
 
   try: 
-    completion = openai.ChatCompletion.create(
-    model="gpt-4", 
-    messages=[{"role": "user", "content": prompt}]
+    # completion = openai.ChatCompletion.create(
+    # model="gpt-4", 
+    # messages=[{"role": "user", "content": prompt}]
+    # )
+    client = openai.OpenAI(api_key=openai_api_key, base_url="https://openrouter.ai/api/v1")
+    completion = client.chat.completions.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1500,
+        temperature=0.7
     )
-    return completion["choices"][0]["message"]["content"]
+    return completion.choices[0].message.content
   
-  except: 
-    print ("ChatGPT ERROR")
-    return "ChatGPT ERROR"
+  except Exception as e:
+    # print ("ChatGPT ERROR")
+    print(f"ChatGPT ERROR: {e}")
+    return f"ChatGPT ERROR: {e}"
 
 
 def ChatGPT_request(prompt): 
@@ -70,14 +85,22 @@ def ChatGPT_request(prompt):
   """
   # temp_sleep()
   try: 
-    completion = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo", 
-    messages=[{"role": "user", "content": prompt}]
+    # completion = openai.ChatCompletion.create(
+    # model="gpt-3.5-turbo", 
+    # messages=[{"role": "user", "content": prompt}]
+    # )
+    client = openai.OpenAI(api_key=openai_api_key, base_url="https://openrouter.ai/api/v1")
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1500,
+        temperature=0.7
     )
-    return completion["choices"][0]["message"]["content"]
+    return completion.choices[0].message.content
   
-  except: 
-    print ("ChatGPT ERROR")
+  except Exception as e:
+    # print ("ChatGPT ERROR")
+    print(f"ChatGPT ERROR: {e}")
     return "ChatGPT ERROR"
 
 
@@ -208,20 +231,36 @@ def GPT_request(prompt, gpt_parameter):
   """
   temp_sleep()
   try: 
-    response = openai.Completion.create(
-                model=gpt_parameter["engine"],
-                prompt=prompt,
-                temperature=gpt_parameter["temperature"],
-                max_tokens=gpt_parameter["max_tokens"],
-                top_p=gpt_parameter["top_p"],
-                frequency_penalty=gpt_parameter["frequency_penalty"],
-                presence_penalty=gpt_parameter["presence_penalty"],
-                stream=gpt_parameter["stream"],
-                stop=gpt_parameter["stop"],)
-    return response.choices[0].text
-  except: 
-    print ("TOKEN LIMIT EXCEEDED")
-    return "TOKEN LIMIT EXCEEDED"
+    client = openai.OpenAI(api_key=openai_api_key, base_url="https://openrouter.ai/api/v1")
+    response = client.chat.completions.create(
+        model=gpt_parameter["model"],
+        messages=[{"role": "user", "content": prompt}],
+        temperature=gpt_parameter["temperature"],
+        max_tokens=gpt_parameter["max_tokens"],
+        top_p=gpt_parameter["top_p"],
+        frequency_penalty=gpt_parameter["frequency_penalty"],
+        presence_penalty=gpt_parameter["presence_penalty"],
+        stream=gpt_parameter["stream"],
+        stop=gpt_parameter["stop"],
+    )
+    # response = openai.Completion.create(
+    #             model=gpt_parameter["model"],
+    #             prompt=prompt,
+    #             temperature=gpt_parameter["temperature"],
+    #             max_tokens=gpt_parameter["max_tokens"],
+    #             top_p=gpt_parameter["top_p"],
+    #             frequency_penalty=gpt_parameter["frequency_penalty"],
+    #             presence_penalty=gpt_parameter["presence_penalty"],
+    #             stream=gpt_parameter["stream"],
+    #             stop=gpt_parameter["stop"],)
+    # return response.choices[0].text
+    return response.choices[0].message.content
+  except Exception as e:
+  # except: 
+    # print ("TOKEN LIMIT EXCEEDED")
+    # return "TOKEN LIMIT EXCEEDED"
+    print(f"API CALL FAILED: {e}")
+    return "ERROR"
 
 
 def generate_prompt(curr_input, prompt_lib_file): 
@@ -277,12 +316,14 @@ def get_embedding(text, model="text-embedding-ada-002"):
   text = text.replace("\n", " ")
   if not text: 
     text = "this is blank"
-  return openai.Embedding.create(
-          input=[text], model=model)['data'][0]['embedding']
+  # return openai.Embedding.create(
+  #         input=[text], model=model)['data'][0]['embedding']
+  client = openai.OpenAI(api_key=openai_api_key, base_url="https://openrouter.ai/api/v1")
+  return client.embeddings.create(input=[text], model=model).data[0].embedding
 
 
 if __name__ == '__main__':
-  gpt_parameter = {"engine": "text-davinci-003", "max_tokens": 50, 
+  gpt_parameter = {"model": "gpt-3.5-turbo-instruct", "max_tokens": 50, 
                    "temperature": 0, "top_p": 1, "stream": False,
                    "frequency_penalty": 0, "presence_penalty": 0, 
                    "stop": ['"']}
