@@ -126,7 +126,7 @@ class ReverieServer:
       p_x = init_env[persona_name]["x"]
       p_y = init_env[persona_name]["y"]
       curr_persona = Persona(persona_name, persona_folder)
-
+      curr_persona.scratch.curr_time = self.curr_time
       self.personas[persona_name] = curr_persona
       self.personas_tile[persona_name] = (p_x, p_y)
       self.maze.tiles[p_y][p_x]["events"].add(curr_persona.scratch
