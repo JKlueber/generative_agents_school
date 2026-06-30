@@ -1,0 +1,44 @@
+{
+  "the Ville": {
+    "Goethe Gymnasium": {
+      "hallway": [],
+      "library": [
+        "library sofa",
+        "library table",
+        "bookshelf"
+      ],
+      "classroom": [
+        "blackboard",
+        "classroom podium",
+        "classroom student seating"
+      ]
+    },
+    "Dorm for Goethe Gymnasium": {
+      "garden": [
+        "dorm garden"
+      ],
+      "Maria Lopez's room": [
+        "closet",
+        "desk",
+        "bed",
+        "computer",
+        "blackboard"
+      ],
+      "woman's bathroom": [
+        "toilet",
+        "shower",
+        "bathroom sink"
+      ],
+      "common room": [
+        "common room sofa",
+        "pool table",
+        "common room table"
+      ],
+      "man's bathroom": [
+        "shower",
+        "bathroom sink",
+        "toilet"
+      ]
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "the Ville": {
+    "Mei Lin's apartment": {
+      "bathroom": [
+        "shower",
+        "bathroom sink",
+        "toilet"
+      ],
+      "main room": [
+        "bed",
+        "desk",
+        "cooking area",
+        "kitchen sink",
+        "closet",
+        "refrigerator"
+      ]
+    },
+    "Oak Hill College": {
+      "hallway": [],
+      "classroom": [
+        "blackboard",
+        "classroom podium",
+        "classroom student seating"
+      ],
+      "library": [
+        "library sofa",
+        "library table",
+        "bookshelf"
+      ]
+    },
+    "Dorm for Oak Hill College": {
+      "garden": [
+        "dorm garden"
+      ]
+    }
+  }
+}
