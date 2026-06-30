@@ -2,9 +2,10 @@ reverie/backend_server/utils.py
 frontend_server/settings/local.py
 storage/*
 static_dirs/*
+frontend_server
 
-!storage/base_the_ville_isabella_maria_klaus/*
-!storage/base_the_ville_n25/*
+!storage/base_the_ville_n5_school/*
+!storage/base_the_ville_n5_school_cdu/*
 
 bin/
 include/
@@ -100,5 +101,3 @@ ENV/
 
 # Rope project settings
 .ropeproject
-
-*.json
