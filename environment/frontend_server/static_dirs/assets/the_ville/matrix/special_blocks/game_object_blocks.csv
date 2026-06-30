@@ -12,11 +12,6 @@
 32258, the Ville, <all>, cooking area
 32268, the Ville, <all>, common room table
 32278, the Ville, <all>, common room sofa
-32209, the Ville, <all>, guitar
-32219, the Ville, <all>, microphone
-32229, the Ville, <all>, bar customer seating
-32239, the Ville, <all>, behind the bar counter
-32249, the Ville, <all>, behind the cafe counter
 32259, the Ville, <all>, cafe customer seating
 32269, the Ville, <all>, piano
 32279, the Ville, <all>, blackboard
@@ -28,15 +23,6 @@
 32260, the Ville, <all>, library table
 32270, the Ville, <all>, classroom student seating
 32280, the Ville, <all>, classroom podium
-32211, the Ville, <all>, behind the pharmacy counter
-32221, the Ville, <all>, behind the grocery counter
-32231, the Ville, <all>, pharmacy store shelf
-32241, the Ville, <all>, grocery store shelf
-32251, the Ville, <all>, pharmacy store counter
-32261, the Ville, <all>, grocery store counter
-32271, the Ville, <all>, supply store product shelf
-32281, the Ville, <all>, behind the supply store counter
-32212, the Ville, <all>, supply store counter
 32222, the Ville, <all>, dorm garden
 32232, the Ville, <all>, house garden
 32242, the Ville, <all>, garden chair
