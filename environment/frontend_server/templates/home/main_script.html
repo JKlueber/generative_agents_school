@@ -167,7 +167,7 @@
 	  this.load.image("CuteRPG_Forest_C", "{% static 'assets/the_ville/visuals/map_assets/cute_rpg_word_VXAce/tilesets/CuteRPG_Forest_C.png' %}");
 
 	  // Joon: This is the export json file you get from Tiled. 
-	  this.load.tilemapTiledJSON("map", "{% static 'assets/the_ville/visuals/the_ville_jan7.json' %}");
+	  this.load.tilemapTiledJSON("map", "{% static 'assets/the_ville/visuals/the_ville_school.json' %}");
 
 	  // An atlas is a way to pack multiple images together into one texture. I'm 
 	  // using it to load all the player animations (walking left, walking right, 
@@ -185,7 +185,8 @@
 	function create() {  
 	  const map = this.make.tilemap({ key: "map" });
 	  // Joon: Logging map is really helpful for debugging here: 
-	  //       console.log(map);
+	         console.log(map);
+
 
 	  // The first parameter is the name you gave to the tileset in Tiled and then
 	  // the key of the tileset image in Phaser's cache (i.e. the name you used in
