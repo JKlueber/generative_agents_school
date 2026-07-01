@@ -132,7 +132,7 @@
   .chat-agent-name {
     font-weight: 800;
     font-size: 1.4em;
-    color: #222;
+    color: #ffffff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -268,13 +268,9 @@
 	left: 0;
 	width: 100vw;
 	height: 100vh;
-	background-image: url("{% static 'assets/the_ville/visuals/map_assets/v1/cover.png' %}"); 
+	background-image: url("{% static 'assets/the_ville/visuals/map_assets/v3/tileset-grassland-grass.png' %}"); 
 	background-size: cover;
-	background-position: center;
-	filter: blur(15px);
-	transform: scale(1.1);
-	z-index: -1;
-	opacity: 0.6;
+	image-rendering: pixelated;
   }
 </style>
 
@@ -288,10 +284,10 @@
       <div id="game-container" style="text-align: center"></div>
 
       <div style="margin-top:1.5em">
-        <h3 style="margin-bottom:-0.5em; font-size:1.5em">Current Time:</h3>
+        <h3 style="margin-bottom:-0.5em; font-size:1.5em; color: #ffffff;">Current Time:</h3>
         <div class="row">
           <div class="col-md-8" id="game-time">
-            <h2><span id="game-time-content"></span></h2>
+            <h2 style="color: #ffffff;"> <span id="game-time-content"></span></h2>
           </div>
           <div class="col-md-4">
             <h2 style="text-align: right; {% if mode == 'simulate' %} display: none {% endif %}">
@@ -311,6 +307,7 @@
     <div class="col-md-5">
 
       <div class="agent-panel-wrap">
+		<div style="height: 1.5em"></div>;
         {% for p_name, p_name_os in persona_names %}
           <div class="agent-card" data-persona-name="{{ p_name }}" data-persona-os="{{ p_name_os }}">
             <div class="agent-avatar-wrap">
