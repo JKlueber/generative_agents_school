@@ -1,0 +1,150 @@
+{% load staticfiles %}
+<script type="text/javascript">
+(function() {
+  var overlay = document.getElementById("interview_overlay");
+  var modal_avatar = document.getElementById("interview_modal_avatar");
+  var modal_name = document.getElementById("interview_modal_name");
+  var close_btn = document.getElementById("interview_close_btn");
+  var submit_btn = document.getElementById("interview_submit_button");
+  var question_input = document.getElementById("interview_question_input");
+  var history_div = document.getElementById("interview_history");
+  var global_chat_feed = document.getElementById("global_chat_feed");
+
+  var current_interview_persona = null;
+
+  // --- Stop Phaser from swallowing keyboard input (incl. Tab) while the
+  // interview field has focus. ---
+  function disable_game_keyboard() {
+    if (typeof game !== "undefined" && game.input && game.input.keyboard) {
+      game.input.keyboard.enabled = false;
+      game.input.keyboard.disableGlobalCapture();
+    }
+  }
+  function enable_game_keyboard() {
+    if (typeof game !== "undefined" && game.input && game.input.keyboard) {
+      game.input.keyboard.enabled = true;
+      game.input.keyboard.enableGlobalCapture();
+    }
+  }
+  question_input.addEventListener("focus", disable_game_keyboard);
+  question_input.addEventListener("blur", enable_game_keyboard);
+  question_input.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      submit_btn.click();
+    }
+    e.stopPropagation();
+  });
+
+  // --- Open / close modal ---
+  function open_interview(persona_name, persona_os) {
+    current_interview_persona = persona_name;
+    modal_name.textContent = persona_name;
+    modal_avatar.src = "{% static 'assets/characters/profile/' %}" + persona_os + ".png";
+    history_div.innerHTML = "";
+    question_input.value = "";
+    overlay.classList.add("open");
+    disable_game_keyboard();
+    question_input.focus();
+  }
+
+  function close_interview() {
+    overlay.classList.remove("open");
+    current_interview_persona = null;
+    enable_game_keyboard();
+  }
+
+  close_btn.addEventListener("click", close_interview);
+  overlay.addEventListener("click", function(e) {
+    if (e.target === overlay) close_interview();
+  });
+
+  document.querySelectorAll(".agent-card").forEach(function(card) {
+    card.addEventListener("click", function() {
+      open_interview(card.getAttribute("data-persona-name"),
+                      card.getAttribute("data-persona-os"));
+    });
+  });
+
+  // --- Interview request/response cycle (reuses "call -- analysis") ---
+  function poll_for_response(persona_name, request_id) {
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('POST', "{% url 'interview_response' %}", true);
+    xobj.addEventListener("load", function() {
+      if (xobj.readyState === 4 && xobj.status === 200) {
+        var data = JSON.parse(xobj.responseText);
+        if (data["ready"]) {
+          if (current_interview_persona === persona_name) {
+            var entry = document.createElement("p");
+            entry.className = "chat-line";
+            entry.innerHTML = "<strong>" + persona_name + ":</strong> " + data["response"];
+            history_div.appendChild(entry);
+            history_div.scrollTop = history_div.scrollHeight;
+          }
+        } else {
+          setTimeout(function() { poll_for_response(persona_name, request_id); }, 1000);
+        }
+      }
+    });
+    xobj.send(JSON.stringify({
+      "sim_code": sim_code,
+      "persona_name": persona_name,
+      "request_id": request_id
+    }));
+  }
+
+  submit_btn.onclick = function() {
+    var question = question_input.value.trim();
+    var persona_name = current_interview_persona;
+    if (!question || !persona_name) return;
+
+    var q_entry = document.createElement("p");
+    q_entry.className = "chat-line";
+    q_entry.innerHTML = "<em>You:</em> " + question;
+    history_div.appendChild(q_entry);
+    history_div.scrollTop = history_div.scrollHeight;
+
+    var request_id = "" + Date.now();
+
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('POST', "{% url 'interview_persona' %}", true);
+    xobj.addEventListener("load", function() {
+      if (xobj.readyState === 4 && xobj.status === 200) {
+        poll_for_response(persona_name, request_id);
+      }
+    });
+    xobj.send(JSON.stringify({
+      "sim_code": sim_code,
+      "persona_name": persona_name,
+      "question": question,
+      "request_id": request_id
+    }));
+
+    question_input.value = "";
+  };
+
+  // --- Global conversation feed: aggregate each persona's live chat__
+  // span (written by main_script.html) into one scrolling feed. ---
+  var last_chat_snapshot = {};
+
+  function refresh_global_chat_feed() {
+    document.querySelectorAll("[id^='chat__']").forEach(function(span) {
+      var persona_os = span.id.replace("chat__", "");
+      var content = span.innerHTML;
+      if (content && content !== last_chat_snapshot[persona_os]) {
+        last_chat_snapshot[persona_os] = content;
+        if (content.indexOf("None at the moment") === -1) {
+          var block = document.createElement("div");
+          block.className = "chat-line";
+          block.innerHTML = content;
+          global_chat_feed.appendChild(block);
+          global_chat_feed.scrollTop = global_chat_feed.scrollHeight;
+        }
+      }
+    });
+  }
+  setInterval(refresh_global_chat_feed, 1000);
+})();
+</script>
