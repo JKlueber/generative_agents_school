@@ -37,6 +37,18 @@
   });
 
   // --- Open / close modal ---
+//   function open_interview(persona_name, persona_os) {
+//     current_interview_persona = persona_name;
+//     modal_name.textContent = persona_name;
+//     modal_avatar.src = "{% static 'assets/characters/profile/' %}" + persona_os + ".png";
+//     history_div.innerHTML = "";
+//     question_input.value = "";
+//     overlay.classList.add("open");
+//     disable_game_keyboard();
+//     question_input.focus();
+//   }
+
+  // --- Open / close modal ---
   function open_interview(persona_name, persona_os) {
     current_interview_persona = persona_name;
     modal_name.textContent = persona_name;
@@ -67,6 +79,32 @@
   });
 
   // --- Interview request/response cycle (reuses "call -- analysis") ---
+//   function poll_for_response(persona_name, request_id) {
+//     var xobj = new XMLHttpRequest();
+//     xobj.overrideMimeType("application/json");
+//     xobj.open('POST', "{% url 'interview_response' %}", true);
+//     xobj.addEventListener("load", function() {
+//       if (xobj.readyState === 4 && xobj.status === 200) {
+//         var data = JSON.parse(xobj.responseText);
+//         if (data["ready"]) {
+//           if (current_interview_persona === persona_name) {
+//             var entry = document.createElement("p");
+//             entry.className = "chat-line";
+//             entry.innerHTML = "<strong>" + persona_name + ":</strong> " + data["response"];
+//             history_div.appendChild(entry);
+//             history_div.scrollTop = history_div.scrollHeight;
+//           }
+//         } else {
+//           setTimeout(function() { poll_for_response(persona_name, request_id); }, 1000);
+//         }
+//       }
+//     });
+//     xobj.send(JSON.stringify({
+//       "sim_code": sim_code,
+//       "persona_name": persona_name,
+//       "request_id": request_id
+//     }));
+//   }
   function poll_for_response(persona_name, request_id) {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
@@ -76,10 +114,16 @@
         var data = JSON.parse(xobj.responseText);
         if (data["ready"]) {
           if (current_interview_persona === persona_name) {
-            var entry = document.createElement("p");
-            entry.className = "chat-line";
-            entry.innerHTML = "<strong>" + persona_name + ":</strong> " + data["response"];
-            history_div.appendChild(entry);
+            var persona_os = persona_name.replace(/ /g, "_");
+            var a_row = document.createElement("div");
+            a_row.className = "interview-row from-persona";
+            a_row.innerHTML =
+              '<img class="interview-row-avatar" src="{% static "assets/characters/profile/" %}' + persona_os + '.png">' +
+              '<div class="interview-bubble">' +
+                '<div class="interview-bubble-name">' + persona_name + '</div>' +
+                data["response"] +
+              '</div>';
+            history_div.appendChild(a_row);
             history_div.scrollTop = history_div.scrollHeight;
           }
         } else {
@@ -94,15 +138,51 @@
     }));
   }
 
+//   submit_btn.onclick = function() {
+//     var question = question_input.value.trim();
+//     var persona_name = current_interview_persona;
+//     if (!question || !persona_name) return;
+
+//     var q_entry = document.createElement("p");
+//     q_entry.className = "chat-line";
+//     q_entry.innerHTML = "<em>You:</em> " + question;
+//     history_div.appendChild(q_entry);
+//     history_div.scrollTop = history_div.scrollHeight;
+
+//     var request_id = "" + Date.now();
+
+//     var xobj = new XMLHttpRequest();
+//     xobj.overrideMimeType("application/json");
+//     xobj.open('POST', "{% url 'interview_persona' %}", true);
+//     xobj.addEventListener("load", function() {
+//       if (xobj.readyState === 4 && xobj.status === 200) {
+//         poll_for_response(persona_name, request_id);
+//       }
+//     });
+//     xobj.send(JSON.stringify({
+//       "sim_code": sim_code,
+//       "persona_name": persona_name,
+//       "question": question,
+//       "request_id": request_id
+//     }));
+
+//     question_input.value = "";
+//   };
+
   submit_btn.onclick = function() {
     var question = question_input.value.trim();
     var persona_name = current_interview_persona;
     if (!question || !persona_name) return;
 
-    var q_entry = document.createElement("p");
-    q_entry.className = "chat-line";
-    q_entry.innerHTML = "<em>You:</em> " + question;
-    history_div.appendChild(q_entry);
+    var q_row = document.createElement("div");
+    q_row.className = "interview-row from-user";
+    q_row.innerHTML =
+      '<div class="interview-bubble">' +
+        '<div class="interview-bubble-name">You</div>' +
+        question +
+      '</div>' +
+      '<img class="interview-row-avatar" src="{% static "assets/characters/profile/Abigail_Chen.png" %}">';
+    history_div.appendChild(q_row);
     history_div.scrollTop = history_div.scrollHeight;
 
     var request_id = "" + Date.now();

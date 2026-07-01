@@ -155,7 +155,7 @@
   }
 
   /* Interview modal */
-  .interview-overlay {
+  /* .interview-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -202,7 +202,7 @@
     overflow-y: auto;
     margin-bottom: 1em;
     max-height: 40vh;
-  }
+  } */
   .map-blurred-bg {
 	position: fixed;
 	top: 0;
@@ -216,6 +216,121 @@
 	transform: scale(1.1);
 	z-index: -1;
 	opacity: 0.6;
+  }
+
+   /* Interview modal */
+  .interview-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .interview-overlay.open {
+    display: flex;
+  }
+  .interview-modal {
+    background: #fdfdfb;
+    border-radius: 18px;
+    width: 600px;
+    max-width: 92vw;
+    max-height: 82vh;
+    padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  }
+  .interview-modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.8em;
+  }
+  .interview-modal-header img {
+    width: 124px; height: 124px;
+    border-radius: 50%;
+    margin-right: 0.8em;
+    object-fit: cover;
+    border: 3px solid #ABFF84;
+    image-rendering: pixelated;
+  }
+  .interview-close-btn {
+    margin-left: auto;
+    cursor: pointer;
+    font-size: 2em;
+    color: #999;
+    line-height: 1;
+  }
+  .interview-close-btn:hover { color: #333; }
+
+  #interview_history {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    margin-bottom: 1em;
+    max-height: 45vh;
+    padding: 0.5em 0.2em;
+  }
+
+  /* Speech-bubble chat rows */
+  .interview-row {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 1em;
+  }
+  .interview-row.from-persona {
+    justify-content: flex-start;
+  }
+  .interview-row.from-user {
+    justify-content: flex-end;
+  }
+  .interview-row-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 0.5em;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+  }
+  .interview-bubble {
+    position: relative;
+    max-width: 70%;
+    padding: 0.7em 1em;
+    font-size: 1.2em;
+    line-height: 1.4;
+    border-radius: 16px;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    color: #26364d;
+  }
+  .interview-row.from-persona .interview-bubble {
+    background-color: #f1f6ff;
+    border: 1px solid #dbe6fb;
+    border-bottom-left-radius: 4px;
+  }
+  .interview-row.from-user .interview-bubble {
+    background-color: #ABFF84;
+    border: 1px solid #8fe063;
+    border-bottom-right-radius: 4px;
+  }
+  .interview-bubble-name {
+    font-weight: 700;
+    font-size: 0.5em;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #888;
+    margin-bottom: 0.2em;
+  }
+
+  #interview_question_input {
+    border-radius: 4ch !important;
+  }
+  #interview_submit_button {
+    border-radius: 40px;
+    margin-top: 0.5em;
   }
 </style>
 
@@ -294,12 +409,28 @@
 
 <div style="padding-bottom:15em"> </div>
 
-<!-- INTERVIEW MODAL -->
+<!-- INTERVIEW MODAL
 <div class="interview-overlay" id="interview_overlay">
   <div class="interview-modal">
     <div class="interview-modal-header">
       <img id="interview_modal_avatar" src="" alt="">
       <strong id="interview_modal_name" style="font-size:2em;"></strong>
+      <span class="interview-close-btn" id="interview_close_btn">&times;</span>
+    </div>
+    <div id="interview_history"></div>
+    <div class="form-group" style="margin-bottom:0.6em;">
+      <input type="text" id="interview_question_input" class="form-control" placeholder="Ask something...">
+    </div>
+    <button id="interview_submit_button" type="button" class="btn btn-primary">Ask</button>
+  </div>
+</div> -->
+
+<!-- INTERVIEW MODAL -->
+<div class="interview-overlay" id="interview_overlay">
+  <div class="interview-modal">
+    <div class="interview-modal-header">
+      <img id="interview_modal_avatar" src="{% static 'assets/characters/profile/Abigail_Chen.png' %}" alt="">
+      <strong id="interview_modal_name" style="font-size:1.4em;"></strong>
       <span class="interview-close-btn" id="interview_close_btn">&times;</span>
     </div>
     <div id="interview_history"></div>
