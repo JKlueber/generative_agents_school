@@ -233,6 +233,18 @@ class Persona:
 
   def open_convo_session(self, convo_mode): 
     open_convo_session(self, convo_mode)
+
+  def interview(self, question): 
+      """
+      Stateless single-turn Q&A, reusing the same "analysis" convo logic
+      as open_convo_session(persona, "analysis").
+
+      INPUT:
+        question: The interviewer's question (string).
+      OUTPUT:
+        The persona's in-character reply (string).
+      """
+      return interview(self, question)
     
 
 

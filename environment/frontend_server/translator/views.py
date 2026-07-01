@@ -314,10 +314,50 @@ def path_tester_update(request):
   return HttpResponse("received")
 
 
+def interview_persona(request):
+  """
+  <FRONTEND to BACKEND>
+  Drops an interview question into a request file. The backend Reverie
+  process polls this folder and answers using the persona's existing
+  stateless "analysis" convo session (same one used by "call -- analysis").
+  """
+  data = json.loads(request.body)
+  sim_code = data["sim_code"]
+  persona_name = data["persona_name"]
+  question = data["question"]
+  request_id = data["request_id"]
+
+  interview_dir = f"storage/{sim_code}/interview"
+  os.makedirs(interview_dir, exist_ok=True)
+
+  req_file = f"{interview_dir}/{persona_name.replace(' ', '_')}_{request_id}_request.json"
+  with open(req_file, "w") as outfile:
+    outfile.write(json.dumps({
+      "persona_name": persona_name,
+      "question": question,
+      "request_id": request_id
+    }, indent=2))
+
+  return HttpResponse("received")
 
 
+def interview_response(request):
+  """
+  <BACKEND to FRONTEND>
+  Polls for the answer file the backend writes once it has generated a
+  response to the interview question.
+  """
+  data = json.loads(request.body)
+  sim_code = data["sim_code"]
+  persona_name = data["persona_name"]
+  request_id = data["request_id"]
 
+  resp_file = (f"storage/{sim_code}/interview/"
+               f"{persona_name.replace(' ', '_')}_{request_id}_response.json")
 
+  if check_if_file_exists(resp_file):
+    with open(resp_file) as json_file:
+      resp = json.load(json_file)
+    return JsonResponse({"ready": True, "response": resp["response"]})
 
-
-
+  return JsonResponse({"ready": False})

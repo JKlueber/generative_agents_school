@@ -45,8 +45,8 @@
 	// Configuration meant to be passed to the main Phaser game instance. 
 	const config = {
 	  type: Phaser.AUTO,
-	  width: 1500,
-	  height: 800,
+	  width: 1100,
+	  height: 1300,
 	  parent: "game-container",
 	  pixelArt: true,
 	  physics: {
@@ -105,11 +105,11 @@
 	let tile_width = 32;
 	// Important: tile_width % movement_speed has to be 0. 
 	// <movement_speed> determines how fast we move at each upate cylce. 
-	let movement_speed = 32; 
+	let movement_speed = 64; 
 
 	// <timer_max> determines how frequently our update function will query the 
 	// frontend server. If it's higher, we wait longer cycles. 
-	let timer_max = 0;
+	let timer_max = 2;
 	let timer = timer_max;
 
 	// <phase> -- there are three phases: "process," "update," and "execute."

@@ -29,6 +29,8 @@ urlpatterns = [
     url(r'^replay_persona_state/(?P<sim_code>[\w-]+)/(?P<step>[\w-]+)/(?P<persona_name>[\w-]+)/$', translator_views.replay_persona_state, name='replay_persona_state'),
     url(r'^process_environment/$', translator_views.process_environment, name='process_environment'),
     url(r'^update_environment/$', translator_views.update_environment, name='update_environment'),
+    url(r'^interview_persona/$', translator_views.interview_persona, name='interview_persona'),
+    url(r'^interview_response/$', translator_views.interview_response, name='interview_response'),
     url(r'^path_tester/$', translator_views.path_tester, name='path_tester'),
     url(r'^path_tester_update/$', translator_views.path_tester_update, name='path_tester_update'),
     path('admin/', admin.site.urls),

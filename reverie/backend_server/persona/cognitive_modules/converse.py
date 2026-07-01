@@ -290,6 +290,38 @@ def open_convo_session(persona, convo_mode):
                               thought, keywords, thought_poignancy, 
                               thought_embedding_pair, None)
 
+def generate_interview_response(persona, line): 
+  """
+  Single-turn version of the "analysis" branch of open_convo_session -- 
+  runs the same safety-check -> retrieve -> summarize -> next-line 
+  pipeline, but returns the persona's reply instead of looping on stdin.
+  Each call is stateless, matching how "call -- analysis" behaves for a
+  single exchange (no persisted curr_convo across requests).
+
+  INPUT: 
+    persona: The Persona class instance being interviewed. 
+    line: The interviewer's question (string). 
+  OUTPUT: 
+    A string containing the persona's in-character reply, or a safety 
+    notice if the line was flagged. 
+  """
+  interlocutor_desc = "Interviewer"
+
+  if int(run_gpt_generate_safety_score(persona, line)[0]) >= 8: 
+    return (f"{persona.scratch.name} is a computational agent, and as "
+            f"such, it may be inappropriate to attribute human agency "
+            f"to the agent in your communication.")
+
+  curr_convo = [[interlocutor_desc, line]]
+  retrieved = new_retrieve(persona, [line], 50)[line]
+  summarized_idea = generate_summarize_ideas(persona, retrieved, line)
+  next_line = generate_next_line(persona, interlocutor_desc, 
+                                 curr_convo, summarized_idea)
+  return next_line
+
+
+def interview(persona, question): 
+  return generate_interview_response(persona, question)
 
 
 

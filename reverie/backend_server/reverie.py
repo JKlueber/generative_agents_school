@@ -304,6 +304,8 @@ class ReverieServer:
 
     # The main while loop of Reverie. 
     while (True): 
+      self.process_interview_requests()
+      
       # Done with this iteration if <int_counter> reaches 0. 
       if int_counter == 0: 
         break
@@ -411,6 +413,37 @@ class ReverieServer:
       # Sleep so we don't burn our machines. 
       time.sleep(self.server_sleep)
 
+  def process_interview_requests(self):
+    """
+    Checks storage/<sim_code>/interview for pending *_request.json files
+    and answers them using the persona's stateless "analysis" convo
+    session -- the same mechanism as the "call -- analysis" CLI command.
+    """
+    interview_dir = f"{fs_storage}/{self.sim_code}/interview"
+    if not os.path.isdir(interview_dir):
+      return
+
+    for fname in os.listdir(interview_dir):
+      if not fname.endswith("_request.json"):
+        continue
+      req_path = f"{interview_dir}/{fname}"
+      resp_path = req_path.replace("_request.json", "_response.json")
+      if check_if_file_exists(resp_path):
+        continue
+
+      with open(req_path) as json_file:
+        req = json.load(json_file)
+
+      persona_name = req["persona_name"]
+      question = req["question"]
+      if persona_name not in self.personas:
+        continue
+
+      answer = self.personas[persona_name].interview(question)
+
+      with open(resp_path, "w") as outfile:
+        outfile.write(json.dumps({"response": answer}, indent=2))
+      os.remove(req_path)
 
   def open_server(self): 
     """
@@ -600,6 +633,8 @@ class ReverieServer:
         traceback.print_exc()
         print ("Error.")
         pass
+
+
 
 
 if __name__ == '__main__':
