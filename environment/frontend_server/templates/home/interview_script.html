@@ -1,19 +1,19 @@
 {% load staticfiles %}
 <script type="text/javascript">
 (function() {
-  var overlay = document.getElementById("interview_overlay");
-  var modal_avatar = document.getElementById("interview_modal_avatar");
-  var modal_name = document.getElementById("interview_modal_name");
-  var close_btn = document.getElementById("interview_close_btn");
-  var submit_btn = document.getElementById("interview_submit_button");
+  var interview_panel = document.getElementById("interview_panel");
+  var dynamic_conversation_box = document.getElementById("dynamic_conversation_box");
+  var chat_feed_wrap = document.getElementById("live_chat_feed_wrapper");
+
+  var interview_agent_img = document.getElementById("interview_agent_img");
+  var interview_agent_name = document.getElementById("interview_agent_name");
+  var interview_speech_bubble = document.getElementById("interview_speech_bubble");
   var question_input = document.getElementById("interview_question_input");
-  var history_div = document.getElementById("interview_history");
-  var global_chat_feed = document.getElementById("global_chat_feed");
+  var bye_button = document.getElementById("interview_bye_button");
 
   var current_interview_persona = null;
+  window.gs_interview_active = false; // main_script.html checks this
 
-  // --- Stop Phaser from swallowing keyboard input (incl. Tab) while the
-  // interview field has focus. ---
   function disable_game_keyboard() {
     if (typeof game !== "undefined" && game.input && game.input.keyboard) {
       game.input.keyboard.enabled = false;
@@ -31,45 +31,38 @@
   question_input.addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
       e.preventDefault();
-      submit_btn.click();
+      ask_question();
     }
     e.stopPropagation();
   });
 
-  // --- Open / close modal ---
-//   function open_interview(persona_name, persona_os) {
-//     current_interview_persona = persona_name;
-//     modal_name.textContent = persona_name;
-//     modal_avatar.src = "{% static 'assets/characters/profile/' %}" + persona_os + ".png";
-//     history_div.innerHTML = "";
-//     question_input.value = "";
-//     overlay.classList.add("open");
-//     disable_game_keyboard();
-//     question_input.focus();
-//   }
-
-  // --- Open / close modal ---
   function open_interview(persona_name, persona_os) {
     current_interview_persona = persona_name;
-    modal_name.textContent = persona_name;
-    modal_avatar.src = "{% static 'assets/characters/profile/' %}" + persona_os + ".png";
-    history_div.innerHTML = "";
+    window.gs_interview_active = true;
+
+    interview_agent_name.innerText = persona_name;
+    interview_agent_img.src = "{% static 'assets/characters/profile/' %}" + persona_os + ".png";
+    interview_speech_bubble.innerHTML = "<div class=\"interview-line\"><em>Say hi to " + persona_name + "...</em></div>";
     question_input.value = "";
-    overlay.classList.add("open");
+
+    // Swap out the map conversation panel for the interview panel.
+    dynamic_conversation_box.classList.remove("active");
+    interview_panel.classList.add("active");
+    chat_feed_wrap.style.display = "block";
+
     disable_game_keyboard();
     question_input.focus();
   }
 
   function close_interview() {
-    overlay.classList.remove("open");
+    window.gs_interview_active = false;
+    interview_panel.classList.remove("active");
+    chat_feed_wrap.style.display = "none";
     current_interview_persona = null;
     enable_game_keyboard();
   }
 
-  close_btn.addEventListener("click", close_interview);
-  overlay.addEventListener("click", function(e) {
-    if (e.target === overlay) close_interview();
-  });
+  bye_button.addEventListener("click", close_interview);
 
   document.querySelectorAll(".agent-card").forEach(function(card) {
     card.addEventListener("click", function() {
@@ -78,33 +71,6 @@
     });
   });
 
-  // --- Interview request/response cycle (reuses "call -- analysis") ---
-//   function poll_for_response(persona_name, request_id) {
-//     var xobj = new XMLHttpRequest();
-//     xobj.overrideMimeType("application/json");
-//     xobj.open('POST', "{% url 'interview_response' %}", true);
-//     xobj.addEventListener("load", function() {
-//       if (xobj.readyState === 4 && xobj.status === 200) {
-//         var data = JSON.parse(xobj.responseText);
-//         if (data["ready"]) {
-//           if (current_interview_persona === persona_name) {
-//             var entry = document.createElement("p");
-//             entry.className = "chat-line";
-//             entry.innerHTML = "<strong>" + persona_name + ":</strong> " + data["response"];
-//             history_div.appendChild(entry);
-//             history_div.scrollTop = history_div.scrollHeight;
-//           }
-//         } else {
-//           setTimeout(function() { poll_for_response(persona_name, request_id); }, 1000);
-//         }
-//       }
-//     });
-//     xobj.send(JSON.stringify({
-//       "sim_code": sim_code,
-//       "persona_name": persona_name,
-//       "request_id": request_id
-//     }));
-//   }
   function poll_for_response(persona_name, request_id) {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
@@ -114,17 +80,12 @@
         var data = JSON.parse(xobj.responseText);
         if (data["ready"]) {
           if (current_interview_persona === persona_name) {
-            var persona_os = persona_name.replace(/ /g, "_");
-            var a_row = document.createElement("div");
-            a_row.className = "interview-row from-persona";
-            a_row.innerHTML =
-              '<img class="interview-row-avatar" src="{% static "assets/characters/profile/" %}' + persona_os + '.png">' +
-              '<div class="interview-bubble">' +
-                '<div class="interview-bubble-name">' + persona_name + '</div>' +
+            interview_speech_bubble.innerHTML +=
+              '<div class="interview-line">' +
+                '<span class="interview-speaker">' + persona_name + '</span>' +
                 data["response"] +
               '</div>';
-            history_div.appendChild(a_row);
-            history_div.scrollTop = history_div.scrollHeight;
+            interview_speech_bubble.scrollTop = interview_speech_bubble.scrollHeight;
           }
         } else {
           setTimeout(function() { poll_for_response(persona_name, request_id); }, 1000);
@@ -138,52 +99,17 @@
     }));
   }
 
-//   submit_btn.onclick = function() {
-//     var question = question_input.value.trim();
-//     var persona_name = current_interview_persona;
-//     if (!question || !persona_name) return;
-
-//     var q_entry = document.createElement("p");
-//     q_entry.className = "chat-line";
-//     q_entry.innerHTML = "<em>You:</em> " + question;
-//     history_div.appendChild(q_entry);
-//     history_div.scrollTop = history_div.scrollHeight;
-
-//     var request_id = "" + Date.now();
-
-//     var xobj = new XMLHttpRequest();
-//     xobj.overrideMimeType("application/json");
-//     xobj.open('POST', "{% url 'interview_persona' %}", true);
-//     xobj.addEventListener("load", function() {
-//       if (xobj.readyState === 4 && xobj.status === 200) {
-//         poll_for_response(persona_name, request_id);
-//       }
-//     });
-//     xobj.send(JSON.stringify({
-//       "sim_code": sim_code,
-//       "persona_name": persona_name,
-//       "question": question,
-//       "request_id": request_id
-//     }));
-
-//     question_input.value = "";
-//   };
-
-  submit_btn.onclick = function() {
+  function ask_question() {
     var question = question_input.value.trim();
     var persona_name = current_interview_persona;
     if (!question || !persona_name) return;
 
-    var q_row = document.createElement("div");
-    q_row.className = "interview-row from-user";
-    q_row.innerHTML =
-      '<div class="interview-bubble">' +
-        '<div class="interview-bubble-name">You</div>' +
+    interview_speech_bubble.innerHTML +=
+      '<div class="interview-line from-user">' +
+        '<span class="interview-speaker">You</span>' +
         question +
-      '</div>' +
-      '<img class="interview-row-avatar" src="{% static "assets/characters/profile/Abigail_Chen.png" %}">';
-    history_div.appendChild(q_row);
-    history_div.scrollTop = history_div.scrollHeight;
+      '</div>';
+    interview_speech_bubble.scrollTop = interview_speech_bubble.scrollHeight;
 
     var request_id = "" + Date.now();
 
@@ -203,13 +129,14 @@
     }));
 
     question_input.value = "";
-  };
+  }
 
-  // --- Global conversation feed: aggregate each persona's live chat__
-  // span (written by main_script.html) into one scrolling feed. ---
+  // Global conversation feed — pauses while interviewing.
   var last_chat_snapshot = {};
+  var global_chat_feed = document.getElementById("global_chat_feed");
 
   function refresh_global_chat_feed() {
+    if (window.gs_interview_active) return;
     document.querySelectorAll("[id^='chat__']").forEach(function(span) {
       var persona_os = span.id.replace("chat__", "");
       var content = span.innerHTML;

@@ -498,8 +498,7 @@
 			let bubbleContent = document.getElementById("shared_speech_bubble_content");
 			let chatFeedWrap = document.getElementById("live_chat_feed_wrapper");
 
-			if (talking_agents.length >= 2 && active_chat_content !== "") {
-				let agentLeft = talking_agents[0];
+			if (!window.gs_interview_active && talking_agents.length >= 2 && active_chat_content !== "") {				let agentLeft = talking_agents[0];
 				let agentRight = talking_agents[1];
 				
 				// Convert human-readable names into underscore filenames (e.g., "Isabella Rodriguez" -> "Isabella_Rodriguez")
@@ -521,9 +520,12 @@
 				// Auto-scroll inside the speech bubble to follow the latest dialog
 				bubbleContent.scrollTop = bubbleContent.scrollHeight;
 			} else {
-				// Hide panel if no one is talking
+				// Hide the agent-to-agent panel; if an interview is active, leave
+				// chatFeedWrap alone since interview_script.html controls it.
 				convBox.classList.remove("active");
-				chatFeedWrap.style.display = "none";
+				if (!window.gs_interview_active) {
+					chatFeedWrap.style.display = "none";
+				}
 			}
 			
 	      }

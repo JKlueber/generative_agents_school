@@ -130,8 +130,8 @@
 	image-rendering: pixelated;
   }
   .chat-agent-name {
-    font-weight: 400;
-    font-size: 1.8em;
+    font-weight: 800;
+    font-size: 1.4em;
     color: #222;
     white-space: nowrap;
     overflow: hidden;
@@ -154,124 +154,53 @@
     box-shadow: 0 4px 12px rgba(219, 230, 251, 0.6);
   }
 
-  /* Interview modal */
-  /* .interview-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-  .interview-overlay.open {
-    display: flex;
-  }
-  .interview-modal {
-    background: #ffffff;
-    border-radius: 16px;
-    width: 480px;
-    max-width: 90vw;
-    max-height: 80vh;
-    padding: 1.5em;
+ /* Interview panel (inline, bottom-right) */
+  #interview_panel .interview-controls {
     display: flex;
     flex-direction: column;
-  }
-  .interview-modal-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1em;
-  }
-  .interview-modal-header img {
-    width: 240px; height: 240px;
-    border-radius: 50%;
-    margin-right: 0.8em;
-    object-fit: cover;
-	image-rendering: pixelated;
-  }
-  .interview-close-btn {
-    margin-left: auto;
-    cursor: pointer;
-    font-size: 2em;
-    color: #999;
-    line-height: 1;
-  }
-  .interview-close-btn:hover { color: #333; }
-  #interview_history {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    margin-bottom: 1em;
-    max-height: 40vh;
-  } */
-  .map-blurred-bg {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background-image: url("{% static 'assets/the_ville/visuals/map_assets/v1/cover.png' %}"); 
-	background-size: cover;
-	background-position: center;
-	filter: blur(15px);
-	transform: scale(1.1);
-	z-index: -1;
-	opacity: 0.6;
-  }
-
-   /* Interview modal */
-  .interview-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 1000;
-    align-items: center;
     justify-content: center;
+    align-items: stretch;
+    width: 250px;
+    flex-shrink: 0;
   }
-  .interview-overlay.open {
-    display: flex;
+  #interview_panel .interview-controls #interview_bye_button {
+    background: #dc3545;
+    border: 1px solid #dc3545;
+    color: white;
+    border-radius: 40px;
+    margin-bottom: 0.8em;
+	width: 50%;
+	align-self: flex-end;
+    font-size: 1.3em;     
+    font-weight: bold;
+    padding: 0.8em 1.5em; 
   }
-  .interview-modal {
-    background: #fdfdfb;
-    border-radius: 18px;
-    width: 600px;
-    max-width: 92vw;
-    max-height: 82vh;
-    padding: 1.5em;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  #interview_panel .interview-controls #interview_bye_button:hover {
+    background: #c82333;
+    border-color: #bd2130;
   }
-  .interview-modal-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1em;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.8em;
+  #interview_question_input {
+    border-radius: 4ch !important;
+    font-size: 1.2em;      /* Bigger typing text */
+    padding: 0.75em 1em;   /* Taller input */
   }
-  .interview-modal-header img {
-    width: 124px; height: 124px;
-    border-radius: 50%;
-    margin-right: 0.8em;
-    object-fit: cover;
-    border: 3px solid #ABFF84;
-    image-rendering: pixelated;
+  #interview_question_input::placeholder {
+    font-size: 1.2em;
   }
-  .interview-close-btn {
-    margin-left: auto;
-    cursor: pointer;
-    font-size: 2em;
-    color: #999;
-    line-height: 1;
-  }
-  .interview-close-btn:hover { color: #333; }
 
-  #interview_history {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    margin-bottom: 1em;
-    max-height: 45vh;
-    padding: 0.5em 0.2em;
+  .interview-line {
+    margin-bottom: 0.5em;
+  }
+  .interview-line .interview-speaker {
+    font-weight: 700;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #888;
+    display: block;
+  }
+  .interview-line.from-user {
+    text-align: right;
   }
 
   /* Speech-bubble chat rows */
@@ -332,6 +261,21 @@
     border-radius: 40px;
     margin-top: 0.5em;
   }
+
+  .map-blurred-bg {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-image: url("{% static 'assets/the_ville/visuals/map_assets/v1/cover.png' %}"); 
+	background-size: cover;
+	background-position: center;
+	filter: blur(15px);
+	transform: scale(1.1);
+	z-index: -1;
+	opacity: 0.6;
+  }
 </style>
 
 <br>
@@ -385,21 +329,34 @@
       </div>
 
 	  <div class="chat-feed-wrap" id="live_chat_feed_wrapper" style="margin-top:1em;">
-		
+
 	    <div id="dynamic_conversation_box" class="conversation-display-box">
 		  <div class="chat-agent-wrapper">
 		    <img id="chat_agent_left_img" class="chat-agent-avatar" src="" alt="">
 		    <div id="chat_agent_left_name" class="chat-agent-name">Agent 1</div>
 		  </div>
-		
 		  <div id="shared_speech_bubble_content" class="shared-speech-bubble"></div>
-		
 		  <div class="chat-agent-wrapper">
 		    <img id="chat_agent_right_img" class="chat-agent-avatar" src="" alt="">
 		    <div id="chat_agent_right_name" class="chat-agent-name">Agent 2</div>
 		  </div>
 	    </div>
-	
+
+	    <div id="interview_panel" class="conversation-display-box">
+	      <div class="chat-agent-wrapper">
+	        <img id="interview_agent_img" class="chat-agent-avatar" src="" alt="">
+	        <div id="interview_agent_name" class="chat-agent-name"></div>
+	      </div>
+
+	      <div id="interview_speech_bubble" class="shared-speech-bubble"></div>
+
+	      <div class="interview-controls">
+	        <input type="text" id="interview_question_input" class="form-control" placeholder="Ask something...">
+			<div style="height:0.5em"></div>
+	        <button id="interview_bye_button" type="button" class="btn btn-default">Bye!</button>
+	      </div>
+	    </div>
+
 	    <div id="global_chat_feed" style="display:none;"></div>
 	  </div>
 
@@ -408,38 +365,6 @@
 </div>
 
 <div style="padding-bottom:15em"> </div>
-
-<!-- INTERVIEW MODAL
-<div class="interview-overlay" id="interview_overlay">
-  <div class="interview-modal">
-    <div class="interview-modal-header">
-      <img id="interview_modal_avatar" src="" alt="">
-      <strong id="interview_modal_name" style="font-size:2em;"></strong>
-      <span class="interview-close-btn" id="interview_close_btn">&times;</span>
-    </div>
-    <div id="interview_history"></div>
-    <div class="form-group" style="margin-bottom:0.6em;">
-      <input type="text" id="interview_question_input" class="form-control" placeholder="Ask something...">
-    </div>
-    <button id="interview_submit_button" type="button" class="btn btn-primary">Ask</button>
-  </div>
-</div> -->
-
-<!-- INTERVIEW MODAL -->
-<div class="interview-overlay" id="interview_overlay">
-  <div class="interview-modal">
-    <div class="interview-modal-header">
-      <img id="interview_modal_avatar" src="{% static 'assets/characters/profile/Abigail_Chen.png' %}" alt="">
-      <strong id="interview_modal_name" style="font-size:1.4em;"></strong>
-      <span class="interview-close-btn" id="interview_close_btn">&times;</span>
-    </div>
-    <div id="interview_history"></div>
-    <div class="form-group" style="margin-bottom:0.6em;">
-      <input type="text" id="interview_question_input" class="form-control" placeholder="Ask something...">
-    </div>
-    <button id="interview_submit_button" type="button" class="btn btn-primary">Ask</button>
-  </div>
-</div>
 
 <script src='https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js'></script>
 {% include 'home/main_script.html' %}
