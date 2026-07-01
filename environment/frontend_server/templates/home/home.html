@@ -2,12 +2,230 @@
 {% load staticfiles %}
 
 {% block content %}
+
+<div class="map-blurred-bg"></div>
+
+<style>
+  .agent-panel-wrap {
+    height: 100%;
+  }
+  .agent-card {
+    display: flex;
+    align-items: flex-start;
+    background: #ffffff;
+    border: 1px solid #e3e3e3;
+    border-radius: 14px;
+    padding: 0.9em 1.1em;
+    margin-bottom: 0.9em;
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  }
+  .agent-card:hover {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+    transform: translateY(-1px);
+    border-color: #ABFF84;
+  }
+  .agent-avatar-wrap {
+    position: relative;
+    flex: 0 0 auto;
+    margin-right: 1em;
+  }
+  .agent-avatar {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px #ddd;
+    background: #f4f4f4;
+    display: block;
+	image-rendering: pixelated;
+  }
+  .agent-info {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .agent-name {
+    font-weight: 700;
+    font-size: 1.5em;
+    margin: 0 0 0.15em 0;
+  }
+  .agent-location {
+    font-size: 0.8em;
+    color: #888;
+    margin-bottom: 0.4em;
+  }
+  .thought-bubble {
+    position: relative;
+    background: #f1f6ff;
+    border: 1px solid #dbe6fb;
+    border-radius: 12px;
+    padding: 0.5em 0.8em;
+    font-size: 1.2em;
+    color: #26364d;
+    display: inline-block;
+    max-width: 100%;
+  }
+  .thought-bubble:before {
+    content: "";
+    position: absolute;
+    left: -7px;
+    top: 14px;
+    width: 12px;
+    height: 12px;
+    background: #f1f6ff;
+    border-left: 1px solid #dbe6fb;
+    border-bottom: 1px solid #dbe6fb;
+    transform: rotate(45deg);
+  }
+
+ .chat-feed-wrap {
+    background: transparent; 
+    border: none;          
+    padding: 1.5em 0;
+    height: 100%;
+    box-shadow: none;        
+    display: none;        
+  }
+  .chat-feed-title {
+    font-weight: 700;
+    font-size: 1.1em;
+    margin-bottom: 1em;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Dual Avatar Conversation Box */
+  .conversation-display-box {
+    display: none; 
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5em;
+    padding: 1em 0;
+    min-height: 180px;
+  }
+  .conversation-display-box.active {
+    display: flex;
+  }
+  
+  .chat-agent-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 200px; 
+    flex-shrink: 0;
+  }
+  .chat-agent-avatar {
+    width: 180px; 
+    height: 180px; 
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ABFF84;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    background: #f9f9f9;
+    margin-bottom: 0.5em;
+    transition: transform 0.3s ease;
+	image-rendering: pixelated;
+  }
+  .chat-agent-name {
+    font-weight: 400;
+    font-size: 1.8em;
+    color: #222;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  /* Shared Speech Bubble */
+  .shared-speech-bubble {
+    position: relative;
+    flex-grow: 1;
+    background: #f1f6ff;
+    border: 1px solid #dbe6fb;
+    border-radius: 16px;
+    padding: 1.2em;
+    font-size: 1.2em;
+    color: #26364d;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(219, 230, 251, 0.6);
+  }
+
+  /* Interview modal */
+  .interview-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .interview-overlay.open {
+    display: flex;
+  }
+  .interview-modal {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 480px;
+    max-width: 90vw;
+    max-height: 80vh;
+    padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+  }
+  .interview-modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1em;
+  }
+  .interview-modal-header img {
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    margin-right: 0.8em;
+    object-fit: cover;
+	image-rendering: pixelated;
+  }
+  .interview-close-btn {
+    margin-left: auto;
+    cursor: pointer;
+    font-size: 2em;
+    color: #999;
+    line-height: 1;
+  }
+  .interview-close-btn:hover { color: #333; }
+  #interview_history {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    margin-bottom: 1em;
+    max-height: 40vh;
+  }
+  .map-blurred-bg {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-image: url("{% static 'assets/the_ville/visuals/map_assets/v1/cover.png' %}"); 
+	background-size: cover;
+	background-position: center;
+	filter: blur(15px);
+	transform: scale(1.1);
+	z-index: -1;
+	opacity: 0.6;
+  }
+</style>
+
 <br>
+
 <div class="container-fluid" style="padding: 0 3em;">
   <div class="row">
 
     <!-- LEFT: MAP -->
-    <div class="col-md-6">
+    <div class="col-md-7">
       <div id="game-container" style="text-align: center"></div>
 
       <div style="margin-top:1.5em">
@@ -30,51 +248,67 @@
       </div>
     </div>
 
-    <!-- RIGHT: TOP = CONVERSATIONS, BOTTOM = INTERVIEW -->
-    <div class="col-md-6">
+    <!-- RIGHT: AGENT AVATARS + THOUGHT BUBBLES, THEN CHAT FEED -->
+    <div class="col-md-5">
 
-      <!-- TOP-RIGHT: AGENT CONVERSATIONS -->
-      <div style="max-height:48vh; overflow-y:auto; border:solid; padding:1.5em; border-radius:15px;">
-        <h3 style="margin-top:0">Agent Conversations</h3>
+      <div class="agent-panel-wrap">
         {% for p_name, p_name_os in persona_names %}
-          <div class="media" style="background-color:#EEEEEE; padding:1em; padding-left:2em; border-radius:10px; margin-bottom:1em;">
-            <div class="media-body">
-              <h4 id="name__{{ p_name_os }}" style="margin-bottom:0.5em;">
-                {{p_name}} &nbsp;
-                <a href="{% url 'replay_persona_state' sim_code step p_name_os %}" style="font-size:0.55em">State Details</a>
-              </h4>
-              <p style="font-size:1em"><strong>Current Action:</strong> <span id="current_action__{{ p_name_os }}"></span></p>
-              <p style="font-size:1em"><strong>Location:</strong> <span id="target_address__{{ p_name_os }}"></span></p>
-              <p style="font-size:1em"><strong>Current Conversation:</strong> <span id="chat__{{ p_name_os }}"></span></p>
+          <div class="agent-card" data-persona-name="{{ p_name }}" data-persona-os="{{ p_name_os }}">
+            <div class="agent-avatar-wrap">
+              {% with 'assets/characters/profile/'|add:p_name_os|add:'.png' as image_static %}
+              <img class="agent-avatar" src="{% static image_static %}" alt="{{ p_name }}">
+              {% endwith %}
+            </div>
+            <div class="agent-info">
+              <div class="agent-name">{{ p_name }}</div>
+              <div class="agent-location" id="target_address__{{ p_name_os }}"></div>
+              <div class="thought-bubble" id="current_action__{{ p_name_os }}"></div>
+              <span id="chat__{{ p_name_os }}" style="display:none"></span>
             </div>
           </div>
         {% endfor %}
       </div>
 
-      <!-- BOTTOM-RIGHT: INTERVIEW PANEL -->
-      <div style="margin-top:1.5em; border:solid; padding:1.5em; border-radius:15px;">
-        <h3 style="margin-top:0">Interview an Agent</h3>
-        <div class="form-group">
-          <label for="interview_persona_select">Agent</label>
-          <select id="interview_persona_select" class="form-control">
-            {% for p_name, p_name_os in persona_names %}
-              <option value="{{ p_name }}">{{ p_name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="interview_question_input">Question</label>
-          <input type="text" id="interview_question_input" class="form-control" placeholder="Ask something...">
-        </div>
-        <button id="interview_submit_button" type="button" class="btn btn-primary">Ask</button>
-        <div id="interview_history" style="margin-top:1em; max-height:22vh; overflow-y:auto;"></div>
-      </div>
+	  <div class="chat-feed-wrap" id="live_chat_feed_wrapper" style="margin-top:1em;">
+		
+	    <div id="dynamic_conversation_box" class="conversation-display-box">
+		  <div class="chat-agent-wrapper">
+		    <img id="chat_agent_left_img" class="chat-agent-avatar" src="" alt="">
+		    <div id="chat_agent_left_name" class="chat-agent-name">Agent 1</div>
+		  </div>
+		
+		  <div id="shared_speech_bubble_content" class="shared-speech-bubble"></div>
+		
+		  <div class="chat-agent-wrapper">
+		    <img id="chat_agent_right_img" class="chat-agent-avatar" src="" alt="">
+		    <div id="chat_agent_right_name" class="chat-agent-name">Agent 2</div>
+		  </div>
+	    </div>
+	
+	    <div id="global_chat_feed" style="display:none;"></div>
+	  </div>
 
     </div>
   </div>
 </div>
 
 <div style="padding-bottom:15em"> </div>
+
+<!-- INTERVIEW MODAL -->
+<div class="interview-overlay" id="interview_overlay">
+  <div class="interview-modal">
+    <div class="interview-modal-header">
+      <img id="interview_modal_avatar" src="" alt="">
+      <strong id="interview_modal_name" style="font-size:2em;"></strong>
+      <span class="interview-close-btn" id="interview_close_btn">&times;</span>
+    </div>
+    <div id="interview_history"></div>
+    <div class="form-group" style="margin-bottom:0.6em;">
+      <input type="text" id="interview_question_input" class="form-control" placeholder="Ask something...">
+    </div>
+    <button id="interview_submit_button" type="button" class="btn btn-primary">Ask</button>
+  </div>
+</div>
 
 <script src='https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js'></script>
 {% include 'home/main_script.html' %}

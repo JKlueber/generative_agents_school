@@ -45,7 +45,7 @@
 	// Configuration meant to be passed to the main Phaser game instance. 
 	const config = {
 	  type: Phaser.AUTO,
-	  width: 1100,
+	  width: 1300,
 	  height: 1300,
 	  parent: "game-container",
 	  pixelArt: true,
@@ -105,11 +105,11 @@
 	let tile_width = 32;
 	// Important: tile_width % movement_speed has to be 0. 
 	// <movement_speed> determines how fast we move at each upate cylce. 
-	let movement_speed = 64; 
+	let movement_speed = 32; 
 
 	// <timer_max> determines how frequently our update function will query the 
 	// frontend server. If it's higher, we wait longer cycles. 
-	let timer_max = 2;
+	let timer_max = 10;
 	let timer = timer_max;
 
 	// <phase> -- there are three phases: "process," "update," and "execute."
@@ -453,6 +453,77 @@
 	          (initials.shift()?.[1] || '') + (initials.pop()?.[1] || '')
 	        ).toUpperCase();
 	        pronunciatios[curr_persona_name].setText(initials + ": " + pronunciatio_content);
+			
+			let active_chat_content = "";
+			let talking_agents = [];
+
+			for (let i=0; i<Object.keys(personas).length; i++) {
+				let action_description = ""
+				let curr_persona_name = Object.keys(personas)[i];
+				let curr_persona_name_os = curr_persona_name.replace(/ /g,"_");
+				let description_content = execute_movement["persona"][curr_persona_name]["description"];
+				let chat_content = ""
+
+				if (execute_movement["persona"][curr_persona_name]["chat"] != null ){
+				// Found an agent currently involved in a conversation!
+				if (!talking_agents.includes(curr_persona_name)) {
+					talking_agents.push(curr_persona_name);
+				}
+				
+				for (let j=0; j<execute_movement["persona"][curr_persona_name]["chat"].length; j++) { 
+					chat_content += "<strong>" + execute_movement["persona"][curr_persona_name]["chat"][j][0] + ":</strong> " + execute_movement["persona"][curr_persona_name]["chat"][j][1] + "<br>"
+				}
+				// Capture the accumulated string context of the conversation
+				active_chat_content = chat_content;
+				} else {
+				chat_content = "<em>None at the moment</em>"
+				}
+
+				// Keep original fallback elements intact for engine core updates
+				if(document.getElementById("current_action__"+curr_persona_name_os)) {
+				document.getElementById("current_action__"+curr_persona_name_os).innerHTML = description_content.split("@")[0];
+				}
+				if(document.getElementById("target_address__"+curr_persona_name_os)) {
+				document.getElementById("target_address__"+curr_persona_name_os).innerHTML = description_content.split("@")[1];
+				}
+				if(document.getElementById("chat__"+curr_persona_name_os)) {
+				document.getElementById("chat__"+curr_persona_name_os).innerHTML = chat_content;
+				}
+			}
+
+			// --- DYNAMIC AVATAR UI UPDATE ---
+			let convBox = document.getElementById("dynamic_conversation_box");
+			let bubbleContent = document.getElementById("shared_speech_bubble_content");
+			let chatFeedWrap = document.getElementById("live_chat_feed_wrapper");
+
+			if (talking_agents.length >= 2 && active_chat_content !== "") {
+				let agentLeft = talking_agents[0];
+				let agentRight = talking_agents[1];
+				
+				// Convert human-readable names into underscore filenames (e.g., "Isabella Rodriguez" -> "Isabella_Rodriguez")
+				let left_os = agentLeft.replace(/ /g, "_");
+				let right_os = agentRight.replace(/ /g, "_");
+				
+				// Assign proper profiles and text labels
+				document.getElementById("chat_agent_left_name").innerText = agentLeft;
+				document.getElementById("chat_agent_left_img").src = "/static/assets/characters/profile/" + left_os + ".png";
+				
+				document.getElementById("chat_agent_right_name").innerText = agentRight;
+				document.getElementById("chat_agent_right_img").src = "/static/assets/characters/profile/" + right_os + ".png";
+				
+				// Inject dialogue content and reveal the panel
+				bubbleContent.innerHTML = active_chat_content;
+				convBox.classList.add("active");
+				chatFeedWrap.style.display = "block";
+				
+				// Auto-scroll inside the speech bubble to follow the latest dialog
+				bubbleContent.scrollTop = bubbleContent.scrollHeight;
+			} else {
+				// Hide panel if no one is talking
+				convBox.classList.remove("active");
+				chatFeedWrap.style.display = "none";
+			}
+			
 	      }
 
 	      console.log(curr_persona_name);
@@ -528,7 +599,7 @@
 	        let description_content = execute_movement["persona"][curr_persona_name]["description"];
 	        let chat_content = ""
 
-	        if (execute_movement["persona"][curr_persona_name]["chat"] != null ){
+	        if (execute_movement["perssimulator_homeona"][curr_persona_name]["chat"] != null ){
 		        for (let j=0; j<execute_movement["persona"][curr_persona_name]["chat"].length; j++) { 
 		        	chat_content += execute_movement["persona"][curr_persona_name]["chat"][j][0] + ": " + execute_movement["persona"][curr_persona_name]["chat"][j][1] + "<br>"
 		        }
