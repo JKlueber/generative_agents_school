@@ -120,6 +120,9 @@ def simulator_launch(request, party):
         if check_if_file_exists(stale):
             os.remove(stale)
 
+        with open("temp_storage/curr_party.json", "w") as outfile:
+            outfile.write(json.dumps({"party": party}, indent=2))
+
         _backend_proc["proc"] = None
         _launch_state["running"] = True
         _launch_state["party"] = party
@@ -161,54 +164,11 @@ def simulator_control(request, action):
     _launch_state["party"] = None
     _backend_proc["proc"] = None
 
+    f_curr_party = "temp_storage/curr_party.json"
+    if check_if_file_exists(f_curr_party):
+        os.remove(f_curr_party)
+
     return JsonResponse({"status": action})
-
-def home(request):
-  f_curr_sim_code = "temp_storage/curr_sim_code.json"
-  f_curr_step = "temp_storage/curr_step.json"
-
-  if not check_if_file_exists(f_curr_step): 
-    context = {}
-    template = "home/error_start_backend.html"
-    return render(request, template, context)
-
-  with open(f_curr_sim_code) as json_file:  
-    sim_code = json.load(json_file)["sim_code"]
-  
-  with open(f_curr_step) as json_file:  
-    step = json.load(json_file)["step"]
-
-  os.remove(f_curr_step)
-
-  persona_names = []
-  persona_names_set = set()
-  for i in find_filenames(f"storage/{sim_code}/personas", ""): 
-    x = i.split("/")[-1].strip()
-    if x[0] != ".": 
-      persona_names += [[x, x.replace(" ", "_")]]
-      persona_names_set.add(x)
-
-  persona_init_pos = []
-  file_count = []
-  for i in find_filenames(f"storage/{sim_code}/environment", ".json"):
-    x = i.split("/")[-1].strip()
-    if x[0] != ".": 
-      file_count += [int(x.split(".")[0])]
-  curr_json = f'storage/{sim_code}/environment/{str(max(file_count))}.json'
-  with open(curr_json) as json_file:  
-    persona_init_pos_dict = json.load(json_file)
-    for key, val in persona_init_pos_dict.items(): 
-      if key in persona_names_set: 
-        persona_init_pos += [[key, val["x"], val["y"]]]
-
-  context = {"sim_code": sim_code,
-             "step": step, 
-             "persona_names": persona_names,
-             "persona_init_pos": persona_init_pos,
-             "mode": "simulate",
-             "party": _launch_state.get("party")} 
-  template = "home/home.html"
-  return render(request, template, context)
 
 def simulator_launch_status(request):
     """
@@ -306,7 +266,7 @@ def UIST_Demo(request):
 def home(request):
   f_curr_sim_code = "temp_storage/curr_sim_code.json"
   f_curr_step = "temp_storage/curr_step.json"
-
+  f_curr_party = "temp_storage/curr_party.json" 
   if not check_if_file_exists(f_curr_step): 
     context = {}
     template = "home/error_start_backend.html"
@@ -319,6 +279,11 @@ def home(request):
     step = json.load(json_file)["step"]
 
   os.remove(f_curr_step)
+
+  party = None
+  if check_if_file_exists(f_curr_party):
+    with open(f_curr_party) as json_file:
+      party = json.load(json_file)["party"]
 
   persona_names = []
   persona_names_set = set()
@@ -345,10 +310,10 @@ def home(request):
              "step": step, 
              "persona_names": persona_names,
              "persona_init_pos": persona_init_pos,
-             "mode": "simulate"}
+             "mode": "simulate",
+             "party": party}
   template = "home/home.html"
   return render(request, template, context)
-
 
 def replay(request, sim_code, step): 
   sim_code = sim_code
