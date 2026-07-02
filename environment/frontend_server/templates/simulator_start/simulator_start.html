@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block content %}
+<style>
+  .party-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2em;
+    margin-top: 4em;
+  }
+  .party-card {
+    width: 220px;
+    padding: 1.5em;
+    text-align: center;
+    border: 2px solid #e3e3e3;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+    background: #fff;
+  }
+  .party-card:hover {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    border-color: #ABFF84;
+  }
+  .party-card.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .party-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 0.8em;
+  }
+  .party-label {
+    font-size: 1.3em;
+    font-weight: 700;
+  }
+  #launch_status {
+    text-align: center;
+    margin-top: 2em;
+    font-size: 1.3em;
+    display: none;
+  }
+</style>
+
+<h1 style="text-align:center; margin-top:2em;">Choose a party programme to run the school simulation</h1>
+
+<div class="party-grid">
+  {% for p in parties %}
+    <div class="party-card" data-party="{{ p.code }}">
+      <img class="party-logo" src="{% static 'assets/parties/'|add:p.code|add:'.png' %}" alt="{{ p.label }}">
+      <div class="party-label">{{ p.label }}</div>
+    </div>
+  {% endfor %}
+</div>
+
+<div id="launch_status">Starting simulation, please wait…</div>
+
+<script>
+  var polling = null;
+
+  document.querySelectorAll(".party-card").forEach(function (card) {
+    card.addEventListener("click", function () {
+      if (card.classList.contains("disabled")) return;
+
+      document.querySelectorAll(".party-card").forEach(function (c) {
+        c.classList.add("disabled");
+      });
+      document.getElementById("launch_status").style.display = "block";
+
+      var party = card.getAttribute("data-party");
+      fetch("/simulator_start/launch/" + party + "/", { method: "POST" })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.error) {
+            document.getElementById("launch_status").innerText = "Error: " + data.error;
+            document.querySelectorAll(".party-card").forEach(function (c) {
+              c.classList.remove("disabled");
+            });
+            return;
+          }
+          polling = setInterval(pollStatus, 1000);
+        });
+    });
+  });
+
+  function pollStatus() {
+    fetch("/simulater_start/status/", { method: "POST" })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.ready) {
+          clearInterval(polling);
+          window.location.href = "/simulator_home";
+        }
+      });
+  }
+</script>
+{% endblock content %}

@@ -17,6 +17,128 @@ from global_methods import *
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from .models import *
 
+import subprocess
+import threading
+
+# Maps the button clicked to the fork sim / new sim / history csv naming
+# convention you already use for the CDU example. Add the matching
+# storage folders + csvs for the other four parties following the same
+# pattern (base_the_ville_n5_school_<party> / agent_history_init_n5_school_<party>.csv).
+PARTY_CONFIG = {
+    "cdu":    {"label": "CDU",    "fork": "base_the_ville_n5_school_cdu",    "history": "the_ville/agent_history_init_n5_school_cdu.csv"},
+    "spd":    {"label": "SPD",    "fork": "base_the_ville_n5_school_spd",    "history": "the_ville/agent_history_init_n5_school_spd.csv"},
+    "linke":  {"label": "LINKE",  "fork": "base_the_ville_n5_school_linke",  "history": "the_ville/agent_history_init_n5_school_linke.csv"},
+    "afd":    {"label": "AfD",    "fork": "base_the_ville_n5_school_afd",    "history": "the_ville/agent_history_init_n5_school_afd.csv"},
+    "gruene": {"label": "GRÜNE",  "fork": "base_the_ville_n5_school_gruene", "history": "the_ville/agent_history_init_n5_school_gruene.csv"},
+}
+
+# Path to the reverie backend server directory (adjust if your repo layout differs)
+BACKEND_SERVER_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "reverie", "backend_server")
+)
+
+# Very simple in-process lock so we don't launch two reverie.py at once.
+_launch_lock = threading.Lock()
+_launch_state = {"running": False, "party": None}
+
+
+def simulator_start(request):
+    """
+    Landing page with five party buttons. Clicking one starts the backend
+    reverie.py process (forking the party's base simulation + loading its
+    agent history) and then forwards to /simulator_home once ready.
+    """
+    parties = [dict(code=code, **cfg) for code, cfg in PARTY_CONFIG.items()]
+    context = {"parties": parties, "already_running": _launch_state["running"]}
+    template = "simulator_start/simulator_start.html"
+    return render(request, template, context)
+
+
+def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
+    """
+    Runs in a background thread. Spawns `python3 reverie.py`, feeds it the
+    same three answers you'd type by hand:
+      1) forked simulation name
+      2) new simulation name
+      3) "call -- load history <csv>"
+    ReverieServer.__init__ writes temp_storage/curr_sim_code.json and
+    curr_step.json as soon as it finishes forking + loading personas, which
+    is what /simulator_home is waiting to see. We then leave the process's
+    open_server() loop running (blocked on the next `input()`), so it stays
+    alive as your live backend for that simulation.
+    """
+    try:
+        proc = subprocess.Popen(
+            ["python3", "reverie.py"],
+            cwd=BACKEND_SERVER_DIR,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        proc.stdin.write(fork_sim_code + "\n")
+        proc.stdin.flush()
+        proc.stdin.write(new_sim_code + "\n")
+        proc.stdin.flush()
+        proc.stdin.write(f"call -- load history {history_csv}\n")
+        proc.stdin.flush()
+        # Intentionally do NOT close stdin -- open_server() keeps calling
+        # input() for further commands (e.g. "run 100" later on), and
+        # closing stdin here would kill it with an EOFError on the next read.
+    finally:
+        pass
+
+
+def simulator_launch(request, party):
+    """
+    <FRONTEND button click> Kicks off the reverie backend for the chosen
+    party in a background thread and returns immediately. The page polls
+    simulator_launch_status to know when to redirect to /simulator_home.
+    """
+    party = party.lower()
+    if party not in PARTY_CONFIG:
+        return JsonResponse({"error": "unknown party"}, status=404)
+
+    if not _launch_lock.acquire(blocking=False):
+        return JsonResponse({"error": "a simulation is already starting"}, status=409)
+
+    try:
+        if _launch_state["running"]:
+            return JsonResponse({"error": "a simulation is already running"}, status=409)
+
+        cfg = PARTY_CONFIG[party]
+        new_sim_code = f"test_{party}"
+
+        # Clear out any stale step file so status-polling can't false-positive
+        # on a leftover file from a previous run.
+        stale = "temp_storage/curr_step.json"
+        if check_if_file_exists(stale):
+            os.remove(stale)
+
+        _launch_state["running"] = True
+        _launch_state["party"] = party
+
+        t = threading.Thread(
+            target=_run_reverie_process,
+            args=(cfg["fork"], new_sim_code, cfg["history"]),
+            daemon=True,
+        )
+        t.start()
+    finally:
+        _launch_lock.release()
+
+    return JsonResponse({"status": "starting", "party": party})
+
+
+def simulator_launch_status(request):
+    """
+    <FRONTEND polling> Reports whether the backend has finished forking +
+    loading and is ready for /simulator_home to pick it up.
+    """
+    ready = check_if_file_exists("temp_storage/curr_step.json")
+    return JsonResponse({"ready": ready})
+
 def landing(request): 
   context = {}
   template = "landing/landing.html"
