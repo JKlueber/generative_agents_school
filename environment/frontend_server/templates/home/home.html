@@ -6,6 +6,37 @@
 <div class="map-blurred-bg"></div>
 
 <style>
+  .map-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .map-title {
+    position: absolute;
+    top: 20px;              /* Distance from top of map */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+
+    margin: 0;
+    padding: 0.25em 0.8em;
+
+    font-size: 3.5em;
+    font-weight: 900;
+    color: #fff;
+
+    text-shadow:
+        0 2px 8px rgba(0,0,0,0.8),
+        0 0 4px rgba(0,0,0,0.8);
+
+    pointer-events: none;   /* Doesn't block clicks on the map */
+
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(4px);
+    border-radius: 12px;
+  }
   .agent-panel-wrap {
     height: 100%;
   }
@@ -281,26 +312,30 @@
 
     <!-- LEFT: MAP -->
     <div class="col-md-7">
-      <div id="game-container" style="text-align: center"></div>
+	  <div class map-container>
+		<h1 class="map-title">Generative Agents School</h1>
 
-      <div style="margin-top:1.5em">
-        <h3 style="margin-bottom:-0.5em; font-size:1.5em; color: #ffffff;">Current Time:</h3>
-        <div class="row">
-          <div class="col-md-8" id="game-time">
-            <h2 style="color: #ffffff;"> <span id="game-time-content"></span></h2>
-          </div>
-          <div class="col-md-4">
-            <h2 style="text-align: right; {% if mode == 'simulate' %} display: none {% endif %}">
-              <button id="play_button" type="button" class="btn btn-default">
-                <strong style="font-size:1.2em"><i class="glyphicon glyphicon-play"></i> &nbsp;Play</strong>
-              </button>
-              <button id="pause_button" type="button" class="btn btn-default">
-                <strong style="font-size:1.2em"><i class="glyphicon glyphicon-pause"></i> &nbsp;Pause</strong>
-              </button>
-            </h2>
-          </div>
-        </div>
-      </div>
+		<div id="game-container" style="text-align: center"></div>
+
+		<div style="margin-top:1.5em">
+			<h3 style="margin-bottom:-0.5em; font-size:1.5em; color: #ffffff;">Current Time:</h3>
+			<div class="row">
+			<div class="col-md-8" id="game-time">
+				<h2 style="color: #ffffff;"> <span id="game-time-content"></span></h2>
+			</div>
+			<div class="col-md-4">
+				<h2 style="text-align: right; {% if mode == 'simulate' %} display: none {% endif %}">
+				<button id="play_button" type="button" class="btn btn-default">
+					<strong style="font-size:1.2em"><i class="glyphicon glyphicon-play"></i> &nbsp;Play</strong>
+				</button>
+				<button id="pause_button" type="button" class="btn btn-default">
+					<strong style="font-size:1.2em"><i class="glyphicon glyphicon-pause"></i> &nbsp;Pause</strong>
+				</button>
+				</h2>
+			</div>
+			</div>
+		</div>
+	  </div>
     </div>
 
     <!-- RIGHT: AGENT AVATARS + THOUGHT BUBBLES, THEN CHAT FEED -->
