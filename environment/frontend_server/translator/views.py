@@ -67,12 +67,14 @@ def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
     open_server() loop running (blocked on the next `input()`), so it stays
     alive as your live backend for that simulation.
     """
+    log_path = os.path.join(BACKEND_SERVER_DIR, f"launch_{new_sim_code}.log")
+    log_file = open(log_path, "w")
     try:
         proc = subprocess.Popen(
             ["python3", "reverie.py"],
             cwd=BACKEND_SERVER_DIR,
             stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
+            stdout=log_file,
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
@@ -82,6 +84,10 @@ def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
         proc.stdin.write(new_sim_code + "\n")
         proc.stdin.flush()
         proc.stdin.write(f"call -- load history {history_csv}\n")
+        proc.stdin.flush()
+        proc.stdin.write("run 0\n")  # run 0 steps to finish loading
+        proc.stdin.flush()
+        proc.stdin.write("run 8640\n")  # run 1 day (8640 steps) to get to the first day
         proc.stdin.flush()
         # Intentionally do NOT close stdin -- open_server() keeps calling
         # input() for further commands (e.g. "run 100" later on), and
