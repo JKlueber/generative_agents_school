@@ -40,6 +40,7 @@ BACKEND_SERVER_DIR = os.path.abspath(
 # Very simple in-process lock so we don't launch two reverie.py at once.
 _launch_lock = threading.Lock()
 _launch_state = {"running": False, "party": None}
+_backend_proc = {"proc": None}
 
 
 def simulator_start(request):
@@ -79,19 +80,18 @@ def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
             text=True,
             bufsize=1,
         )
+        _backend_proc["proc"] = proc 
+
         proc.stdin.write(fork_sim_code + "\n")
         proc.stdin.flush()
         proc.stdin.write(new_sim_code + "\n")
         proc.stdin.flush()
         proc.stdin.write(f"call -- load history {history_csv}\n")
         proc.stdin.flush()
-        proc.stdin.write("run 0\n")  # run 0 steps to finish loading
+        proc.stdin.write("run 0\n")
         proc.stdin.flush()
-        proc.stdin.write("run 8640\n")  # run 1 day (8640 steps) to get to the first day
+        proc.stdin.write("run 8640\n")
         proc.stdin.flush()
-        # Intentionally do NOT close stdin -- open_server() keeps calling
-        # input() for further commands (e.g. "run 100" later on), and
-        # closing stdin here would kill it with an EOFError on the next read.
     finally:
         pass
 
@@ -116,12 +116,11 @@ def simulator_launch(request, party):
         cfg = PARTY_CONFIG[party]
         new_sim_code = f"test_{party}"
 
-        # Clear out any stale step file so status-polling can't false-positive
-        # on a leftover file from a previous run.
         stale = "temp_storage/curr_step.json"
         if check_if_file_exists(stale):
             os.remove(stale)
 
+        _backend_proc["proc"] = None
         _launch_state["running"] = True
         _launch_state["party"] = party
 
@@ -136,6 +135,80 @@ def simulator_launch(request, party):
 
     return JsonResponse({"status": "starting", "party": party})
 
+def simulator_control(request, action):
+    """
+    <FRONTEND button click>
+    Handles the Save / Exit buttons shown under the map. Sends the
+    corresponding command ("save" or "exit") to the running reverie.py
+    backend process via its stdin (mirroring the commands you'd type by
+    hand in open_server()), resets our launch state so a new simulation
+    can be started, and lets the frontend JS redirect back to the
+    party-picker screen.
+    """
+    action = action.lower()
+    if action not in ("save", "exit"):
+        return JsonResponse({"error": "unknown action"}, status=404)
+
+    proc = _backend_proc.get("proc")
+    if proc and proc.poll() is None:
+        try:
+            proc.stdin.write(action + "\n")
+            proc.stdin.flush()
+        except Exception:
+            pass
+
+    _launch_state["running"] = False
+    _launch_state["party"] = None
+    _backend_proc["proc"] = None
+
+    return JsonResponse({"status": action})
+
+def home(request):
+  f_curr_sim_code = "temp_storage/curr_sim_code.json"
+  f_curr_step = "temp_storage/curr_step.json"
+
+  if not check_if_file_exists(f_curr_step): 
+    context = {}
+    template = "home/error_start_backend.html"
+    return render(request, template, context)
+
+  with open(f_curr_sim_code) as json_file:  
+    sim_code = json.load(json_file)["sim_code"]
+  
+  with open(f_curr_step) as json_file:  
+    step = json.load(json_file)["step"]
+
+  os.remove(f_curr_step)
+
+  persona_names = []
+  persona_names_set = set()
+  for i in find_filenames(f"storage/{sim_code}/personas", ""): 
+    x = i.split("/")[-1].strip()
+    if x[0] != ".": 
+      persona_names += [[x, x.replace(" ", "_")]]
+      persona_names_set.add(x)
+
+  persona_init_pos = []
+  file_count = []
+  for i in find_filenames(f"storage/{sim_code}/environment", ".json"):
+    x = i.split("/")[-1].strip()
+    if x[0] != ".": 
+      file_count += [int(x.split(".")[0])]
+  curr_json = f'storage/{sim_code}/environment/{str(max(file_count))}.json'
+  with open(curr_json) as json_file:  
+    persona_init_pos_dict = json.load(json_file)
+    for key, val in persona_init_pos_dict.items(): 
+      if key in persona_names_set: 
+        persona_init_pos += [[key, val["x"], val["y"]]]
+
+  context = {"sim_code": sim_code,
+             "step": step, 
+             "persona_names": persona_names,
+             "persona_init_pos": persona_init_pos,
+             "mode": "simulate",
+             "party": _launch_state.get("party")} 
+  template = "home/home.html"
+  return render(request, template, context)
 
 def simulator_launch_status(request):
     """
