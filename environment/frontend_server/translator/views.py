@@ -55,7 +55,7 @@ def simulator_start(request):
     template = "simulator_start/simulator_start.html"
     return render(request, template, context)
 
-def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
+def _run_reverie_process(fork_sim_code, new_sim_code, history_csv, resume=False):
     """
     Runs in a background thread. Spawns `python3 reverie.py`, forks the
     party's base simulation, loads its agent history, and advances one
@@ -82,13 +82,13 @@ def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
         proc.sendline(fork_sim_code)
         proc.sendline(new_sim_code)
 
-        # proc.expect("Enter option:")
-        # proc.sendline(f"call -- load history {history_csv}")
-
         proc.expect("Enter option:")
-        proc.sendline("run 1")
 
-        proc.expect("Enter option:")
+        if not resume:
+            proc.sendline(f"call -- load history {history_csv}")
+            proc.expect("Enter option:")
+            proc.sendline("run 1")
+            proc.expect("Enter option:")
 
         def _watch_for_exit():
             try:
@@ -169,6 +169,11 @@ def simulator_launch(request, party):
     <FRONTEND button click> Kicks off the reverie backend for the chosen
     party in a background thread and returns immediately. The page polls
     simulator_launch_status to know when to redirect to /simulator_home.
+
+    If this party was Saved previously (its storage/test_<party> folder
+    still exists), we resume that simulation in place instead of forking
+    a fresh copy of the base template. If it was Exited (or never run),
+    that folder won't exist, so we fork fresh as before.
     """
     party = party.lower()
     if party not in PARTY_CONFIG:
@@ -184,6 +189,10 @@ def simulator_launch(request, party):
         cfg = PARTY_CONFIG[party]
         new_sim_code = f"test_{party}"
 
+        existing_sim_folder = f"storage/{new_sim_code}"
+        resume = os.path.isdir(existing_sim_folder)
+        fork_sim_code = new_sim_code if resume else cfg["fork"]
+
         stale = "temp_storage/curr_step.json"
         if check_if_file_exists(stale):
             os.remove(stale)
@@ -197,14 +206,15 @@ def simulator_launch(request, party):
 
         t = threading.Thread(
             target=_run_reverie_process,
-            args=(cfg["fork"], new_sim_code, cfg["history"]),
+            args=(fork_sim_code, new_sim_code, cfg["history"]),
+            kwargs={"resume": resume},
             daemon=True,
         )
         t.start()
     finally:
         _launch_lock.release()
 
-    return JsonResponse({"status": "starting", "party": party})
+    return JsonResponse({"status": "starting", "party": party, "resumed": resume})
 
 def simulator_control(request, action):
     action = action.lower()

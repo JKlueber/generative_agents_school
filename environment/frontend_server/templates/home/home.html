@@ -374,50 +374,60 @@
         </div>
       {% endif %}
       <div class="map-container">
-        <div id="run_minutes_panel">
-          <label style="color:#fff; font-size:0.9em;">Run for</label>
-          <input type="number" id="run_minutes_input" min="1" value="10">
-          <label style="color:#fff; font-size:0.9em;">min</label>
-          <button id="run_minutes_button" type="button" class="btn btn-default btn-sm">Run</button>
-        </div>
-        <div id="run_minutes_status" style="position:absolute; bottom:20px; left:20px; z-index:1000; display:none;">
-          Simulation running…
-        </div>
         <div class="map-title-wrap">
           <h1 class="map-title">Generative Agents School</h1>
         </div>
 
         <div id="game-container" style="text-align: center"></div>
 
-        <div style="margin-top:1.5em">
-          <h3 style="margin-bottom:-0.5em; font-size:1.5em; color: #ffffff;">Current Time:</h3>
-          <div class="row">
-            <div class="col-md-8" id="game-time">
-              <h2 style="color: #ffffff;"> <span id="game-time-content"></span></h2>
-            </div>
-            <div class="col-md-4">
-              <h2 style="text-align: right; {% if mode == 'simulate' %} display: none {% endif %}">
-                <button id="play_button" type="button" class="btn btn-default">
-                  <strong style="font-size:1.2em"><i class="glyphicon glyphicon-play"></i> &nbsp;Play</strong>
-                </button>
-                <button id="pause_button" type="button" class="btn btn-default">
-                  <strong style="font-size:1.2em"><i class="glyphicon glyphicon-pause"></i> &nbsp;Pause</strong>
-                </button>
-              </h2>
-            </div>
+        <!-- Centered Time and Controls -->
+        <div style="margin-top:1.5em; text-align: center; color: #ffffff;">
+          
+          <h3 style="margin-bottom: 0.2em; font-size:1.5em;">Current Time:</h3>
+          <h2 style="margin-top: 0; font-weight: bold;"><span id="game-time-content"></span></h2>
+
+          <!-- Play/Pause for Replay Mode -->
+          <div style="{% if mode == 'simulate' %} display: none {% endif %}; margin-top: 1em;">
+            <button id="play_button" type="button" class="btn btn-default">
+              <strong style="font-size:1.2em"><i class="glyphicon glyphicon-play"></i> &nbsp;Play</strong>
+            </button>
+            <button id="pause_button" type="button" class="btn btn-default">
+              <strong style="font-size:1.2em"><i class="glyphicon glyphicon-pause"></i> &nbsp;Pause</strong>
+            </button>
           </div>
 
-          <!-- Save / Exit controls -->
-          <div id="simulator_control_row">
+          <!-- Run / Save / Exit Controls -->
+          <div id="simulator_control_row" style="margin-top: 1.5em; display: flex; justify-content: center; align-items: center; gap: 1em;">
+            
+            <!-- Styled Run Panel Inline -->
+            <div id="run_minutes_panel" style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 0.5em 1em; border-radius: 8px;">
+              <label style="font-size:1.2em; font-weight:normal; margin: 0 0.5em 0 0;">Run for</label>
+              <input type="number" id="run_minutes_input" min="1" value="10" style="width: 4em; color: black; font-size: 1.2em; text-align: center; border-radius: 4px; border: none; padding: 0.2em;">
+              <label style="font-size:1.2em; font-weight:normal; margin: 0 0.5em;">min</label>
+              
+              <button id="run_minutes_button" type="button" class="btn btn-primary" style="margin-left: 0.5em;">
+                <strong style="font-size:1.2em"><i class="glyphicon glyphicon-play-circle"></i> &nbsp;Run</strong>
+              </button>
+            </div>
+
             <button id="save_button" type="button" class="btn btn-default">
               <strong style="font-size:1.2em"><i class="glyphicon glyphicon-floppy-disk"></i> &nbsp;Save</strong>
             </button>
+            
             <button id="exit_button" type="button" class="btn btn-danger">
               <strong style="font-size:1.2em"><i class="glyphicon glyphicon-off"></i> &nbsp;Exit</strong>
             </button>
+
           </div>
-        </div>
-      </div>
+          
+          <!-- Status message below buttons -->
+          <div id="run_minutes_status" style="margin-top: 1em; font-size: 1.2em; font-style: italic; display: none;">
+            Simulation running…
+          </div>
+
+        </div> 
+      </div> 
+
     </div>
 
     <!-- RIGHT: AGENT AVATARS + THOUGHT BUBBLES, THEN CHAT FEED -->
@@ -495,10 +505,15 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         var executing = data.executing;
-        runMinutesPanel.classList.toggle("visible", !executing);
-        runMinutesStatus.style.display = executing ? "block" : "none";
+        
+        // Disable all inputs and buttons while running so layout doesn't shift
+        document.getElementById("run_minutes_input").disabled = executing;
+        document.getElementById("run_minutes_button").disabled = executing;
         saveButton.disabled = executing;
         exitButton.disabled = executing;
+        
+        // Show/hide the status text below the row
+        runMinutesStatus.style.display = executing ? "block" : "none";
       })
       .catch(function () {});
   }
@@ -536,7 +551,6 @@
     var minutes = parseInt(document.getElementById("run_minutes_input").value, 10);
     if (!minutes || minutes <= 0) return;
 
-    runMinutesPanel.classList.remove("visible");
     runMinutesStatus.style.display = "block";
 
     fetch("/simulator_run_minutes/", {

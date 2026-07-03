@@ -55,14 +55,16 @@ class ReverieServer:
     # reverie/meta/json's fork variable. 
     self.sim_code = sim_code
     sim_folder = f"{fs_storage}/{self.sim_code}"
-    copyanything(fork_folder, sim_folder)
+    if fork_folder != sim_folder:
+      copyanything(fork_folder, sim_folder)
 
     with open(f"{sim_folder}/reverie/meta.json") as json_file:  
       reverie_meta = json.load(json_file)
 
-    with open(f"{sim_folder}/reverie/meta.json", "w") as outfile: 
-      reverie_meta["fork_sim_code"] = fork_sim_code
-      outfile.write(json.dumps(reverie_meta, indent=2))
+    if fork_folder != sim_folder:
+      with open(f"{sim_folder}/reverie/meta.json", "w") as outfile: 
+        reverie_meta["fork_sim_code"] = fork_sim_code
+        outfile.write(json.dumps(reverie_meta, indent=2))
 
     # LOADING REVERIE'S GLOBAL VARIABLES
     # The start datetime of the Reverie: 
