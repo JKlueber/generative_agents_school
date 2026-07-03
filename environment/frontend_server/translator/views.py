@@ -82,21 +82,18 @@ def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
         proc.sendline(fork_sim_code)
         proc.sendline(new_sim_code)
 
-        proc.expect("Enter option:")
-        proc.sendline(f"call -- load history {history_csv}")
+        # proc.expect("Enter option:")
+        # proc.sendline(f"call -- load history {history_csv}")
 
         proc.expect("Enter option:")
         proc.sendline("run 1")
 
         proc.expect("Enter option:")
-        # Backend is now idling at the prompt, ready for further commands.
 
         def _watch_for_exit():
-            # Detects when the backend process actually terminates (via
-            # the "exit" command from simulator_control) and resets
-            # shared state so a new simulation can be launched.
             try:
-                proc.expect(pexpect.EOF)
+                while proc.isalive():
+                    time.sleep(0.5)
             except Exception:
                 pass
             finally:
@@ -151,7 +148,8 @@ def simulator_run_minutes(request):
             print(f"[simulator_run_minutes] run failed: {e}")
         finally:
             _launch_state["executing"] = False
-            _run_lock.release()
+            if _run_lock.locked():
+                _run_lock.release()
 
     threading.Thread(target=_do_run, daemon=True).start()
 
@@ -210,7 +208,7 @@ def simulator_launch(request, party):
 
 def simulator_control(request, action):
     action = action.lower()
-    if action not in ("save", "exit"):
+    if action not in ("fin", "exit"):
         return JsonResponse({"error": "unknown action"}, status=404)
 
     if _launch_state.get("executing"):
@@ -223,7 +221,7 @@ def simulator_control(request, action):
         except Exception:
             pass
 
-    if action == "exit":
+    if action in ("fin", "exit"):
         _launch_state["running"] = False
         _launch_state["party"] = None
         _backend_proc["proc"] = None

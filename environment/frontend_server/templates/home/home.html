@@ -407,7 +407,7 @@
             </div>
           </div>
 
-          <!-- NEW: Save / Exit controls -->
+          <!-- Save / Exit controls -->
           <div id="simulator_control_row">
             <button id="save_button" type="button" class="btn btn-default">
               <strong style="font-size:1.2em"><i class="glyphicon glyphicon-floppy-disk"></i> &nbsp;Save</strong>
@@ -503,7 +503,34 @@
       .catch(function () {});
   }
   poll_run_status();
-  setInterval(poll_run_status, 2000);
+  setInterval(poll_run_status, 500);
+
+  // Save Button Click Handler
+  saveButton.addEventListener("click", function () {
+    fetch("/simulator_control/fin/")
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.status === "fin") {
+          alert("Simulation saved successfully!");
+          window.location.href = "/simulator_start"; 
+        }
+      })
+      .catch(function (err) { console.error("Save failed:", err); });
+  });
+
+  // Exit Button Click Handler
+  exitButton.addEventListener("click", function () {
+    if (confirm("Are you sure you want to exit? Unsaved progress will be lost.")) {
+      fetch("/simulator_control/exit/")
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.status === "exit") {
+            window.location.href = "/simulator_start"; 
+          }
+        })
+        .catch(function (err) { console.error("Exit failed:", err); });
+    }
+  });
 
   document.getElementById("run_minutes_button").addEventListener("click", function () {
     var minutes = parseInt(document.getElementById("run_minutes_input").value, 10);
