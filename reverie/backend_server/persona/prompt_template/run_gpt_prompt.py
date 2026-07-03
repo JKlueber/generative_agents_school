@@ -516,6 +516,14 @@ def run_gpt_prompt_action_sector(action_description,
     else: 
       prompt_input += [""]
 
+    # School time constraint
+    curr_time = persona.scratch.curr_time
+    if curr_time:
+        curr_hour = curr_time.hour
+        curr_weekday = curr_time.weekday() 
+        if 8 <= curr_hour < 13 and curr_weekday in [0, 1, 2, 3, 4]:
+            prompt_input += ["IMPORTANT: It is school hours. You must stay in the classroom at Goethe Gymnasium."]
+
 
     # MAR 11 TEMP
     accessible_sector_str = persona.s_mem.get_str_accessible_sectors(act_world)
@@ -2906,8 +2914,8 @@ def run_gpt_generate_iterative_chat_utt(maze, init_persona, target_persona, retr
   print (output)
   
   gpt_param = {"engine": "text-davinci-003", "max_tokens": 50, 
-               "temperature": 0, "top_p": 1, "stream": False,
-               "frequency_penalty": 0, "presence_penalty": 0, "stop": None}
+               "temperature": 0.8, "top_p": 1, "stream": False,
+               "frequency_penalty": 2, "presence_penalty": 2, "stop": None}
   return output, [output, prompt, gpt_param, prompt_input, fail_safe]
 
 
