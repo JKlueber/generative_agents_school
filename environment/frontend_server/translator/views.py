@@ -40,9 +40,9 @@ BACKEND_SERVER_DIR = os.path.abspath(
 
 # Very simple in-process lock so we don't launch two reverie.py at once.
 _launch_lock = threading.Lock()
-_launch_state = {"running": False, "party": None}
+_launch_state = {"running": False, "party": None, "executing": False}
 _backend_proc = {"proc": None}
-
+_run_lock = threading.Lock()
 
 def simulator_start(request):
     """
@@ -57,46 +57,114 @@ def simulator_start(request):
 
 def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
     """
-    Runs in a background thread. Spawns `python3 reverie.py`, feeds it the
-    same three answers you'd type by hand:
-      1) forked simulation name
-      2) new simulation name
-      3) "call -- load history <csv>"
-    ReverieServer.__init__ writes temp_storage/curr_sim_code.json and
-    curr_step.json as soon as it finishes forking + loading personas, which
-    is what /simulator_home is waiting to see. We then leave the process's
-    open_server() loop running (blocked on the next `input()`), so it stays
-    alive as your live backend for that simulation.
+    Runs in a background thread. Spawns `python3 reverie.py`, forks the
+    party's base simulation, loads its agent history, and advances one
+    step so the initial environment/movement files exist. It then leaves
+    the process idling at the "Enter option:" prompt -- from there,
+    simulator_run_minutes() drives further progress in user-requested
+    chunks (instead of one hardcoded "run 8640"), and simulator_control()
+    can send "save"/"exit" directly since the backend is actually reading
+    stdin again between runs.
     """
     try:
         proc = pexpect.spawn(
             "python3 reverie.py",
             cwd=BACKEND_SERVER_DIR,
             encoding="utf-8",
-            timeout=None, 
+            timeout=None,
         )
         _backend_proc["proc"] = proc
+
+        log_path = os.path.join(BACKEND_SERVER_DIR, "reverie_backend.log")
+        fout = open(log_path, "a", encoding="utf-8", buffering=1)
+        proc.logfile = fout
 
         proc.sendline(fork_sim_code)
         proc.sendline(new_sim_code)
 
-        # proc.expect("Enter option:")
-        # proc.sendline(f"call -- load history {history_csv}")
+        proc.expect("Enter option:")
+        proc.sendline(f"call -- load history {history_csv}")
 
         proc.expect("Enter option:")
         proc.sendline("run 1")
 
         proc.expect("Enter option:")
-        proc.sendline("run 8640")
+        # Backend is now idling at the prompt, ready for further commands.
 
-        proc.expect(pexpect.EOF)
+        def _watch_for_exit():
+            # Detects when the backend process actually terminates (via
+            # the "exit" command from simulator_control) and resets
+            # shared state so a new simulation can be launched.
+            try:
+                proc.expect(pexpect.EOF)
+            except Exception:
+                pass
+            finally:
+                fout.close()
+                _backend_proc["proc"] = None
+                _launch_state["running"] = False
+                _launch_state["party"] = None
+                _launch_state["executing"] = False
+
+        threading.Thread(target=_watch_for_exit, daemon=True).start()
+
     except Exception as e:
         print(f"[_run_reverie_process] backend launch failed: {e}")
-    finally:
         _backend_proc["proc"] = None
         _launch_state["running"] = False
         _launch_state["party"] = None
 
+def simulator_run_minutes(request):
+    """
+    <FRONTEND button click>
+    Runs the backend forward by a user-specified number of real-world
+    minutes. Each step corresponds to 10 seconds, so minutes -> steps is
+    a fixed conversion of 6 steps per minute.
+    """
+    try:
+        data = json.loads(request.body or b"{}")
+        minutes = int(data.get("minutes"))
+    except Exception:
+        return JsonResponse({"error": "invalid minutes"}, status=400)
+
+    if minutes <= 0:
+        return JsonResponse({"error": "minutes must be positive"}, status=400)
+
+    steps = minutes * 6
+
+    proc = _backend_proc.get("proc")
+    if not proc or not proc.isalive():
+        return JsonResponse({"error": "no running backend"}, status=409)
+
+    if not _run_lock.acquire(blocking=False) or _launch_state.get("executing"):
+        if _run_lock.locked():
+            pass
+        return JsonResponse({"error": "a run is already in progress"}, status=409)
+
+    _launch_state["executing"] = True
+
+    def _do_run():
+        try:
+            proc.sendline(f"run {steps}")
+            proc.expect("Enter option:")
+        except Exception as e:
+            print(f"[simulator_run_minutes] run failed: {e}")
+        finally:
+            _launch_state["executing"] = False
+            _run_lock.release()
+
+    threading.Thread(target=_do_run, daemon=True).start()
+
+    return JsonResponse({"status": "running", "minutes": minutes, "steps": steps})
+
+
+def simulator_run_status(request):
+    """
+    <FRONTEND polling> Reports whether the backend is currently executing
+    a "run N" batch, so the frontend can show/hide the minutes-input and
+    save/exit controls accordingly.
+    """
+    return JsonResponse({"executing": _launch_state.get("executing", False)})
 
 def simulator_launch(request, party):
     """
@@ -141,49 +209,28 @@ def simulator_launch(request, party):
     return JsonResponse({"status": "starting", "party": party})
 
 def simulator_control(request, action):
-    """
-    <FRONTEND button click>
-    Drops a request file into storage/<sim_code>/control/, exactly like
-    interview_persona() does for interview questions. The backend's
-    ReverieServer.process_control_requests() picks it up on its next
-    loop cycle (every ~0.1s) and reacts immediately:
-      - "save": saves progress, then stops the backend process.
-      - "exit": discards the simulation storage, then stops the backend.
-    """
     action = action.lower()
     if action not in ("save", "exit"):
         return JsonResponse({"error": "unknown action"}, status=404)
 
-    try:
-        data = json.loads(request.body or b"{}")
-    except Exception:
-        data = {}
-    sim_code = data.get("sim_code")
+    if _launch_state.get("executing"):
+        return JsonResponse({"error": "backend is busy running steps"}, status=409)
 
-    if not sim_code:
-        f_curr_sim_code = "temp_storage/curr_sim_code.json"
-        if check_if_file_exists(f_curr_sim_code):
-            with open(f_curr_sim_code) as json_file:
-                sim_code = json.load(json_file).get("sim_code")
+    proc = _backend_proc.get("proc")
+    if proc and proc.isalive():
+        try:
+            proc.sendline(action)
+        except Exception:
+            pass
 
-    if sim_code:
-        control_dir = f"storage/{sim_code}/control"
-        os.makedirs(control_dir, exist_ok=True)
-        request_id = str(int(datetime.datetime.now().timestamp() * 1000))
-        req_file = f"{control_dir}/{request_id}_request.json"
-        with open(req_file, "w") as outfile:
-            outfile.write(json.dumps({
-                "action": action,
-                "request_id": request_id
-            }, indent=2))
+    if action == "exit":
+        _launch_state["running"] = False
+        _launch_state["party"] = None
+        _backend_proc["proc"] = None
 
-    _launch_state["running"] = False
-    _launch_state["party"] = None
-    _backend_proc["proc"] = None
-
-    for f in ("temp_storage/curr_party.json", "temp_storage/curr_sim_code.json"):
-        if check_if_file_exists(f):
-            os.remove(f)
+    f_curr_party = "temp_storage/curr_party.json"
+    if check_if_file_exists(f_curr_party):
+        os.remove(f_curr_party)
 
     return JsonResponse({"status": action})
 

@@ -70,6 +70,29 @@
   #simulator_control_row .btn {
     margin: 0 0.5em;
   }
+  #run_minutes_panel {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    border-radius: 10px;
+    padding: 0.8em 1em;
+    display: none;
+  }
+  #run_minutes_panel.visible { display: flex; align-items: center; gap: 0.5em; }
+  #run_minutes_input {
+    width: 5em;
+    border-radius: 6px;
+    border: none;
+    padding: 0.3em 0.5em;
+  }
+  #run_minutes_status {
+    color: #fff;
+    font-size: 0.9em;
+    margin-left: 0.5em;
+  }
   .agent-panel-wrap {
     height: 100%;
   }
@@ -350,7 +373,16 @@
           <img src="{% static 'assets/parties/'|add:party|add:'.png' %}" alt="{{ party }}">
         </div>
       {% endif %}
-      <div class map-container>
+      <div class="map-container">
+        <div id="run_minutes_panel">
+          <label style="color:#fff; font-size:0.9em;">Run for</label>
+          <input type="number" id="run_minutes_input" min="1" value="10">
+          <label style="color:#fff; font-size:0.9em;">min</label>
+          <button id="run_minutes_button" type="button" class="btn btn-default btn-sm">Run</button>
+        </div>
+        <div id="run_minutes_status" style="position:absolute; bottom:20px; left:20px; z-index:1000; display:none;">
+          Simulation running…
+        </div>
         <div class="map-title-wrap">
           <h1 class="map-title">Generative Agents School</h1>
         </div>
@@ -453,24 +485,44 @@
 {% include 'home/interview_script.html' %}
 
 <script>
-  function simulator_control_action(action) {
-    fetch("/simulator_control/" + action + "/", {
-        method: "POST",
-        body: JSON.stringify({ sim_code: sim_code })
-      })
-      .then(function () {
-        window.location.href = "/simulator_start";
-      })
-      .catch(function () {
-        window.location.href = "/simulator_start";
-      });
-  }
+  var runMinutesPanel = document.getElementById("run_minutes_panel");
+  var runMinutesStatus = document.getElementById("run_minutes_status");
+  var saveButton = document.getElementById("save_button");
+  var exitButton = document.getElementById("exit_button");
 
-  document.getElementById("save_button").addEventListener("click", function () {
-    simulator_control_action("save");
-  });
-  document.getElementById("exit_button").addEventListener("click", function () {
-    simulator_control_action("exit");
+  function poll_run_status() {
+    fetch("/simulator_run_status/")
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var executing = data.executing;
+        runMinutesPanel.classList.toggle("visible", !executing);
+        runMinutesStatus.style.display = executing ? "block" : "none";
+        saveButton.disabled = executing;
+        exitButton.disabled = executing;
+      })
+      .catch(function () {});
+  }
+  poll_run_status();
+  setInterval(poll_run_status, 2000);
+
+  document.getElementById("run_minutes_button").addEventListener("click", function () {
+    var minutes = parseInt(document.getElementById("run_minutes_input").value, 10);
+    if (!minutes || minutes <= 0) return;
+
+    runMinutesPanel.classList.remove("visible");
+    runMinutesStatus.style.display = "block";
+
+    fetch("/simulator_run_minutes/", {
+        method: "POST",
+        body: JSON.stringify({ minutes: minutes })
+      })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.error) {
+          alert(data.error);
+          poll_run_status();
+        }
+      });
   });
 </script>
 {% endblock content %}
