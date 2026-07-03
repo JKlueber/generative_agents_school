@@ -624,7 +624,7 @@
 	        let description_content = execute_movement["persona"][curr_persona_name]["description"];
 	        let chat_content = ""
 
-	        if (execute_movement["perssimulator_homeona"][curr_persona_name]["chat"] != null ){
+	        if (execute_movement["persona"][curr_persona_name]["chat"] != null ){
 		        for (let j=0; j<execute_movement["persona"][curr_persona_name]["chat"].length; j++) { 
 		        	chat_content += execute_movement["persona"][curr_persona_name]["chat"][j][0] + ": " + execute_movement["persona"][curr_persona_name]["chat"][j][1] + "<br>"
 		        }
