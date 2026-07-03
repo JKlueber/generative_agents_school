@@ -12,6 +12,7 @@ import os
 import datetime
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.http import HttpResponse, JsonResponse
+import pexpect
 from global_methods import *
 
 from django.contrib.staticfiles.templatetags.staticfiles import static
@@ -54,7 +55,6 @@ def simulator_start(request):
     template = "simulator_start/simulator_start.html"
     return render(request, template, context)
 
-
 def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
     """
     Runs in a background thread. Spawns `python3 reverie.py`, feeds it the
@@ -68,30 +68,46 @@ def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
     open_server() loop running (blocked on the next `input()`), so it stays
     alive as your live backend for that simulation.
     """
-    log_path = os.path.join(BACKEND_SERVER_DIR, f"launch_{new_sim_code}.log")
-    log_file = open(log_path, "w")
     try:
         proc = subprocess.Popen(
             ["python3", "reverie.py"],
             cwd=BACKEND_SERVER_DIR,
             stdin=subprocess.PIPE,
-            stdout=log_file,
+            stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
         )
-        _backend_proc["proc"] = proc 
+        #_backend_proc["proc"] = proc
+        
+        proc = pexpect.spawn(
+            "python3 reverie.py",
+            cwd=BACKEND_SERVER_DIR,
+            encoding="utf-8"
+        ) 
 
-        proc.stdin.write(fork_sim_code + "\n")
-        proc.stdin.flush()
-        proc.stdin.write(new_sim_code + "\n")
-        proc.stdin.flush()
-        proc.stdin.write(f"call -- load history {history_csv}\n")
-        proc.stdin.flush()
-        proc.stdin.write("run 0\n")
-        proc.stdin.flush()
-        proc.stdin.write("run 8640\n")
-        proc.stdin.flush()
+        proc.sendline(fork_sim_code)
+        proc.sendline(new_sim_code)
+  
+        proc.expect("Enter option:")
+        proc.sendline(f"call -- load history {history_csv}")
+
+        proc.expect("Enter option:")
+        proc.sendline("run 1")
+
+        proc.expect("Enter option:")
+        proc.sendline("run 8640")
+
+        # proc.stdin.write(fork_sim_code + "\n")
+        # proc.stdin.flush()
+        # proc.stdin.write(new_sim_code + "\n")
+        # proc.stdin.flush()
+        # # proc.stdin.write(f"call -- load history {history_csv}\n")
+        # # proc.stdin.flush()
+        # proc.stdin.write("run 1\n")
+        # proc.stdin.flush()
+        # proc.stdin.write("run 8640\n")
+        # proc.stdin.flush()
     finally:
         pass
 
