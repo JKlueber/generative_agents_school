@@ -454,13 +454,14 @@
 
 <script>
   function simulator_control_action(action) {
-    fetch("/simulator_control/" + action + "/", { method: "POST" })
+    fetch("/simulator_control/" + action + "/", {
+        method: "POST",
+        body: JSON.stringify({ sim_code: sim_code })
+      })
       .then(function () {
         window.location.href = "/simulator_start";
       })
       .catch(function () {
-        // Even if the request fails (e.g. backend already gone), still
-        // send the user back to the picker screen.
         window.location.href = "/simulator_start";
       });
   }

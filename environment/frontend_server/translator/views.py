@@ -69,28 +69,19 @@ def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
     alive as your live backend for that simulation.
     """
     try:
-        proc = subprocess.Popen(
-            ["python3", "reverie.py"],
-            cwd=BACKEND_SERVER_DIR,
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-        )
-        #_backend_proc["proc"] = proc
-        
         proc = pexpect.spawn(
             "python3 reverie.py",
             cwd=BACKEND_SERVER_DIR,
-            encoding="utf-8"
-        ) 
+            encoding="utf-8",
+            timeout=None, 
+        )
+        _backend_proc["proc"] = proc
 
         proc.sendline(fork_sim_code)
         proc.sendline(new_sim_code)
-  
-        proc.expect("Enter option:")
-        proc.sendline(f"call -- load history {history_csv}")
+
+        # proc.expect("Enter option:")
+        # proc.sendline(f"call -- load history {history_csv}")
 
         proc.expect("Enter option:")
         proc.sendline("run 1")
@@ -98,18 +89,13 @@ def _run_reverie_process(fork_sim_code, new_sim_code, history_csv):
         proc.expect("Enter option:")
         proc.sendline("run 8640")
 
-        # proc.stdin.write(fork_sim_code + "\n")
-        # proc.stdin.flush()
-        # proc.stdin.write(new_sim_code + "\n")
-        # proc.stdin.flush()
-        # # proc.stdin.write(f"call -- load history {history_csv}\n")
-        # # proc.stdin.flush()
-        # proc.stdin.write("run 1\n")
-        # proc.stdin.flush()
-        # proc.stdin.write("run 8640\n")
-        # proc.stdin.flush()
+        proc.expect(pexpect.EOF)
+    except Exception as e:
+        print(f"[_run_reverie_process] backend launch failed: {e}")
     finally:
-        pass
+        _backend_proc["proc"] = None
+        _launch_state["running"] = False
+        _launch_state["party"] = None
 
 
 def simulator_launch(request, party):
@@ -157,34 +143,50 @@ def simulator_launch(request, party):
 def simulator_control(request, action):
     """
     <FRONTEND button click>
-    Handles the Save / Exit buttons shown under the map. Sends the
-    corresponding command ("save" or "exit") to the running reverie.py
-    backend process via its stdin (mirroring the commands you'd type by
-    hand in open_server()), resets our launch state so a new simulation
-    can be started, and lets the frontend JS redirect back to the
-    party-picker screen.
+    Drops a request file into storage/<sim_code>/control/, exactly like
+    interview_persona() does for interview questions. The backend's
+    ReverieServer.process_control_requests() picks it up on its next
+    loop cycle (every ~0.1s) and reacts immediately:
+      - "save": saves progress, then stops the backend process.
+      - "exit": discards the simulation storage, then stops the backend.
     """
     action = action.lower()
     if action not in ("save", "exit"):
         return JsonResponse({"error": "unknown action"}, status=404)
 
-    proc = _backend_proc.get("proc")
-    if proc and proc.poll() is None:
-        try:
-            proc.stdin.write(action + "\n")
-            proc.stdin.flush()
-        except Exception:
-            pass
+    try:
+        data = json.loads(request.body or b"{}")
+    except Exception:
+        data = {}
+    sim_code = data.get("sim_code")
+
+    if not sim_code:
+        f_curr_sim_code = "temp_storage/curr_sim_code.json"
+        if check_if_file_exists(f_curr_sim_code):
+            with open(f_curr_sim_code) as json_file:
+                sim_code = json.load(json_file).get("sim_code")
+
+    if sim_code:
+        control_dir = f"storage/{sim_code}/control"
+        os.makedirs(control_dir, exist_ok=True)
+        request_id = str(int(datetime.datetime.now().timestamp() * 1000))
+        req_file = f"{control_dir}/{request_id}_request.json"
+        with open(req_file, "w") as outfile:
+            outfile.write(json.dumps({
+                "action": action,
+                "request_id": request_id
+            }, indent=2))
 
     _launch_state["running"] = False
     _launch_state["party"] = None
     _backend_proc["proc"] = None
 
-    f_curr_party = "temp_storage/curr_party.json"
-    if check_if_file_exists(f_curr_party):
-        os.remove(f_curr_party)
+    for f in ("temp_storage/curr_party.json", "temp_storage/curr_sim_code.json"):
+        if check_if_file_exists(f):
+            os.remove(f)
 
     return JsonResponse({"status": action})
+
 
 def simulator_launch_status(request):
     """

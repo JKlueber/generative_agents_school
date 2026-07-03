@@ -305,7 +305,8 @@ class ReverieServer:
     # The main while loop of Reverie. 
     while (True): 
       self.process_interview_requests()
-      
+      self.process_control_requests() 
+
       # Done with this iteration if <int_counter> reaches 0. 
       if int_counter == 0: 
         break
@@ -412,6 +413,44 @@ class ReverieServer:
           
       # Sleep so we don't burn our machines. 
       time.sleep(self.server_sleep)
+  
+  def process_control_requests(self):
+    """
+    Checks storage/<sim_code>/control for pending *_request.json files
+    (dropped by the frontend's Save/Exit buttons) and acts on them
+    immediately -- this lets Save/Exit interrupt a long-running
+    "run N" loop the same way interview questions do.
+    """
+    sim_folder = f"{fs_storage}/{self.sim_code}"
+    control_dir = f"{sim_folder}/control"
+    if not os.path.isdir(control_dir):
+      return
+
+    for fname in os.listdir(control_dir):
+      if not fname.endswith("_request.json"):
+        continue
+      req_path = f"{control_dir}/{fname}"
+
+      try:
+        with open(req_path) as json_file:
+          req = json.load(json_file)
+      except Exception:
+        continue
+
+      action = req.get("action")
+      try:
+        os.remove(req_path)
+      except Exception:
+        pass
+
+      if action == "save":
+        print("Frontend requested save -- saving and stopping backend.")
+        self.save()
+        os._exit(0)
+      elif action == "exit":
+        print("Frontend requested exit -- discarding and stopping backend.")
+        shutil.rmtree(sim_folder, ignore_errors=True)
+        os._exit(0)
 
   def process_interview_requests(self):
     """
@@ -633,6 +672,7 @@ class ReverieServer:
         traceback.print_exc()
         print ("Error.")
         pass
+
 
 
 
