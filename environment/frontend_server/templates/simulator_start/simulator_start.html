@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block content %}
+<!-- Font Awesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
   /* Reset body to remove all default white margins */
   html, body {
@@ -70,16 +73,69 @@
     padding-bottom: 10px;
   }
 
-  .category {
-    margin-bottom: 20px;
+  /* Base Content Card styling */
+  .category-card {
+    color: #222222;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
     width: 100%;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
   }
 
-  .category p {
+  /* Subtly different colors per category card */
+  .card-linke { background-color: #f7bcf7; }  
+  .card-spd   { background-color: #faaaaa; }   
+  .card-gruene{ background-color: #befed4; }   
+  .card-cdu   { background-color: #8c8c8d; }   
+  .card-afd   { background-color: #b2d2fc; }   
+
+  /* Classroom Image styling */
+  .classroom-img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .category-card h1 {
+    font-size: 1.4em;
+    margin-top: 0;
+    margin-bottom: 14px;
+    color: #111111;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 2px solid rgba(0,0,0,0.06);
+    padding-bottom: 8px;
+  }
+
+  .category-card h1 i {
+    color: #555555;
+  }
+
+  /* Bigger bulletpoint styling */
+  .category-card ul {
     margin: 0;
-    font-size: 0.95em;
-    line-height: 1.5;
-    color: rgba(255, 255, 255, 0.95);
+    padding-left: 20px;
+    font-size: 1.5em;
+    line-height: 1.2;
+  }
+
+  .category-card li {
+    margin-bottom: 10px;
+  }
+  
+  .category-card li:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Highlight differences within bulletpoints */
+  .category-card strong {
+    color: #000000;
+    font-weight: 700;
   }
 
   .party-link {
@@ -117,23 +173,16 @@
     </div>
     <h2></h2>
 
-    <div class="category">
-      <h1>School Structure</h1>
-      <p>Advocates for "One School for All" (Gemeinschaftsschule). They want to abolish the multi-tier school system to ensure students learn together for a longer period, preventing early social segregation.</p>
+    <div class="category-card card-linke">
+      <img class="classroom-img" src="{% static 'assets/party_classrooms/linke_school.png' %}" alt="Die Linke Classroom">
+      <ul>
+        <li>Free school meals, books, and materials</li>
+        <li>No homework</li>
+        <li>After-school study sessions</li>
+        <li>Fully inclusive classroom</li>
+      </ul>
     </div>
-    <div class="category">
-      <h1>Digitalization</h1>
-      <p>Demands free digital devices (laptops/tablets) for every student. They heavily prioritize open-source software and strict data protection over commercial tech solutions in classrooms.</p>
-    </div>
-    <div class="category">
-      <h1>Equity & Inclusion</h1>
-      <p>Total focus on social equality. Pushes for entirely free education, including free school meals, free public transport, and the complete abolition of hidden school fees. Strong advocates for inclusive learning environments.</p>
-    </div>
-    <div class="category">
-      <h1>Curriculum & Workforce</h1>
-      <p>Aims to combat the teacher shortage by massively increasing hiring. They want smaller class sizes and the introduction of multi-professional teams (more social workers and psychologists) in all schools.</p>
-    </div>
-    <a href="https://www.die-linke.de" class="party-link" target="_blank">View Full Program</a>
+  
   </div>
 
   <!-- SPD -->
@@ -143,23 +192,17 @@
     </div>
     <h2></h2>
 
-    <div class="category">
-      <h1>School Structure</h1>
-      <p>Strongly supports the expansion of all-day schools (Ganztagsschulen) and comprehensive schools. They aim to keep educational pathways open as long as possible to allow for upward mobility.</p>
+    <div class="category-card card-spd">
+      <img class="classroom-img" src="{% static 'assets/party_classrooms/spd_school.png' %}" alt="SPD Classroom">
+      <ul>
+        <li>Free school meals, books, and materials</li>
+        <li>Collaborative classroom environment</li>
+        <li>Group learning activities</li>
+        <li>Teacher acts as facilitator rather than authority figure</li>
+        <li>Individual support for struggling students</li>
+      </ul>
     </div>
-    <div class="category">
-      <h1>Digitalization</h1>
-      <p>Focuses on expanding the "DigitalPact" to ensure schools have modern IT infrastructure. They emphasize the need for professional IT support staff so teachers don't have to manage networks themselves.</p>
-    </div>
-    <div class="category">
-      <h1>Equity & Inclusion</h1>
-      <p>Promotes a "Social Education Guarantee" to decouple educational success from social background. They advocate for targeted funding programs for schools in disadvantaged neighborhoods.</p>
-    </div>
-    <div class="category">
-      <h1>Curriculum & Workforce</h1>
-      <p>Prioritizes equal pay for teachers across all school types (including primary schools). They want to strengthen vocational training and guarantee an apprenticeship spot for every school leaver.</p>
-    </div>
-    <a href="https://www.spd.de" class="party-link" target="_blank">View Full Program</a>
+  
   </div>
 
   <!-- GRÜNE -->
@@ -169,23 +212,18 @@
     </div>
     <h2></h2>
 
-    <div class="category">
-      <h1>School Structure</h1>
-      <p>Champions the expansion of high-quality, rhythmized all-day schools. They support joint learning concepts and want to grant schools more autonomy in how they organize their teaching.</p>
+    <div class="category-card card-gruene">
+      <img class="classroom-img" src="{% static 'assets/party_classrooms/gruene_school.png' %}" alt="Grüne Classroom">
+      <ul>
+        <li>Sustainability and environmental topics woven into lessons</li>
+        <li>Student-led presentations and open discussion-based teaching</li>
+        <li>Celebration of diverse cultural backgrounds</li>
+        <li>School values self-expression, critical thinking, and political awareness</li>
+        <li>Digital creativity encouraged</li>
+        <li>Teacher connects historical lessons to current environmental and social challenges</li>
+      </ul>
     </div>
-    <div class="category">
-      <h1>Digitalization</h1>
-      <p>Views digitalization not just as hardware, but as a core competency. They want a permanent digital fund to modernize schools and focus strongly on teaching media literacy and critical thinking online.</p>
-    </div>
-    <div class="category">
-      <h1>Equity & Inclusion</h1>
-      <p>Strongly pushes for the full implementation of the UN Convention on the Rights of Persons with Disabilities, meaning children with and without disabilities learn together in mainstream schools.</p>
-    </div>
-    <div class="category">
-      <h1>Curriculum & Workforce</h1>
-      <p>Emphasizes "Education for Sustainable Development" (BNE) and democratic education. They want to modernize the curriculum to prepare students for the climate crisis and a diverse society.</p>
-    </div>
-    <a href="https://www.gruene.de" class="party-link" target="_blank">View Full Program</a>
+  
   </div>
 
   <!-- CDU -->
@@ -195,23 +233,19 @@
     </div>
     <h2></h2>
 
-    <div class="category">
-      <h1>School Structure</h1>
-      <p>Defends the traditional multi-tier school system, arguing that differentiated schooling best serves individual talents. They are strong proponents of preserving the "Gymnasium" as a distinct path.</p>
+    <div class="category-card card-cdu">
+      <img class="classroom-img" src="{% static 'assets/party_classrooms/cdu_school.png' %}" alt="CDU Classroom">
+      <ul>
+        <li>Mandatory BLF standardized exams</li>
+        <li>Kopfnoten (behavior and diligence grades) evaluated by the teacher</li>
+        <li>Academic performance determines pathways</li>
+        <li>Traditional German spelling rules strictly enforced in German class</li>
+        <li>Digital devices supplement but do not replace classroom instruction</li>
+        <li>Teacher maintains clear authority and high academic expectations</li>
+        <li>Religion as a school subject included in the timetable</li>
+      </ul>
     </div>
-    <div class="category">
-      <h1>Digitalization</h1>
-      <p>Focuses on a pragmatic digital rollout, equipping schools with necessary technology through targeted state funding, while emphasizing that digital tools should supplement, not replace, traditional teaching.</p>
-    </div>
-    <div class="category">
-      <h1>Equity & Inclusion</h1>
-      <p>Believes in performance-based equity. While supporting inclusion where feasible, they strongly advocate for preserving special education schools (Förderschulen) for children who need specialized environments.</p>
-    </div>
-    <div class="category">
-      <h1>Curriculum & Workforce</h1>
-      <p>Emphasizes core competencies: reading, writing, and arithmetic. They advocate for clear performance evaluations, standardized testing, and maintaining high academic standards to ensure global competitiveness.</p>
-    </div>
-    <a href="https://www.cdu.de" class="party-link" target="_blank">View Full Program</a>
+  
   </div>
 
   <!-- AfD -->
@@ -220,30 +254,26 @@
       <img class="party-logo" src="{% static 'assets/parties/afd.png' %}" alt="AfD Logo">
     </div>
     <h2></h2>
+
+    <div class="category-card card-afd">
+      <img class="classroom-img" src="{% static 'assets/party_classrooms/afd_school.png' %}" alt="AfD Classroom">
+      <ul>
+        <li>Mandatory BLF standardized exams</li>
+        <li>Kopfnoten (behavior and diligence grades) evaluated by the teacher</li>
+        <li>Students grouped by academic ability, strict differentiation.</li>
+        <li>Traditional German spelling enforced, no gender-inclusive language</li>
+        <li>Digital devices not provided</li>
+        <li>Strong classroom discipline enforced at all times</li>
+        <li>Lessons focused on German cultural heritage and national history</li>
+        <li>No diversity programs or politically motivated learning content</li>
+      </ul>
+    </div>
   
-    <div class="category">
-      <h1>School Structure</h1>
-      <p>Strictly opposes comprehensive schools and wants to return to a traditional, highly differentiated school system. They advocate for strict selection based on academic performance and discipline.</p>
-    </div>
-    <div class="category">
-      <h1>Digitalization</h1>
-      <p>Highly skeptical of early digitalization. They prioritize traditional teaching methods, printed books, and handwriting in early education, viewing excessive screen time as detrimental to child development.</p>
-    </div>
-    <div class="category">
-      <h1>Equity & Inclusion</h1>
-      <p>Fundamentally opposes the concept of full inclusion, arguing it harms both disabled and non-disabled students. They want to rebuild and strengthen specialized schools (Förderschulen).</p>
-    </div>
-    <div class="category">
-      <h1>Curriculum & Workforce</h1>
-      <p>Demands a curriculum focused on classical education, German language, culture, and national history. They strictly oppose gender studies, diversity initiatives, and political correctness in the classroom.</p>
-    </div>
-    <a href="https://www.afd.de" class="party-link" target="_blank">View Full Program</a>
   </div>
 
 </div>
 
 <div id="launch_status">Starting simulation, please wait…</div>
-
 
 <script>
   var polling = null;
