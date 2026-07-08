@@ -521,8 +521,8 @@ def run_gpt_prompt_action_sector(action_description,
     if curr_time:
         curr_hour = curr_time.hour
         curr_weekday = curr_time.weekday() 
-        if 8 <= curr_hour < 13 and curr_weekday in [0, 1, 2, 3, 4]:
-            prompt_input += ["IMPORTANT: It is school hours. You must stay in the classroom at Goethe Gymnasium."]
+        if (8 <= curr_hour < 12 or 13 <= curr_hour < 14) and curr_weekday in [0, 1, 2, 3, 4]:
+            prompt_input += ["IMPORTANT: It is school hours. You must stay in the classroom at Bauhaus Gymnasium."]
 
 
     # MAR 11 TEMP
