@@ -26,11 +26,11 @@ import threading
 # storage folders + csvs for the other four parties following the same
 # pattern (base_the_ville_n5_school_<party> / agent_history_init_n5_school_<party>.csv).
 PARTY_CONFIG = {
-    "cdu":    {"label": "CDU",    "fork": "base_the_ville_n5_school_cdu",    "history": "the_ville/agent_history_init_n5_school_cdu.csv"},
-    "spd":    {"label": "SPD",    "fork": "base_the_ville_n5_school_spd",    "history": "the_ville/agent_history_init_n5_school_spd.csv"},
-    "linke":  {"label": "LINKE",  "fork": "base_the_ville_n5_school_linke",  "history": "the_ville/agent_history_init_n5_school_linke.csv"},
-    "afd":    {"label": "AfD",    "fork": "base_the_ville_n5_school_afd",    "history": "the_ville/agent_history_init_n5_school_afd.csv"},
-    "gruene": {"label": "GRÜNE",  "fork": "base_the_ville_n5_school_gruene", "history": "the_ville/agent_history_init_n5_school_gruene.csv"},
+    "cdu":    {"label": "CDU",    "fork": "base_the_ville_n5_school", "history": "the_ville/agent_history_init_n5_school_cdu.csv"},
+    "spd":    {"label": "SPD",    "fork": "base_the_ville_n5_school", "history": "the_ville/agent_history_init_n5_school_spd.csv"},
+    "linke":  {"label": "LINKE",  "fork": "base_the_ville_n5_school", "history": "the_ville/agent_history_init_n5_school_linke.csv"},
+    "afd":    {"label": "AfD",    "fork": "base_the_ville_n5_school", "history": "the_ville/agent_history_init_n5_school_afd.csv"},
+    "gruene": {"label": "GRÜNE",  "fork": "base_the_ville_n5_school", "history": "the_ville/agent_history_init_n5_school_gruene.csv"},
 }
 
 # Path to the reverie backend server directory (adjust if your repo layout differs)
