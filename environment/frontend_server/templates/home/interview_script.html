@@ -44,8 +44,7 @@
     var pause_btn = document.getElementById("pause_button");
     if (pause_btn) pause_btn.click();
 
-    // Make sure a live interview backend exists for this sim_code --
-    // self-heals even if it died earlier in this session.
+    // Make sure a live interview backend exists for this sim_code
     fetch("/replay_start_interview/" + sim_code + "/");
 
     interview_agent_name.innerText = persona_name;
@@ -53,9 +52,10 @@
     interview_speech_bubble.innerHTML = "<div class=\"interview-line\"><em>Say hi to " + persona_name + "...</em></div>";
     question_input.value = "";
 
+    // Toggle target classes and make map overlay flex display visible
     dynamic_conversation_box.classList.remove("active");
     interview_panel.classList.add("active");
-    chat_feed_wrap.style.display = "block";
+    document.getElementById("interview_overlay").style.display = "flex";
 
     disable_game_keyboard();
     question_input.focus();
@@ -68,8 +68,10 @@
     var play_btn = document.getElementById("play_button");
     if (play_btn) play_btn.click();
   
+    // Hide the map overlay container and remove active states
     interview_panel.classList.remove("active");
-    chat_feed_wrap.style.display = "none";
+    document.getElementById("interview_overlay").style.display = "none";
+    
     current_interview_persona = null;
     enable_game_keyboard();
   }
@@ -149,7 +151,6 @@
   var global_chat_feed = document.getElementById("global_chat_feed");
 
   function refresh_global_chat_feed() {
-    if (window.gs_interview_active) return;
     document.querySelectorAll("[id^='chat__']").forEach(function(span) {
       var persona_os = span.id.replace("chat__", "");
       var content = span.innerHTML;
@@ -165,6 +166,5 @@
       }
     });
   }
-  setInterval(refresh_global_chat_feed, 1000);
 })();
 </script>

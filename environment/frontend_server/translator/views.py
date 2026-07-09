@@ -392,6 +392,10 @@ def replay(request, sim_code, step):
   sim_code = sim_code
   step = int(step)
 
+  party_name = None
+  if sim_code.startswith("run_"):
+      party_name = sim_code.split("_")[1]
+
   persona_names = []
   persona_names_set = set()
   for i in find_filenames(f"storage/{sim_code}/personas", ""): 
@@ -417,7 +421,8 @@ def replay(request, sim_code, step):
              "step": step,
              "persona_names": persona_names,
              "persona_init_pos": persona_init_pos, 
-             "mode": "replay"}
+             "mode": "replay",
+             "party": party_name}
   template = "home/home.html"
   return render(request, template, context)
 

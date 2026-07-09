@@ -472,79 +472,141 @@
 	        ).toUpperCase();
 	        pronunciatios[curr_persona_name].setText(initials + ": " + pronunciatio_content);
 			
-			let active_chat_content = "";
-			let talking_agents = [];
+			// Data structures to group separate conversations
+			let active_conversations = [];
+			let processed_agents = [];
 
-			for (let i=0; i<Object.keys(personas).length; i++) {
-				let action_description = ""
+			for (let i = 0; i < Object.keys(personas).length; i++) {
 				let curr_persona_name = Object.keys(personas)[i];
-				let curr_persona_name_os = curr_persona_name.replace(/ /g,"_");
+				let curr_persona_name_os = curr_persona_name.replace(/ /g, "_");
 				let description_content = execute_movement["persona"][curr_persona_name]["description"];
-				let chat_content = ""
+				let chat_data = execute_movement["persona"][curr_persona_name]["chat"];
+				let chat_content = "";
 
-				if (execute_movement["persona"][curr_persona_name]["chat"] != null ){
-				// Found an agent currently involved in a conversation!
-				if (!talking_agents.includes(curr_persona_name)) {
-					talking_agents.push(curr_persona_name);
-				}
-				
-				for (let j=0; j<execute_movement["persona"][curr_persona_name]["chat"].length; j++) { 
-					chat_content += "<strong>" + execute_movement["persona"][curr_persona_name]["chat"][j][0] + ":</strong> " + execute_movement["persona"][curr_persona_name]["chat"][j][1] + "<br>"
-				}
-				// Capture the accumulated string context of the conversation
-				active_chat_content = chat_content;
+				if (chat_data != null) {
+					// Build the chat string for the fallback elements
+					for (let j = 0; j < chat_data.length; j++) {
+						chat_content += "<strong>" + chat_data[j][0] + ":</strong> " + chat_data[j][1] + "<br>";
+					}
+
+					// Group distinct conversations by their participants to avoid mixing
+					if (!processed_agents.includes(curr_persona_name)) {
+						let participants = new Set();
+						for (let j = 0; j < chat_data.length; j++) {
+							participants.add(chat_data[j][0]);
+						}
+						
+						let participants_arr = Array.from(participants);
+						// Mark all agents in this specific chat as processed
+						participants_arr.forEach(p => processed_agents.push(p));
+
+						// If it's a valid dialogue between at least two agents, store it as a unique conversation
+						if (participants_arr.length >= 2) {
+							active_conversations.push({
+								agents: participants_arr,
+								content: chat_content
+							});
+						}
+					}
 				} else {
-				chat_content = "<em>None at the moment</em>"
+					chat_content = "<em>None at the moment</em>";
 				}
 
 				// Keep original fallback elements intact for engine core updates
-				if(document.getElementById("current_action__"+curr_persona_name_os)) {
-				document.getElementById("current_action__"+curr_persona_name_os).innerHTML = description_content.split("@")[0];
+				if (document.getElementById("current_action__" + curr_persona_name_os)) {
+					document.getElementById("current_action__" + curr_persona_name_os).innerHTML = description_content.split("@")[0];
 				}
-				if(document.getElementById("target_address__"+curr_persona_name_os)) {
-				document.getElementById("target_address__"+curr_persona_name_os).innerHTML = description_content.split("@")[1];
+				if (document.getElementById("target_address__" + curr_persona_name_os)) {
+					document.getElementById("target_address__" + curr_persona_name_os).innerHTML = description_content.split("@")[1];
 				}
-				if(document.getElementById("chat__"+curr_persona_name_os)) {
-				document.getElementById("chat__"+curr_persona_name_os).innerHTML = chat_content;
+				if (document.getElementById("chat__" + curr_persona_name_os)) {
+					document.getElementById("chat__" + curr_persona_name_os).innerHTML = chat_content;
 				}
 			}
 
-			// --- DYNAMIC AVATAR UI UPDATE ---
-			let convBox = document.getElementById("dynamic_conversation_box");
-			let bubbleContent = document.getElementById("shared_speech_bubble_content");
+			// --- DYNAMIC AVATAR UI UPDATE WITH SMART SCROLL ---
 			let chatFeedWrap = document.getElementById("live_chat_feed_wrapper");
 
-			if (!window.gs_interview_active && talking_agents.length >= 2 && active_chat_content !== "") {				let agentLeft = talking_agents[0];
-				let agentRight = talking_agents[1];
-				
-				// Convert human-readable names into underscore filenames (e.g., "Isabella Rodriguez" -> "Isabella_Rodriguez")
-				let left_os = agentLeft.replace(/ /g, "_");
-				let right_os = agentRight.replace(/ /g, "_");
-				
-				// Assign proper profiles and text labels
-				document.getElementById("chat_agent_left_name").innerText = agentLeft;
-				document.getElementById("chat_agent_left_img").src = "/static/assets/characters/profile/" + left_os + ".png";
-				
-				document.getElementById("chat_agent_right_name").innerText = agentRight;
-				document.getElementById("chat_agent_right_img").src = "/static/assets/characters/profile/" + right_os + ".png";
-				
-				// Inject dialogue content and reveal the panel
-				bubbleContent.innerHTML = active_chat_content;
-				convBox.classList.add("active");
+			// Hide the original static conversation box
+			let origBox = document.getElementById("dynamic_conversation_box");
+			if (origBox) origBox.style.display = "none";
+
+			// 1. BEFORE removing old instances, capture their current scroll states
+			let scrollStates = {};
+			document.querySelectorAll('.dynamic-conv-instance').forEach(box => {
+				let bubble = box.querySelector('.shared-speech-bubble');
+				let key = box.getAttribute('data-conv-key');
+				if (bubble && key) {
+					// Check if user is scrolled near the bottom (within 45 pixels)
+					let isAtBottom = (bubble.scrollHeight - bubble.scrollTop - bubble.clientHeight) < 45;
+					scrollStates[key] = {
+						wasAtBottom: isAtBottom,
+						scrollTop: bubble.scrollTop
+					};
+				}
+				box.remove();
+			});
+
+			if (active_conversations.length > 0) {
 				chatFeedWrap.style.display = "block";
 				
-				// Auto-scroll inside the speech bubble to follow the latest dialog
-				bubbleContent.scrollTop = bubbleContent.scrollHeight;
+				active_conversations.forEach((conv, index) => {
+					let agentLeft = conv.agents[0];
+					let agentRight = conv.agents[1];
+					
+					let left_os = agentLeft.replace(/ /g, "_");
+					let right_os = agentRight.replace(/ /g, "_");
+					let convKey = left_os + "_" + right_os;
+					
+					let convBox = document.createElement("div");
+					// Add the key tracking attribute
+					convBox.className = "conversation-display-box active dynamic-conv-instance";
+					convBox.setAttribute('data-conv-key', convKey);
+					
+					if (index > 0) {
+						convBox.style.borderTop = "2px dashed #ccc";
+						convBox.style.marginTop = "1em";
+						convBox.style.paddingTop = "1em";
+					}
+					
+					convBox.innerHTML = `
+						<div class="chat-agent-wrapper">
+							<img class="chat-agent-avatar" src="/static/assets/characters/profile/${left_os}.png" alt="${agentLeft}">
+							<div class="chat-agent-name">${agentLeft}</div>
+						</div>
+						<div class="shared-speech-bubble" style="overflow-y: auto; max-height: 220px; flex-grow: 1;">
+							${conv.content}
+						</div>
+						<div class="chat-agent-wrapper">
+							<img class="chat-agent-avatar" src="/static/assets/characters/profile/${right_os}.png" alt="${agentRight}">
+							<div class="chat-agent-name">${agentRight}</div>
+						</div>
+					`;
+					
+					chatFeedWrap.appendChild(convBox);
+					
+					// 2. RESTORE or PIN scroll position intelligently
+					let bubble = convBox.querySelector('.shared-speech-bubble');
+					if (bubble) {
+						let previousState = scrollStates[convKey];
+						if (previousState) {
+							if (previousState.wasAtBottom) {
+								// If they were at the bottom, pin them to the bottom for new text
+								bubble.scrollTop = bubble.scrollHeight;
+							} else {
+								// If they scrolled up to read history, hold their exact position
+								bubble.scrollTop = previousState.scrollTop;
+							}
+						} else {
+							// Default fallback for a brand new conversation instantiation
+							bubble.scrollTop = bubble.scrollHeight;
+						}
+					}
+				});
 			} else {
-				// Hide the agent-to-agent panel; if an interview is active, leave
-				// chatFeedWrap alone since interview_script.html controls it.
-				convBox.classList.remove("active");
-				if (!window.gs_interview_active) {
-					chatFeedWrap.style.display = "none";
-				}
+				chatFeedWrap.style.display = "none";
 			}
-			
-	      }
+		}
 
 	      console.log(curr_persona_name);
 	      if (execute_count > 0) {
@@ -648,10 +710,3 @@
 	var play_button=document.getElementById("play_button");
 	var pause_button=document.getElementById("pause_button");
 </script>
-
-
-
-
-
-
-
