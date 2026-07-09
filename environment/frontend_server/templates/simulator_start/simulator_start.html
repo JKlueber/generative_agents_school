@@ -275,7 +275,7 @@
 
 <div id="launch_status">Starting simulation, please wait…</div>
 
-<script>
+<!-- <script>
   var polling = null;
 
   document.querySelectorAll(".party-btn").forEach(function (btn) {
@@ -309,5 +309,13 @@
         }
       });
   }
+</script> -->
+<script>
+  document.querySelectorAll(".party-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var party = btn.getAttribute("data-party");
+      window.location.href = "/replay/run_" + party + "/2160/";
+    });
+  });
 </script>
 {% endblock content %}

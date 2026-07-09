@@ -398,13 +398,12 @@
 
           <!-- Run / Save / Exit Controls -->
           <div id="simulator_control_row" style="margin-top: 1.5em; display: flex; justify-content: center; align-items: center; gap: 1em;">
-            
-            <!-- Styled Run Panel Inline -->
+
+            {% if mode == 'simulate' %}
             <div id="run_minutes_panel" style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 0.5em 1em; border-radius: 8px;">
               <label style="font-size:1.2em; font-weight:normal; margin: 0 0.5em 0 0;">Run for</label>
               <input type="number" id="run_minutes_input" min="1" value="10" style="width: 4em; color: black; font-size: 1.2em; text-align: center; border-radius: 4px; border: none; padding: 0.2em;">
               <label style="font-size:1.2em; font-weight:normal; margin: 0 0.5em;">min</label>
-              
               <button id="run_minutes_button" type="button" class="btn btn-primary" style="margin-left: 0.5em;">
                 <strong style="font-size:1.2em"><i class="glyphicon glyphicon-play-circle"></i> &nbsp;Run</strong>
               </button>
@@ -413,7 +412,8 @@
             <button id="save_button" type="button" class="btn btn-default">
               <strong style="font-size:1.2em"><i class="glyphicon glyphicon-floppy-disk"></i> &nbsp;Save</strong>
             </button>
-            
+            {% endif %}
+
             <button id="exit_button" type="button" class="btn btn-danger">
               <strong style="font-size:1.2em"><i class="glyphicon glyphicon-off"></i> &nbsp;Exit</strong>
             </button>
@@ -495,24 +495,23 @@
 {% include 'home/interview_script.html' %}
 
 <script>
+  {% if mode == 'simulate' %}
   var runMinutesPanel = document.getElementById("run_minutes_panel");
   var runMinutesStatus = document.getElementById("run_minutes_status");
   var saveButton = document.getElementById("save_button");
+  {% endif %}
   var exitButton = document.getElementById("exit_button");
 
+  {% if mode == 'simulate' %}
   function poll_run_status() {
     fetch("/simulator_run_status/")
       .then(function (res) { return res.json(); })
       .then(function (data) {
         var executing = data.executing;
-        
-        // Disable all inputs and buttons while running so layout doesn't shift
         document.getElementById("run_minutes_input").disabled = executing;
         document.getElementById("run_minutes_button").disabled = executing;
         saveButton.disabled = executing;
         exitButton.disabled = executing;
-        
-        // Show/hide the status text below the row
         runMinutesStatus.style.display = executing ? "block" : "none";
       })
       .catch(function () {});
@@ -520,39 +519,22 @@
   poll_run_status();
   setInterval(poll_run_status, 500);
 
-  // Save Button Click Handler
   saveButton.addEventListener("click", function () {
     fetch("/simulator_control/fin/")
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data.status === "fin") {
           alert("Simulation saved successfully!");
-          window.location.href = "/simulator_start"; 
+          window.location.href = "/simulator_start";
         }
       })
       .catch(function (err) { console.error("Save failed:", err); });
   });
 
-  // Exit Button Click Handler
-  exitButton.addEventListener("click", function () {
-    if (confirm("Are you sure you want to exit? Unsaved progress will be lost.")) {
-      fetch("/simulator_control/exit/")
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-          if (data.status === "exit") {
-            window.location.href = "/simulator_start"; 
-          }
-        })
-        .catch(function (err) { console.error("Exit failed:", err); });
-    }
-  });
-
   document.getElementById("run_minutes_button").addEventListener("click", function () {
     var minutes = parseInt(document.getElementById("run_minutes_input").value, 10);
     if (!minutes || minutes <= 0) return;
-
     runMinutesStatus.style.display = "block";
-
     fetch("/simulator_run_minutes/", {
         method: "POST",
         body: JSON.stringify({ minutes: minutes })
@@ -565,5 +547,29 @@
         }
       });
   });
+  {% endif %}
+
+  exitButton.addEventListener("click", function () {
+    {% if mode == 'replay' %}
+    window.location.href = "/simulator_start";
+    {% else %}
+    if (confirm("Are you sure you want to exit? Unsaved progress will be lost.")) {
+      fetch("/simulator_control/exit/")
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.status === "exit") {
+            window.location.href = "/simulator_start";
+          }
+        })
+        .catch(function (err) { console.error("Exit failed:", err); });
+    }
+    {% endif %}
+  });
+
+  {% if mode == 'replay' %}
+  // Spin up the interview-only backend so agent cards can be interviewed
+  // while this replay is playing.
+  fetch("/replay_start_interview/{{ sim_code }}/");
+  {% endif %}
 </script>
 {% endblock content %}

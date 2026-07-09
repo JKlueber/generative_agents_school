@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^simulator_run_minutes/$', translator_views.simulator_run_minutes, name='simulator_run_minutes'),
     url(r'^simulator_run_status/$', translator_views.simulator_run_status, name='simulator_run_status'),
     url(r'^simulator_control/(?P<action>fin|exit)/$', translator_views.simulator_control, name='simulator_control'),
+    url(r'^replay_start_interview/(?P<sim_code>[\w-]+)/$', translator_views.replay_start_interview_backend, name='replay_start_interview'),
     url(r'^demo/(?P<sim_code>[\w-]+)/(?P<step>[\w-]+)/(?P<play_speed>[\w-]+)/$', translator_views.demo, name='demo'),
     url(r'^replay/(?P<sim_code>[\w-]+)/(?P<step>[\w-]+)/$', translator_views.replay, name='replay'),
     url(r'^replay_persona_state/(?P<sim_code>[\w-]+)/(?P<step>[\w-]+)/(?P<persona_name>[\w-]+)/$', translator_views.replay_persona_state, name='replay_persona_state'),
