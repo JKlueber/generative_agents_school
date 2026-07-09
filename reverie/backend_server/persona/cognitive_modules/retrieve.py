@@ -196,7 +196,7 @@ def extract_relevance(persona, nodes, focal_pt):
   return relevance_out
 
 
-def new_retrieve(persona, focal_points, n_count=30): 
+def new_retrieve(persona, focal_points, n_count=30, target_time=None): 
   """
   Given the current persona and focal points (focal points are events or 
   thoughts for which we are retrieving), we retrieve a set of nodes for each
@@ -223,7 +223,8 @@ def new_retrieve(persona, focal_points, n_count=30):
     # You could also imagine getting the raw conversation, but for now. 
     nodes = [[i.last_accessed, i]
               for i in persona.a_mem.seq_event + persona.a_mem.seq_thought
-              if "idle" not in i.embedding_key]
+              if "idle" not in i.embedding_key and (target_time is None or i.created <= target_time)]    
+    
     nodes = sorted(nodes, key=lambda x: x[0])
     nodes = [i for created, i in nodes]
 

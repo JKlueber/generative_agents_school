@@ -457,8 +457,7 @@ class ReverieServer:
   def process_interview_requests(self):
     """
     Checks storage/<sim_code>/interview for pending *_request.json files
-    and answers them using the persona's stateless "analysis" convo
-    session -- the same mechanism as the "call -- analysis" CLI command.
+    and answers them using the persona's stateless "analysis" convo session.
     """
     interview_dir = f"{fs_storage}/{self.sim_code}/interview"
     if not os.path.isdir(interview_dir):
@@ -472,19 +471,53 @@ class ReverieServer:
       if check_if_file_exists(resp_path):
         continue
 
-      with open(req_path) as json_file:
-        req = json.load(json_file)
+      answer = None
+      try:
+        with open(req_path) as json_file:
+          req = json.load(json_file)
 
-      persona_name = req["persona_name"]
-      question = req["question"]
-      if persona_name not in self.personas:
-        continue
+        persona_name = req["persona_name"]
+        question = req["question"]
+        step = req.get("step")
+        
+        if persona_name not in self.personas:
+          continue
 
-      answer = self.personas[persona_name].interview(question)
+        if step is not None:
+          target_time = self.start_time + datetime.timedelta(seconds=int(step) * self.sec_per_step)
+          answer = self.personas[persona_name].interview(question, target_time=target_time)
+        else:
+          answer = self.personas[persona_name].interview(question)
 
-      with open(resp_path, "w") as outfile:
-        outfile.write(json.dumps({"response": answer}, indent=2))
-      os.remove(req_path)
+      except Exception:
+        traceback.print_exc()
+        answer = ("Sorry, I got a bit distracted there -- "
+                  "could you ask that again?")
+
+      try:
+        with open(resp_path, "w") as outfile:
+          outfile.write(json.dumps({"response": answer}, indent=2))
+        if check_if_file_exists(req_path):
+          os.remove(req_path)
+      except Exception:
+        traceback.print_exc()
+
+
+  def start_interview_only_server(self):
+    """
+    Runs indefinitely, only answering pending interview requests. Does NOT
+    advance the simulation or write movement/environment files -- movement
+    during a replay is driven entirely by the already-saved movement/*.json
+    files. Wrapped in try/except so the loop itself is unkillable by a
+    transient error inside process_interview_requests.
+    """
+    print("Interview-only backend ready. Waiting for interview requests...")
+    while (True):
+      try:
+        self.process_interview_requests()
+      except Exception:
+        traceback.print_exc()
+      time.sleep(self.server_sleep)
 
   def open_server(self): 
     """
@@ -647,6 +680,11 @@ class ReverieServer:
           # Ex: call -- analysis Isabella Rodriguez
           persona_name = sim_command[len("call -- analysis"):].strip() 
           self.personas[persona_name].open_convo_session("analysis")
+
+        elif sim_command.lower() == "interview mode":
+          # Runs forever, only servicing interview requests. Used to power
+          # interviews during a replay session (see views.py).
+          self.start_interview_only_server()
 
         elif ("call -- load history" 
               in sim_command.lower()): 

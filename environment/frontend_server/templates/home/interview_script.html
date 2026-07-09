@@ -40,12 +40,19 @@
     current_interview_persona = persona_name;
     window.gs_interview_active = true;
 
+    // Pause the world so the persona doesn't wander off mid-interview.
+    var pause_btn = document.getElementById("pause_button");
+    if (pause_btn) pause_btn.click();
+
+    // Make sure a live interview backend exists for this sim_code --
+    // self-heals even if it died earlier in this session.
+    fetch("/replay_start_interview/" + sim_code + "/");
+
     interview_agent_name.innerText = persona_name;
     interview_agent_img.src = "{% static 'assets/characters/profile/' %}" + persona_os + ".png";
     interview_speech_bubble.innerHTML = "<div class=\"interview-line\"><em>Say hi to " + persona_name + "...</em></div>";
     question_input.value = "";
 
-    // Swap out the map conversation panel for the interview panel.
     dynamic_conversation_box.classList.remove("active");
     interview_panel.classList.add("active");
     chat_feed_wrap.style.display = "block";
@@ -56,6 +63,11 @@
 
   function close_interview() {
     window.gs_interview_active = false;
+    
+    // Resume the replay.
+    var play_btn = document.getElementById("play_button");
+    if (play_btn) play_btn.click();
+  
     interview_panel.classList.remove("active");
     chat_feed_wrap.style.display = "none";
     current_interview_persona = null;
@@ -125,7 +137,8 @@
       "sim_code": sim_code,
       "persona_name": persona_name,
       "question": question,
-      "request_id": request_id
+      "request_id": request_id,
+      "step": step
     }));
 
     question_input.value = "";

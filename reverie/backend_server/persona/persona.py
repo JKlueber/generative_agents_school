@@ -234,7 +234,7 @@ class Persona:
   def open_convo_session(self, convo_mode): 
     open_convo_session(self, convo_mode)
 
-  def interview(self, question): 
+  def interview(self, question, target_time=None): 
       """
       Stateless single-turn Q&A, reusing the same "analysis" convo logic
       as open_convo_session(persona, "analysis").
@@ -244,7 +244,7 @@ class Persona:
       OUTPUT:
         The persona's in-character reply (string).
       """
-      return interview(self, question)
+      return interview(self, question, target_time)
     
 
 

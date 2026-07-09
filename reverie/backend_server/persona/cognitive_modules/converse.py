@@ -290,7 +290,7 @@ def open_convo_session(persona, convo_mode):
                               thought, keywords, thought_poignancy, 
                               thought_embedding_pair, None)
 
-def generate_interview_response(persona, line): 
+def generate_interview_response(persona, line, target_time=None): 
   """
   Single-turn version of the "analysis" branch of open_convo_session -- 
   runs the same safety-check -> retrieve -> summarize -> next-line 
@@ -313,15 +313,15 @@ def generate_interview_response(persona, line):
             f"to the agent in your communication.")
 
   curr_convo = [[interlocutor_desc, line]]
-  retrieved = new_retrieve(persona, [line], 50)[line]
+  retrieved = new_retrieve(persona, [line], 50, target_time)[line]
   summarized_idea = generate_summarize_ideas(persona, retrieved, line)
   next_line = generate_next_line(persona, interlocutor_desc, 
                                  curr_convo, summarized_idea)
   return next_line
 
 
-def interview(persona, question): 
-  return generate_interview_response(persona, question)
+def interview(persona, question, target_time=None): 
+  return generate_interview_response(persona, question, target_time)
 
 
 

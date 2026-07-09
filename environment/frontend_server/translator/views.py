@@ -170,7 +170,7 @@ def simulator_launch(request, party):
     party in a background thread and returns immediately. The page polls
     simulator_launch_status to know when to redirect to /simulator_home.
 
-    If this party was Saved previously (its storage/test_<party> folder
+    If this party was Saved previously (its storage/run_<party> folder
     still exists), we resume that simulation in place instead of forking
     a fresh copy of the base template. If it was Exited (or never run),
     that folder won't exist, so we fork fresh as before.
@@ -187,7 +187,7 @@ def simulator_launch(request, party):
             return JsonResponse({"error": "a simulation is already running"}, status=409)
 
         cfg = PARTY_CONFIG[party]
-        new_sim_code = f"test_{party}"
+        new_sim_code = f"run_{party}"
 
         existing_sim_folder = f"storage/{new_sim_code}"
         resume = os.path.isdir(existing_sim_folder)
@@ -552,6 +552,62 @@ def path_tester_update(request):
 
   return HttpResponse("received")
 
+_interview_backend_procs = {}  # sim_code -> pexpect proc
+_interview_backend_lock = threading.Lock()
+
+
+def _run_interview_only_backend(sim_code):
+    """
+    Spawns a reverie.py process forked into itself (no-op copy since fork
+    and target are the same sim_code) that sits in "interview mode" --
+    it never runs simulation steps, it just answers interview requests
+    dropped by interview_persona(), the same mechanism already used live.
+    """
+    try:
+        proc = pexpect.spawn(
+            "python3 reverie.py",
+            cwd=BACKEND_SERVER_DIR,
+            encoding="utf-8",
+            timeout=None,
+        )
+        log_path = os.path.join(BACKEND_SERVER_DIR, "reverie_backend_interview.log")
+        fout = open(log_path, "a", encoding="utf-8", buffering=1)
+        proc.logfile = fout
+
+        proc.sendline(sim_code)
+        proc.sendline(sim_code)
+        proc.expect("Enter option:")
+
+        # ReverieServer.__init__ writes temp_storage/curr_step.json and
+        # curr_sim_code.json (meant for the live /simulator_home flow) --
+        # clean those up so this interview-only process doesn't confuse it.
+        for f in ["temp_storage/curr_step.json", "temp_storage/curr_sim_code.json"]:
+            full = os.path.join(BACKEND_SERVER_DIR, f)
+            if os.path.exists(full):
+                os.remove(full)
+
+        proc.sendline("interview mode")
+        _interview_backend_procs[sim_code] = proc
+
+        threading.Thread(target=_drain_interview_backend, args=(proc,), daemon=True).start()
+    except Exception as e:
+        print(f"[_run_interview_only_backend] failed: {e}")
+        _interview_backend_procs.pop(sim_code, None)
+
+
+def replay_start_interview_backend(request, sim_code):
+    """
+    <FRONTEND, called once when a replay page loads>
+    Ensures a lightweight backend is running for this sim_code so agent
+    cards can be interviewed during replay.
+    """
+    with _interview_backend_lock:
+        proc = _interview_backend_procs.get(sim_code)
+        if proc and proc.isalive():
+            return JsonResponse({"status": "already running"})
+        t = threading.Thread(target=_run_interview_only_backend, args=(sim_code,), daemon=True)
+        t.start()
+    return JsonResponse({"status": "starting"})
 
 def interview_persona(request):
   """
@@ -565,6 +621,7 @@ def interview_persona(request):
   persona_name = data["persona_name"]
   question = data["question"]
   request_id = data["request_id"]
+  step = data.get("step")
 
   interview_dir = f"storage/{sim_code}/interview"
   os.makedirs(interview_dir, exist_ok=True)
@@ -574,7 +631,8 @@ def interview_persona(request):
     outfile.write(json.dumps({
       "persona_name": persona_name,
       "question": question,
-      "request_id": request_id
+      "request_id": request_id,
+      "step": step
     }, indent=2))
 
   return HttpResponse("received")
@@ -600,3 +658,23 @@ def interview_response(request):
     return JsonResponse({"ready": True, "response": resp["response"]})
 
   return JsonResponse({"ready": False})
+
+def _drain_interview_backend(proc):
+    """
+    Continuously reads whatever the child process prints, and forwards it
+    to proc.logfile (reverie_backend.log). This is required because
+    "interview mode" loops forever inside the child and never returns to
+    the "Enter option:" prompt, so nothing else ever calls .expect()/.read()
+    on this pexpect connection. Without a drain, the child's stdout pty
+    buffer fills up, its next print() blocks, and the whole interview
+    backend silently freezes -- which is the "stuck after one question,
+    no log output" symptom.
+    """
+    try:
+        while proc.isalive():
+            try:
+                proc.expect(pexpect.TIMEOUT, timeout=1)
+            except Exception:
+                break
+    except Exception:
+        pass
