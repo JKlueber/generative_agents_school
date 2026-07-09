@@ -13,6 +13,64 @@
     text-align: center;
   }
 
+  /* NEW: Glassmorphic Control Overlay in Top-Left Corner */
+  .control-panel-overlay {
+    position: absolute;
+    top: 875px;
+    left: 25px;
+    z-index: 2400; /* Positioned on top of the map tiles, below the interview layer */
+    background: rgba(0, 0, 0, 0.5); /* Deep transparent dark shade for optimal contrast */
+    padding: 1.8em; /* Expanded from 1.2em */
+    border-radius: 22px; /* Enhanced curvature for upscale look */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    text-align: left;
+    width: 410px; /* Broadened from 280px to accommodate robust spacing */
+  }
+  .control-panel-overlay .panel-label {
+    font-size: 1.05em; /* Proportional sizing */
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    opacity: 0.8;
+    margin-bottom: 0.4em;
+    display: block;
+  }
+  .control-panel-overlay .panel-time-val {
+    font-size: 2.4em; /* Expanded clear view for the simulation timer clock */
+    font-weight: 800;
+    margin-top: 0;
+    margin-bottom: 0.9em;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+  .control-btn-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9em; /* Spacious gaps between button stack rows */
+    width: 100%;
+  }
+  .control-panel-overlay .btn {
+    font-size: 1.2em; /* Bigger button typography */
+    padding: 0.65em 1.2em; /* Tall comfortable hit targets */
+    border-radius: 10px;
+    transition: all 0.15s ease;
+  }
+  .btn-flex-row {
+    display: flex;
+    gap: 0.5em;
+    width: 100%;
+  }
+  .btn-flex-row .btn {
+    flex: 1;
+  }
+  .btn-full-width {
+    width: 100%;
+    text-align: left;
+  }
+
   .map-title-wrap {
     position: absolute;
     top: 20px;
@@ -25,7 +83,7 @@
   .party-logo-container {
     position: fixed;
     top: 30px;
-    left: 30px;
+    left: 1100px;
     z-index: 2000;
     
     width: 20em;
@@ -44,7 +102,7 @@
     
     object-fit: contain;
     
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.7));
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8));
   }
 
   .map-title {
@@ -59,39 +117,47 @@
     font-weight: 900;
     color: #fff;
     text-shadow: 0 2px 8px rgba(0,0,0,0.8), 0 0 4px rgba(0,0,0,0.8);
-    background: rgba(0,0,0,0.35);
-    backdrop-filter: blur(4px);
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(8px);
     border-radius: 12px;
   }
-  #simulator_control_row {
-    text-align: center;
-    margin-top: 1em;
-  }
-  #simulator_control_row .btn {
-    margin: 0 0.5em;
-  }
+  
+  /* Adjusted for containment inside left control widget */
   #run_minutes_panel {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    z-index: 1000;
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 10px;
-    padding: 0.8em 1em;
+    padding: 0.7em 0.9em;
     display: none;
+    width: 100%;
   }
-  #run_minutes_panel.visible { display: flex; align-items: center; gap: 0.5em; }
+  #run_minutes_panel.visible { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between;
+    gap: 0.6em; 
+  }
+  #run_minutes_panel label {
+    font-size: 1.15em;
+    font-weight: normal;
+    margin: 0;
+  }
   #run_minutes_input {
-    width: 5em;
+    width: 4.5em;
+    font-size: 1.1em;
     border-radius: 6px;
     border: none;
-    padding: 0.3em 0.5em;
+    padding: 0.35em;
+    color: #000;
+    text-align: center;
+    font-weight: bold;
   }
   #run_minutes_status {
     color: #fff;
-    font-size: 0.9em;
-    margin-left: 0.5em;
+    font-size: 1.15em;
+    font-style: italic;
+    margin-top: 0.5em;
+    text-align: center;
   }
   .agent-panel-wrap {
     height: 100%;
@@ -99,7 +165,8 @@
   .agent-card {
     display: flex;
     align-items: flex-start;
-    background: #ffffff;
+    background: rgba(255, 254, 254, 0.9);
+    backdrop-filter: blur(2px);
     border: 1px solid #e3e3e3;
     border-radius: 14px;
     padding: 0.9em 1.1em;
@@ -214,7 +281,7 @@
     background: #f9f9f9;
     margin-bottom: 0.5em;
     transition: transform 0.3s ease;
-	  image-rendering: pixelated;
+	image-rendering: pixelated;
   }
   .chat-agent-name {
     font-weight: 800;
@@ -241,8 +308,6 @@
     box-shadow: 0 4px 12px rgba(219, 230, 251, 0.6);
   }
 
- /* Interview panel (inline, bottom-right) */
- /* New overlay overlay container that covers the map precisely */
   #interview_overlay {
     display: none;
     position: absolute;
@@ -255,7 +320,6 @@
     justify-content: center;
   }
 
-  /* Restyle the interview panel into an optimized modal layout card */
   #interview_panel {
     background: rgba(0, 0, 0, 0.1);
     padding: 2em;
@@ -268,7 +332,6 @@
     border: 1px solid #e3e3e3;
   }
 
-  /* Ensure the agent's name remains readable on the new light modal background */
   #interview_panel .chat-agent-name {
     color: #26364d !important;
     font-weight: 800;
@@ -284,7 +347,7 @@
     background: None;
     margin-bottom: None;
     transition: None;
-	  image-rendering: pixelated;
+	image-rendering: pixelated;
   }
 
   #interview_panel .interview-controls {
@@ -313,8 +376,8 @@
   }
   #interview_question_input {
     border-radius: 4ch !important;
-    font-size: 1.2em;      /* Bigger typing text */
-    padding: 0.75em 1em;   /* Taller input */
+    font-size: 1.2em;      
+    padding: 0.75em 1em;   
   }
   #interview_question_input::placeholder {
     font-size: 1.2em;
@@ -337,7 +400,6 @@
     text-align: right !important;
   }
 
-  /* Speech-bubble chat rows */
   .interview-row {
     display: flex;
     align-items: flex-end;
@@ -397,14 +459,14 @@
   }
 
   .map-blurred-bg {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background-image: url("{% static 'assets/the_ville/visuals/map_assets/v3/tileset-grassland-grass.png' %}"); 
-	background-size: cover;
-	image-rendering: pixelated;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url("{% static 'assets/the_ville/visuals/map_assets/v3/tileset-grassland-grass.png' %}"); 
+    background-size: cover;
+    image-rendering: pixelated;
   }
 </style>
 
@@ -425,6 +487,61 @@
           <h1 class="map-title">Generative Agents School</h1>
         </div>
 
+        <!-- NEW OVERLAY CONTAINER OVER THE PHASER MAP -->
+        <div class="control-panel-overlay">
+          <span class="panel-label">Current Time</span>
+          <div class="panel-time-val"><span id="game-time-content"></span></div>
+          <!-- Replay Timeline Slider -->
+          {% if mode == 'replay' %}
+          <div style="margin-bottom: 1.2em; width: 100%;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.3em;">
+              <span class="panel-label" style="margin: 0;">Timeline Progress</span>
+              <span id="slider_step_val" style="font-size: 0.95em; opacity: 0.8; font-weight: bold;">Step: {{step}}</span>
+            </div>
+            <input type="range" id="replay_slider" min="0" max="4321" value="{{step}}" style="width: 100%; cursor: pointer;">
+          </div>
+          {% endif %}
+
+          <div class="control-btn-stack">
+            <!-- Play/Pause for Replay Mode -->
+            <div class="btn-flex-row" style="{% if mode == 'simulate' %} display: none {% endif %};">
+              <button id="play_button" type="button" class="btn btn-default">
+                <strong><i class="glyphicon glyphicon-play"></i> Play</strong>
+              </button>
+              <button id="pause_button" type="button" class="btn btn-default">
+                <strong><i class="glyphicon glyphicon-pause"></i> Pause</strong>
+              </button>
+            </div>
+
+            <!-- Simulation Run Parameters -->
+            {% if mode == 'simulate' %}
+            <div id="run_minutes_panel">
+              <label style="font-weight: normal; margin: 0;">Run for:</label>
+              <input type="number" id="run_minutes_input" min="1" value="10">
+              <label style="font-weight: normal; margin: 0;">min</label>
+              <button id="run_minutes_button" type="button" class="btn btn-primary btn-sm">
+                <strong>Run</strong>
+              </button>
+            </div>
+
+            <button id="save_button" type="button" class="btn btn-default btn-full-width">
+              <strong><i class="glyphicon glyphicon-floppy-disk"></i> &nbsp;Save</strong>
+            </button>
+            {% endif %}
+
+            <!-- Global Exit Action -->
+            <button id="exit_button" type="button" class="btn btn-danger btn-full-width">
+              <strong><i class="glyphicon glyphicon-off"></i> &nbsp;Exit</strong>
+            </button>
+          </div>
+
+          <!-- Status Message Target -->
+          <div id="run_minutes_status" style="display: none;">
+            Simulation running…
+          </div>
+        </div>
+
+        <!-- The Canvas Container -->
         <div id="game-container" style="text-align: center"></div>
 
         <!-- INTERVIEW BLUR OVERLAY CONTAINER -->
@@ -445,77 +562,85 @@
           </div>
         </div>
 
-        <!-- Centered Time and Controls -->
-        <div style="margin-top:1.5em; text-align: center; color: #ffffff;">
-          
-          <h3 style="margin-bottom: 0.2em; font-size:1.5em;">Current Time:</h3>
-          <h2 style="margin-top: 0; font-weight: bold;"><span id="game-time-content"></span></h2>
-
-          <!-- Play/Pause for Replay Mode -->
-          <div style="{% if mode == 'simulate' %} display: none {% endif %}; margin-top: 1em;">
-            <button id="play_button" type="button" class="btn btn-default">
-              <strong style="font-size:1.2em"><i class="glyphicon glyphicon-play"></i> &nbsp;Play</strong>
-            </button>
-            <button id="pause_button" type="button" class="btn btn-default">
-              <strong style="font-size:1.2em"><i class="glyphicon glyphicon-pause"></i> &nbsp;Pause</strong>
-            </button>
-          </div>
-
-          <!-- Run / Save / Exit Controls -->
-          <div id="simulator_control_row" style="margin-top: 1.5em; display: flex; justify-content: center; align-items: center; gap: 1em;">
-
-            {% if mode == 'simulate' %}
-            <div id="run_minutes_panel" style="display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 0.5em 1em; border-radius: 8px;">
-              <label style="font-size:1.2em; font-weight:normal; margin: 0 0.5em 0 0;">Run for</label>
-              <input type="number" id="run_minutes_input" min="1" value="10" style="width: 4em; color: black; font-size: 1.2em; text-align: center; border-radius: 4px; border: none; padding: 0.2em;">
-              <label style="font-size:1.2em; font-weight:normal; margin: 0 0.5em;">min</label>
-              <button id="run_minutes_button" type="button" class="btn btn-primary" style="margin-left: 0.5em;">
-                <strong style="font-size:1.2em"><i class="glyphicon glyphicon-play-circle"></i> &nbsp;Run</strong>
-              </button>
-            </div>
-
-            <button id="save_button" type="button" class="btn btn-default">
-              <strong style="font-size:1.2em"><i class="glyphicon glyphicon-floppy-disk"></i> &nbsp;Save</strong>
-            </button>
-            {% endif %}
-
-            <button id="exit_button" type="button" class="btn btn-danger">
-              <strong style="font-size:1.2em"><i class="glyphicon glyphicon-off"></i> &nbsp;Exit</strong>
-            </button>
-
-          </div>
-          
-          <!-- Status message below buttons -->
-          <div id="run_minutes_status" style="margin-top: 1em; font-size: 1.2em; font-style: italic; display: none;">
-            Simulation running…
-          </div>
-
-        </div> 
       </div> 
-
     </div>
 
     <!-- RIGHT: AGENT AVATARS + THOUGHT BUBBLES, THEN CHAT FEED -->
     <div class="col-md-5">
 
-      <div class="agent-panel-wrap">
-		<div style="height: 1.5em"></div>;
-        {% for p_name, p_name_os in persona_names %}
+    <div class="agent-panel-wrap">
+      <div style="height: 1.5em"></div>
+
+      <!-- TEACHERS SECTION -->
+      <h3 class="panel-section-heading" style="color: #ffffff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8em; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 0.3em;">Teachers</h3>
+      {% for p_name, p_name_os in persona_names %}
+        {% if p_name == "Katharina Weber" %}
           <div class="agent-card" data-persona-name="{{ p_name }}" data-persona-os="{{ p_name_os }}">
-            <div class="agent-avatar-wrap">
+            <div class="agent-avatar-wrap" style="position: relative;">
+              <!-- Left Top Emoji Badge -->
+              <div class="agent-emoji-badge" id="emoji_badge__{{ p_name_os }}" style="position: absolute; top: -6px; left: -6px; background: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; flex-direction: row; align-items: center; justify-content: center; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.25); font-size: 1.3em; z-index: 10; transition: all 0.2s ease;">
+                🦁
+              </div>
               {% with 'assets/characters/profile/'|add:p_name_os|add:'.png' as image_static %}
               <img class="agent-avatar" src="{% static image_static %}" alt="{{ p_name }}">
               {% endwith %}
             </div>
             <div class="agent-info">
               <div class="agent-name">{{ p_name }}</div>
-              <div class="agent-location" id="target_address__{{ p_name_os }}"></div>
-              <div class="thought-bubble" id="current_action__{{ p_name_os }}"></div>
+              <!-- Location with Map Marker Symbol -->
+              <div class="agent-location" style="font-size: 0.9em; color: #666; margin-bottom: 0.4em; display: flex; align-items: center; gap: 5px;">
+                <span class="glyphicon glyphicon-map-marker" style="color: #007bff;"></span>
+                <span id="target_address__{{ p_name_os }}"></span>
+              </div>
+              <!-- Action Layout Under Title Label -->
+              <div class="action-container" style="margin-top: 0.6em;">
+                <div style="font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.6px; color: #777; font-weight: 800; margin-bottom: 2px;">Current Action</div>
+                <div id="current_action__{{ p_name_os }}" style="font-size: 1.1em; color: #26364d; font-weight: 500; line-height: 1.3;"></div>
+              </div>
               <span id="chat__{{ p_name_os }}" style="display:none"></span>
             </div>
           </div>
-        {% endfor %}
-      </div>
+        {% endif %}
+      {% endfor %}
+
+      <div style="height: 1.5em"></div>
+
+    <!-- STUDENTS SECTION HEADING WITH INTERACTIVE FOLD TRIGGER -->
+    <h3 class="panel-section-heading" style="color: #ffffff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8em; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 0.3em; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleStudentsSection()">
+      <span>Students</span>
+      <span id="students_toggle_icon" class="glyphicon glyphicon-chevron-up" style="font-size: 0.8em;"></span>
+    </h3>
+    
+    <!-- Wrap cards container with target toggle control -->
+    <div id="students_section_content" style="display: block;">
+      {% for p_name, p_name_os in persona_names %}
+        {% if p_name != "Katharina Weber" %}
+          <div class="agent-card" data-persona-name="{{ p_name }}" data-persona-os="{{ p_name_os }}">
+            <div class="agent-avatar-wrap" style="position: relative;">
+              <!-- Left Top Emoji Badge -->
+              <div class="agent-emoji-badge" id="emoji_badge__{{ p_name_os }}" style="position: absolute; top: -6px; left: -6px; background: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; flex-direction: row; align-items: center; justify-content: center; white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.25); font-size: 1.3em; z-index: 10; transition: all 0.2s ease;">
+                🦁
+              </div>
+              {% with 'assets/characters/profile/'|add:p_name_os|add:'.png' as image_static %}
+              <img class="agent-avatar" src="{% static image_static %}" alt="{{ p_name }}">
+              {% endwith %}
+            </div>
+            <div class="agent-info">
+              <div class="agent-name">{{ p_name }}</div>
+              <div class="agent-location" style="font-size: 0.9em; color: #666; margin-bottom: 0.4em; display: flex; align-items: center; gap: 5px;">
+                <span class="glyphicon glyphicon-map-marker" style="color: #007bff;"></span>
+                <span id="target_address__{{ p_name_os }}"></span>
+              </div>
+              <div class="action-container" style="margin-top: 0.6em;">
+                <div style="font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.6px; color: #777; font-weight: 800; margin-bottom: 2px;">Current Action</div>
+                <div id="current_action__{{ p_name_os }}" style="font-size: 1.1em; color: #26364d; font-weight: 500; line-height: 1.3;"></div>
+              </div>
+              <span id="chat__{{ p_name_os }}" style="display:none"></span>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
 
 	  <div class="chat-feed-wrap" id="live_chat_feed_wrapper" style="margin-top:1em;">
 
@@ -632,9 +757,24 @@
   });
 
   {% if mode == 'replay' %}
-  // Spin up the interview-only backend so agent cards can be interviewed
-  // while this replay is playing.
   fetch("/replay_start_interview/{{ sim_code }}/");
   {% endif %}
+
+  function toggleStudentsSection(forceState) {
+    var content = document.getElementById("students_section_content");
+    var icon = document.getElementById("students_toggle_icon");
+    if (!content || !icon) return;
+
+    // If forceState is specified, use it. Otherwise, toggle current display state.
+    var shouldHide = (forceState !== undefined) ? forceState : (content.style.display !== "none");
+
+    if (shouldHide) {
+      content.style.display = "none";
+      icon.className = "glyphicon glyphicon-chevron-down";
+    } else {
+      content.style.display = "block";
+      icon.className = "glyphicon glyphicon-chevron-up";
+    }
+  }
 </script>
 {% endblock content %}
