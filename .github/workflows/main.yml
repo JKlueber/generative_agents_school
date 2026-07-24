@@ -1,0 +1,46 @@
+name: Run School Simulation
+
+on:
+  workflow_dispatch:
+    inputs:
+      forked_sim:
+        description: 'Name of forked simulation'
+        required: true
+        default: 'base_the_ville_n5_school'
+      new_sim:
+        description: 'Name of new simulation'
+        required: true
+        default: 'run_test'
+      history_file:
+        description: 'History CSV path'
+        required: true
+        default: 'the_ville/agent_history_init_n5_school_afd.csv'
+      steps_count:
+        description: 'Number of steps (run N)'
+        required: true
+        default: '1'
+
+jobs:
+  run-simulation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Simulation
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          KEY_OWNER: ${{ vars.KEY_OWNER }}
+        run: |
+          cd reverie/backend_server
+          
+          printf "${{ github.event.inputs.forked_sim }}\n${{ github.event.inputs.new_sim }}\ncall -- load history ${{ github.event.inputs.history_file }}\nrun ${{ github.event.inputs.steps_count }}\n" | python3 reverie.py
