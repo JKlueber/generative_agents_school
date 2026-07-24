@@ -484,24 +484,21 @@ def path_tester(request):
 
 def process_environment(request): 
   """
-  <FRONTEND to BACKEND> 
-  This sends the frontend visual world information to the backend server. 
-  It does this by writing the current environment representation to 
-  "storage/environment.json" file. 
-
-  ARGS:
-    request: Django request
-  RETURNS: 
-    HttpResponse: string confirmation message. 
+  Sends the frontend visual world information to the backend server. 
   """
-  # f_curr_sim_code = "temp_storage/curr_sim_code.json"
-  # with open(f_curr_sim_code) as json_file:  
-  #   sim_code = json.load(json_file)["sim_code"]
-
   data = json.loads(request.body)
   step = data["step"]
-  sim_code = data["sim_code"]
   environment = data["environment"]
+  
+  # Safe hybrid approach: Prioritize frontend payload, fall back to file cleanly
+  sim_code = data.get("sim_code")
+  if not sim_code:
+    f_curr_sim_code = "temp_storage/curr_sim_code.json"
+    try:
+      with open(f_curr_sim_code) as json_file:  
+        sim_code = json.load(json_file)["sim_code"]
+    except (FileNotFoundError, KeyError, json.JSONDecodeError):
+      return HttpResponse("error: missing simulation code context", status=400)
 
   with open(f"storage/{sim_code}/environment/{step}.json", "w") as outfile:
     outfile.write(json.dumps(environment, indent=2))
@@ -511,24 +508,20 @@ def process_environment(request):
 
 def update_environment(request): 
   """
-  <BACKEND to FRONTEND> 
-  This sends the backend computation of the persona behavior to the frontend
-  visual server. 
-  It does this by reading the new movement information from 
-  "storage/movement.json" file.
-
-  ARGS:
-    request: Django request
-  RETURNS: 
-    HttpResponse
+  Sends the backend computation of the persona behavior to the frontend visual server.
   """
-  # f_curr_sim_code = "temp_storage/curr_sim_code.json"
-  # with open(f_curr_sim_code) as json_file:  
-  #   sim_code = json.load(json_file)["sim_code"]
-
   data = json.loads(request.body)
   step = data["step"]
-  sim_code = data["sim_code"]
+
+  # Safe hybrid approach: Prioritize frontend payload, fall back to file cleanly
+  sim_code = data.get("sim_code")
+  if not sim_code:
+    f_curr_sim_code = "temp_storage/curr_sim_code.json"
+    try:
+      with open(f_curr_sim_code) as json_file:  
+        sim_code = json.load(json_file)["sim_code"]
+    except (FileNotFoundError, KeyError, json.JSONDecodeError):
+      return JsonResponse({"<step>": -1, "error": "missing simulation code context"}, status=400)
 
   response_data = {"<step>": -1}
   if (check_if_file_exists(f"storage/{sim_code}/movement/{step}.json")):
@@ -537,7 +530,6 @@ def update_environment(request):
       response_data["<step>"] = step
 
   return JsonResponse(response_data)
-
 
 def path_tester_update(request): 
   """
