@@ -41,6 +41,10 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           KEY_OWNER: ${{ vars.KEY_OWNER }}
         run: |
+          pip install pexpect
           cd reverie/backend_server
-          
-          printf "${{ github.event.inputs.forked_sim }}\n${{ github.event.inputs.new_sim }}\ncall -- load history ${{ github.event.inputs.history_file }}\nrun ${{ github.event.inputs.steps_count }}\n" | python3 reverie.py
+          python3 run_ci.py \
+            "${{ github.event.inputs.forked_sim }}" \
+            "${{ github.event.inputs.new_sim }}" \
+            "${{ github.event.inputs.history_file }}" \
+            "${{ github.event.inputs.steps_count }}"
