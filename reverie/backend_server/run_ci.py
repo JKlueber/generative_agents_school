@@ -32,8 +32,8 @@ steps = sys.argv[4]
 child = pexpect.spawn("python3 reverie.py", encoding="utf-8", timeout=None)
 child.logfile = sys.stdout 
 
-child.expect_exact("Enter option:")
-child.sendline(f"call -- load history {history_file}")
+# child.expect_exact("Enter option:")
+# child.sendline(f"call -- load history {history_file}")
 
 child.expect_exact("Enter option:")
 child.sendline("run 1")
