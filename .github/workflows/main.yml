@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install pexpect
+          pip install pexpect selenium webdriver-manager
 
       - name: Start Frontend Server
         run: |
