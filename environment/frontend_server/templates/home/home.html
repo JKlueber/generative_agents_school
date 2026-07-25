@@ -6,69 +6,25 @@
 <div class="map-blurred-bg"></div>
 
 <style>
+  /* ==========================================================================
+     LAYOUT: full-bleed blurred background behind the map
+     ========================================================================== */
+  .map-blurred-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url("{% static 'assets/the_ville/visuals/map_assets/v3/tileset-grassland-grass.png' %}");
+    background-size: cover;
+    image-rendering: pixelated;
+  }
+
   .map-container {
     position: relative;
     display: inline-block;
     width: 100%;
     text-align: center;
-  }
-
-  /* NEW: Glassmorphic Control Overlay in Top-Left Corner */
-  .control-panel-overlay {
-    position: absolute;
-    top: 950px;
-    left: -20px;
-    z-index: 2400; /* Positioned on top of the map tiles, below the interview layer */
-    background: rgba(0, 0, 0, 0.5); /* Deep transparent dark shade for optimal contrast */
-    padding: 1.8em; /* Expanded from 1.2em */
-    border-radius: 22px; /* Enhanced curvature for upscale look */
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    color: #ffffff;
-    text-align: left;
-    width: 410px; /* Broadened from 280px to accommodate robust spacing */
-  }
-  .control-panel-overlay .panel-label {
-    font-size: 1.05em; /* Proportional sizing */
-    text-transform: uppercase;
-    letter-spacing: 1.2px;
-    opacity: 0.8;
-    margin-bottom: 0.4em;
-    display: block;
-  }
-  .control-panel-overlay .panel-time-val {
-    font-size: 2.4em; /* Expanded clear view for the simulation timer clock */
-    font-weight: 800;
-    margin-top: 0;
-    margin-bottom: 0.9em;
-    line-height: 1.1;
-    letter-spacing: -0.5px;
-  }
-  .control-btn-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 0.9em; /* Spacious gaps between button stack rows */
-    width: 100%;
-  }
-  .control-panel-overlay .btn {
-    font-size: 1.2em; /* Bigger button typography */
-    padding: 0.65em 1.2em; /* Tall comfortable hit targets */
-    border-radius: 10px;
-    transition: all 0.15s ease;
-  }
-  .btn-flex-row {
-    display: flex;
-    gap: 0.5em;
-    width: 100%;
-  }
-  .btn-flex-row .btn {
-    flex: 1;
-  }
-  .btn-full-width {
-    width: 100%;
-    text-align: left;
   }
 
   .map-title-wrap {
@@ -79,38 +35,7 @@
     z-index: 1000;
     pointer-events: none;
   }
-
-  .party-logo-container {
-    position: absolute;
-    top: 30px;
-    right: 0px;
-    z-index: 2000;
-    
-    width: 20em;
-    height: 15em;
-    
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    
-    pointer-events: none;
-  }
-
-  .party-logo-container img {
-    max-width: 100%;
-    max-height: 100%;
-    
-    object-fit: contain;
-    
-    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8));
-  }
-
   .map-title {
-    position: static;
-    top: auto;
-    left: auto;
-    transform: none;
-
     margin: 0;
     padding: 0.25em 0.8em;
     font-size: 3.5em;
@@ -121,8 +46,77 @@
     backdrop-filter: blur(8px);
     border-radius: 12px;
   }
-  
-  /* Adjusted for containment inside left control widget */
+
+  .party-logo-container {
+    position: absolute;
+    top: 30px;
+    right: 0px;
+    z-index: 2000;
+    width: 20em;
+    height: 15em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+  }
+  .party-logo-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.8));
+  }
+
+  /* ==========================================================================
+     CONTROL PANEL: glassmorphic overlay (time, play/pause, run, save, exit)
+     ========================================================================== */
+  .control-panel-overlay {
+    position: absolute;
+    top: 950px;
+    left: -20px;
+    z-index: 2400; /* above the map tiles, below the interview overlay */
+    background: rgba(0, 0, 0, 0.5);
+    padding: 1.8em;
+    border-radius: 22px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    text-align: left;
+    width: 410px;
+  }
+  .control-panel-overlay .panel-label {
+    font-size: 1.05em;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    opacity: 0.8;
+    margin-bottom: 0.4em;
+    display: block;
+  }
+  .control-panel-overlay .panel-time-val {
+    font-size: 2.4em;
+    font-weight: 800;
+    margin-top: 0;
+    margin-bottom: 0.9em;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+  .control-btn-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9em;
+    width: 100%;
+  }
+  .control-panel-overlay .btn {
+    font-size: 1.2em;
+    padding: 0.65em 1.2em;
+    border-radius: 10px;
+    transition: all 0.15s ease;
+  }
+  .btn-flex-row { display: flex; gap: 0.5em; width: 100%; }
+  .btn-flex-row .btn { flex: 1; }
+  .btn-full-width { width: 100%; text-align: left; }
+
   #run_minutes_panel {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.12);
@@ -131,17 +125,13 @@
     display: none;
     width: 100%;
   }
-  #run_minutes_panel.visible { 
-    display: flex; 
-    align-items: center; 
+  #run_minutes_panel.visible {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
-    gap: 0.6em; 
+    gap: 0.6em;
   }
-  #run_minutes_panel label {
-    font-size: 1.15em;
-    font-weight: normal;
-    margin: 0;
-  }
+  #run_minutes_panel label { font-size: 1.15em; font-weight: normal; margin: 0; }
   #run_minutes_input {
     width: 4.5em;
     font-size: 1.1em;
@@ -159,9 +149,26 @@
     margin-top: 0.5em;
     text-align: center;
   }
-  .agent-panel-wrap {
-    height: 100%;
+
+  /* ==========================================================================
+     AGENT CARDS: avatar + name + location + current action, in the sidebar
+     ========================================================================== */
+  .agent-panel-wrap { height: 100%; }
+
+  .panel-section-heading {
+    color: #ffffff;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.8em;
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+    padding-bottom: 0.3em;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
+
   .agent-card {
     display: flex;
     align-items: flex-start;
@@ -179,11 +186,7 @@
     transform: translateY(-1px);
     border-color: #ABFF84;
   }
-  .agent-avatar-wrap {
-    position: relative;
-    flex: 0 0 auto;
-    margin-right: 1em;
-  }
+  .agent-avatar-wrap { position: relative; flex: 0 0 auto; margin-right: 1em; }
   .agent-avatar {
     width: 112px;
     height: 112px;
@@ -193,87 +196,102 @@
     box-shadow: 0 0 0 2px #ddd;
     background: #f4f4f4;
     display: block;
-	image-rendering: pixelated;
+    image-rendering: pixelated;
   }
-  .agent-info {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-  .agent-name {
-    font-weight: 700;
-    font-size: 1.5em;
-    margin: 0 0 0.15em 0;
-  }
-  .agent-location {
-    font-size: 0.8em;
-    color: #888;
-    margin-bottom: 0.4em;
-  }
-  .thought-bubble {
-    position: relative;
-    background: #f1f6ff;
-    border: 1px solid #dbe6fb;
-    border-radius: 12px;
-    padding: 0.5em 0.8em;
-    font-size: 1.2em;
-    color: #26364d;
-    display: inline-block;
-    max-width: 100%;
-  }
-  .thought-bubble:before {
-    content: "";
+  .agent-emoji-badge {
     position: absolute;
-    left: -7px;
-    top: 14px;
-    width: 12px;
-    height: 12px;
-    background: #f1f6ff;
-    border-left: 1px solid #dbe6fb;
-    border-bottom: 1px solid #dbe6fb;
-    transform: rotate(45deg);
+    top: -6px;
+    left: -6px;
+    background: #ffffff;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    font-size: 1.3em;
+    z-index: 10;
+    transition: all 0.2s ease;
+  }
+  .agent-info { flex: 1 1 auto; min-width: 0; }
+  .agent-name { font-weight: 700; font-size: 1.5em; margin: 0 0 0.15em 0; }
+  .agent-location {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 0.4em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .agent-location .glyphicon-map-marker { color: #007bff; }
+  .agent-action-label {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #777;
+    font-weight: 800;
+    margin-bottom: 2px;
+  }
+  .agent-action-value {
+    font-size: 1.1em;
+    color: #26364d;
+    font-weight: 500;
+    line-height: 1.3;
   }
 
- .chat-feed-wrap {
-    background: transparent; 
-    border: none;          
+  /* "Small mode": collapses a roster section down to a horizontal row of
+     bare avatars (used to free up space when there are active chats). See
+     the toggleSection() JS helper below. */
+  .agent-section.small-mode {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 0.5em 0;
+  }
+  .agent-section.small-mode .agent-info { display: none; }
+  .agent-section.small-mode .agent-card {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    margin-bottom: 0;
+  }
+
+  /* ==========================================================================
+     CHAT FEED: live two-persona conversation bubbles
+     ========================================================================== */
+  .chat-feed-wrap {
+    background: transparent;
+    border: none;
     padding: 1.5em 0;
     height: 100%;
-    box-shadow: none;        
-    display: none;        
+    box-shadow: none;
+    display: none;
   }
-  .chat-feed-title {
-    font-weight: 700;
-    font-size: 1.1em;
-    margin-bottom: 1em;
-    color: #333;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  /* Dual Avatar Conversation Box */
+
   .conversation-display-box {
-    display: none; 
+    display: none;
     align-items: center;
     justify-content: space-between;
     gap: 1.5em;
     padding: 1em 0;
     min-height: 180px;
   }
-  .conversation-display-box.active {
-    display: flex;
-  }
-  
+  .conversation-display-box.active { display: flex; }
+
   .chat-agent-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    width: 200px; 
+    width: 200px;
     flex-shrink: 0;
   }
   .chat-agent-avatar {
-    width: 180px; 
-    height: 180px; 
+    width: 180px;
+    height: 180px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid #ABFF84;
@@ -281,7 +299,7 @@
     background: #f9f9f9;
     margin-bottom: 0.5em;
     transition: transform 0.3s ease;
-	image-rendering: pixelated;
+    image-rendering: pixelated;
   }
   .chat-agent-name {
     font-weight: 800;
@@ -292,8 +310,6 @@
     text-overflow: ellipsis;
     max-width: 100%;
   }
-
-  /* Shared Speech Bubble */
   .shared-speech-bubble {
     position: relative;
     flex-grow: 1;
@@ -308,6 +324,9 @@
     box-shadow: 0 4px 12px rgba(219, 230, 251, 0.6);
   }
 
+  /* ==========================================================================
+     INTERVIEW OVERLAY: modal for "talking" to a persona live
+     ========================================================================== */
   #interview_overlay {
     display: none;
     position: absolute;
@@ -315,11 +334,10 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 2500;             
+    z-index: 2500;
     align-items: center;
     justify-content: center;
   }
-
   #interview_panel {
     background: rgba(0, 0, 0, 0.1);
     padding: 2em;
@@ -331,25 +349,20 @@
     min-height: 400px;
     border: 1px solid #e3e3e3;
   }
-
   #interview_panel .chat-agent-name {
     color: #26364d !important;
     font-weight: 800;
     font-size: 1.5em;
   }
-
   #interview_panel .chat-agent-avatar {
-    width: 250px; 
-    height: 250px; 
+    width: 250px;
+    height: 250px;
     border-radius: 50%;
-    border: None;
-    box-shadow: None;
-    background: None;
-    margin-bottom: None;
-    transition: None;
-	image-rendering: pixelated;
+    border: none;
+    box-shadow: none;
+    background: none;
+    image-rendering: pixelated;
   }
-
   #interview_panel .interview-controls {
     display: flex;
     flex-direction: column;
@@ -366,9 +379,9 @@
     margin-bottom: 0.8em;
     width: 50%;
     align-self: flex-end;
-    font-size: 1.3em;     
+    font-size: 1.3em;
     font-weight: bold;
-    padding: 0.8em 1.5em; 
+    padding: 0.8em 1.5em;
   }
   #interview_panel .interview-controls #interview_bye_button:hover {
     background: #c82333;
@@ -376,18 +389,12 @@
   }
   #interview_question_input {
     border-radius: 4ch !important;
-    font-size: 1.2em;      
-    padding: 0.75em 1em;   
-  }
-  #interview_question_input::placeholder {
     font-size: 1.2em;
+    padding: 0.75em 1em;
   }
+  #interview_question_input::placeholder { font-size: 1.2em; }
 
-  .interview-line {
-    text-align: left !important;
-    clear: both;
-    margin-bottom: 0.5em;
-  }
+  .interview-line { text-align: left !important; clear: both; margin-bottom: 0.5em; }
   .interview-line .interview-speaker {
     font-weight: 700;
     font-size: 0.75em;
@@ -396,21 +403,11 @@
     color: #888;
     display: block;
   }
-  .interview-line.from-user {
-    text-align: right !important;
-  }
+  .interview-line.from-user { text-align: right !important; }
 
-  .interview-row {
-    display: flex;
-    align-items: flex-end;
-    margin-bottom: 1em;
-  }
-  .interview-row.from-persona {
-    justify-content: flex-start;
-  }
-  .interview-row.from-user {
-    justify-content: flex-end;
-  }
+  .interview-row { display: flex; align-items: flex-end; margin-bottom: 1em; }
+  .interview-row.from-persona { justify-content: flex-start; }
+  .interview-row.from-user { justify-content: flex-end; }
   .interview-row-avatar {
     width: 56px;
     height: 56px;
@@ -427,8 +424,6 @@
     font-size: 1.2em;
     line-height: 1.4;
     border-radius: 16px;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
     color: #26364d;
   }
   .interview-row.from-persona .interview-bubble {
@@ -449,25 +444,6 @@
     color: #888;
     margin-bottom: 0.2em;
   }
-
-  #interview_question_input {
-    border-radius: 4ch !important;
-  }
-  #interview_submit_button {
-    border-radius: 40px;
-    margin-top: 0.5em;
-  }
-
-  .map-blurred-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-image: url("{% static 'assets/the_ville/visuals/map_assets/v3/tileset-grassland-grass.png' %}"); 
-    background-size: cover;
-    image-rendering: pixelated;
-  }
 </style>
 
 <br>
@@ -487,11 +463,10 @@
           <h1 class="map-title">Generative Agents School</h1>
         </div>
 
-        <!-- NEW OVERLAY CONTAINER OVER THE PHASER MAP -->
         <div class="control-panel-overlay">
           <span class="panel-label">Current Time</span>
           <div class="panel-time-val"><span id="game-time-content"></span></div>
-          <!-- Replay Timeline Slider -->
+
           {% if mode == 'replay' %}
           <div style="margin-bottom: 1.2em; width: 100%;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.3em;">
@@ -503,7 +478,6 @@
           {% endif %}
 
           <div class="control-btn-stack">
-            <!-- Play/Pause for Replay Mode -->
             <div class="btn-flex-row" style="{% if mode == 'simulate' %} display: none {% endif %};">
               <button id="play_button" type="button" class="btn btn-default">
                 <strong><i class="glyphicon glyphicon-play"></i> Play</strong>
@@ -513,7 +487,6 @@
               </button>
             </div>
 
-            <!-- Simulation Run Parameters -->
             {% if mode == 'simulate' %}
             <div id="run_minutes_panel">
               <label style="font-weight: normal; margin: 0;">Run for:</label>
@@ -529,22 +502,19 @@
             </button>
             {% endif %}
 
-            <!-- Global Exit Action -->
             <button id="exit_button" type="button" class="btn btn-danger btn-full-width">
               <strong><i class="glyphicon glyphicon-off"></i> &nbsp;Exit</strong>
             </button>
           </div>
 
-          <!-- Status Message Target -->
           <div id="run_minutes_status" style="display: none;">
             Simulation running…
           </div>
         </div>
 
-        <!-- The Canvas Container -->
         <div id="game-container" style="text-align: center"></div>
 
-        <!-- INTERVIEW BLUR OVERLAY CONTAINER -->
+        <!-- INTERVIEW OVERLAY -->
         <div id="interview_overlay">
           <div id="interview_panel" class="conversation-display-box">
             <div class="chat-agent-wrapper">
@@ -562,123 +532,97 @@
           </div>
         </div>
 
-      </div> 
+      </div>
     </div>
 
-    <!-- RIGHT: AGENT AVATARS + THOUGHT BUBBLES, THEN CHAT FEED -->
+    <!-- RIGHT: AGENT ROSTER + CHAT FEED -->
     <div class="col-md-5">
+      <div class="agent-panel-wrap">
+        <div style="height: 1.5em"></div>
 
-    <div class="agent-panel-wrap">
-      <div style="height: 1.5em"></div>
+        <!-- TEACHERS -->
+        <h3 class="panel-section-heading" onclick="toggleSection('teachers')">
+          <span>Teachers</span>
+          <span id="teachers_toggle_icon" class="glyphicon glyphicon-chevron-up" style="font-size: 0.8em;"></span>
+        </h3>
+        <div id="teachers_section_content" class="agent-section">
+          {% for p_name, p_name_os in persona_names %}
+            {% if p_name == "Katharina Weber" %}
+              <div class="agent-card" data-persona-name="{{ p_name }}" data-persona-os="{{ p_name_os }}">
+                <div class="agent-avatar-wrap">
+                  <div class="agent-emoji-badge" id="emoji_badge__{{ p_name_os }}">🦁</div>
+                  {% with 'assets/characters/profile/'|add:p_name_os|add:'.png' as image_static %}
+                  <img class="agent-avatar" src="{% static image_static %}" alt="{{ p_name }}">
+                  {% endwith %}
+                </div>
+                <div class="agent-info">
+                  <div class="agent-name">{{ p_name }}</div>
+                  <div class="agent-location">
+                    <span class="glyphicon glyphicon-map-marker"></span>
+                    <span id="target_address__{{ p_name_os }}"></span>
+                  </div>
+                  <div class="action-container" style="margin-top: 0.6em;">
+                    <div class="agent-action-label">Current Action</div>
+                    <div id="current_action__{{ p_name_os }}" class="agent-action-value"></div>
+                  </div>
+                  <span id="chat__{{ p_name_os }}" style="display:none"></span>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
 
-      <!-- TEACHERS SECTION -->
-      <h3 class="panel-section-heading" style="color: #ffffff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8em; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 0.3em; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleTeachersSection()">
-        <span>Teachers</span>
-        <span id="teachers_toggle_icon" class="glyphicon glyphicon-chevron-up" style="font-size: 0.8em;"></span>
-      </h3>
-      <div id="teachers_section_content" style="display: block;">
-        {% for p_name, p_name_os in persona_names %}
-          {% if p_name == "Katharina Weber" %}
-            <div class="agent-card" data-persona-name="{{ p_name }}" data-persona-os="{{ p_name_os }}">
-              <div class="agent-avatar-wrap" style="position: relative;">
-                <!-- Left Top Emoji Badge -->
-                <div class="agent-emoji-badge" id="emoji_badge__{{ p_name_os }}" style="position: absolute; top: -6px; left: -6px; background: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25); font-size: 1.3em; z-index: 10;">
-                  🦁
+        <div style="height: 1.5em"></div>
+
+        <!-- STUDENTS -->
+        <h3 class="panel-section-heading" onclick="toggleSection('students')">
+          <span>Students</span>
+          <span id="students_toggle_icon" class="glyphicon glyphicon-chevron-up" style="font-size: 0.8em;"></span>
+        </h3>
+        <div id="students_section_content" class="agent-section">
+          {% for p_name, p_name_os in persona_names %}
+            {% if p_name != "Katharina Weber" %}
+              <div class="agent-card" data-persona-name="{{ p_name }}" data-persona-os="{{ p_name_os }}">
+                <div class="agent-avatar-wrap">
+                  <div class="agent-emoji-badge" id="emoji_badge__{{ p_name_os }}">🦁</div>
+                  {% with 'assets/characters/profile/'|add:p_name_os|add:'.png' as image_static %}
+                  <img class="agent-avatar" src="{% static image_static %}" alt="{{ p_name }}">
+                  {% endwith %}
                 </div>
-                {% with 'assets/characters/profile/'|add:p_name_os|add:'.png' as image_static %}
-                <img class="agent-avatar" src="{% static image_static %}" alt="{{ p_name }}">
-                {% endwith %}
+                <div class="agent-info">
+                  <div class="agent-name">{{ p_name }}</div>
+                  <div class="agent-location">
+                    <span class="glyphicon glyphicon-map-marker"></span>
+                    <span id="target_address__{{ p_name_os }}"></span>
+                  </div>
+                  <div class="action-container" style="margin-top: 0.6em;">
+                    <div class="agent-action-label">Current Action</div>
+                    <div id="current_action__{{ p_name_os }}" class="agent-action-value"></div>
+                  </div>
+                  <span id="chat__{{ p_name_os }}" style="display:none"></span>
+                </div>
               </div>
-              <div class="agent-info">
-                <div class="agent-name">{{ p_name }}</div>
-                <!-- Location with Map Marker Symbol -->
-                <div class="agent-location" style="font-size: 0.9em; color: #666; margin-bottom: 0.4em; display: flex; align-items: center; gap: 5px;">
-                  <span class="glyphicon glyphicon-map-marker" style="color: #007bff;"></span>
-                  <span id="target_address__{{ p_name_os }}"></span>
-                </div>
-                <!-- Action Layout Under Title Label -->
-                <div class="action-container" style="margin-top: 0.6em;">
-                  <div style="font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.6px; color: #777; font-weight: 800; margin-bottom: 2px;">Current Action</div>
-                  <div id="current_action__{{ p_name_os }}" style="font-size: 1.1em; color: #26364d; font-weight: 500; line-height: 1.3;"></div>
-                </div>
-                <span id="chat__{{ p_name_os }}" style="display:none"></span>
-              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+        <div class="chat-feed-wrap" id="live_chat_feed_wrapper" style="margin-top:1em;">
+          <div id="dynamic_conversation_box" class="conversation-display-box">
+            <div class="chat-agent-wrapper">
+              <img id="chat_agent_left_img" class="chat-agent-avatar" src="" alt="">
+              <div id="chat_agent_left_name" class="chat-agent-name">Agent 1</div>
             </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-
-      <div style="height: 1.5em"></div>
-
-    <!-- STUDENTS SECTION HEADING WITH INTERACTIVE FOLD TRIGGER -->
-    <h3 class="panel-section-heading" style="color: #ffffff; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8em; border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 0.3em; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleStudentsSection()">
-      <span>Students</span>
-      <span id="students_toggle_icon" class="glyphicon glyphicon-chevron-up" style="font-size: 0.8em;"></span>
-    </h3>
-    
-    <!-- Wrap cards container with target toggle control -->
-    <div id="students_section_content" style="display: block;">
-      {% for p_name, p_name_os in persona_names %}
-        {% if p_name != "Katharina Weber" %}
-          <div class="agent-card" data-persona-name="{{ p_name }}" data-persona-os="{{ p_name_os }}">
-            <div class="agent-avatar-wrap" style="position: relative;">
-              <!-- Left Top Emoji Badge -->
-              <div class="agent-emoji-badge" id="emoji_badge__{{ p_name_os }}" style="position: absolute; top: -6px; left: -6px; background: #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25); font-size: 1.3em; z-index: 10; transition: all 0.2s ease;">
-                🦁
-              </div>
-              {% with 'assets/characters/profile/'|add:p_name_os|add:'.png' as image_static %}
-              <img class="agent-avatar" src="{% static image_static %}" alt="{{ p_name }}">
-              {% endwith %}
-            </div>
-            <div class="agent-info">
-              <div class="agent-name">{{ p_name }}</div>
-              <div class="agent-location" style="font-size: 0.9em; color: #666; margin-bottom: 0.4em; display: flex; align-items: center; gap: 5px;">
-                <span class="glyphicon glyphicon-map-marker" style="color: #007bff;"></span>
-                <span id="target_address__{{ p_name_os }}"></span>
-              </div>
-              <div class="action-container" style="margin-top: 0.6em;">
-                <div style="font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.6px; color: #777; font-weight: 800; margin-bottom: 2px;">Current Action</div>
-                <div id="current_action__{{ p_name_os }}" style="font-size: 1.1em; color: #26364d; font-weight: 500; line-height: 1.3;"></div>
-              </div>
-              <span id="chat__{{ p_name_os }}" style="display:none"></span>
+            <div id="shared_speech_bubble_content" class="shared-speech-bubble"></div>
+            <div class="chat-agent-wrapper">
+              <img id="chat_agent_right_img" class="chat-agent-avatar" src="" alt="">
+              <div id="chat_agent_right_name" class="chat-agent-name">Agent 2</div>
             </div>
           </div>
-        {% endif %}
-      {% endfor %}
-    </div>
 
-	  <div class="chat-feed-wrap" id="live_chat_feed_wrapper" style="margin-top:1em;">
+          <div id="global_chat_feed" style="display:none;"></div>
+        </div>
 
-	    <div id="dynamic_conversation_box" class="conversation-display-box">
-		  <div class="chat-agent-wrapper">
-		    <img id="chat_agent_left_img" class="chat-agent-avatar" src="" alt="">
-		    <div id="chat_agent_left_name" class="chat-agent-name">Agent 1</div>
-		  </div>
-		  <div id="shared_speech_bubble_content" class="shared-speech-bubble"></div>
-		  <div class="chat-agent-wrapper">
-		    <img id="chat_agent_right_img" class="chat-agent-avatar" src="" alt="">
-		    <div id="chat_agent_right_name" class="chat-agent-name">Agent 2</div>
-		  </div>
-	    </div>
-
-	    <div id="interview_panel" class="conversation-display-box">
-	      <div class="chat-agent-wrapper">
-	        <img id="interview_agent_img" class="chat-agent-avatar" src="" alt="">
-	        <div id="interview_agent_name" class="chat-agent-name"></div>
-	      </div>
-
-	      <div id="interview_speech_bubble" class="shared-speech-bubble"></div>
-
-	      <div class="interview-controls">
-	        <input type="text" id="interview_question_input" class="form-control" placeholder="Ask something...">
-			<div style="height:0.5em"></div>
-	        <button id="interview_bye_button" type="button" class="btn btn-default">Bye!</button>
-	      </div>
-	    </div>
-
-	    <div id="global_chat_feed" style="display:none;"></div>
-	  </div>
-
+      </div>
     </div>
   </div>
 </div>
@@ -690,6 +634,9 @@
 {% include 'home/interview_script.html' %}
 
 <script>
+  // ==========================================================================
+  // SIMULATION CONTROLS: run-for-N-minutes, save, exit
+  // ==========================================================================
   {% if mode == 'simulate' %}
   var runMinutesPanel = document.getElementById("run_minutes_panel");
   var runMinutesStatus = document.getElementById("run_minutes_status");
@@ -765,122 +712,36 @@
   fetch("/replay_start_interview/{{ sim_code }}/");
   {% endif %}
 
-  function toggleStudentsSection(forceState) {
-    var content = document.getElementById("students_section_content");
-    var icon = document.getElementById("students_toggle_icon");
+  // ==========================================================================
+  // ROSTER SECTION COLLAPSE/EXPAND
+  //
+  // Both the "Teachers" and "Students" rosters can be toggled between a
+  // full card list and a compact horizontal row of bare avatars (used to
+  // free up space when the chat feed has active conversations to show).
+  // This single parameterized function replaces what used to be two
+  // near-identical copies (one per section).
+  // ==========================================================================
+  function toggleSection(sectionName, forceSmall) {
+    var content = document.getElementById(sectionName + "_section_content");
+    var icon = document.getElementById(sectionName + "_toggle_icon");
     if (!content || !icon) return;
 
-    // Track if we are currently in the horizontal small-mode layout
-    var isCurrentlySmall = (content.style.display === "flex");
-    var shouldBeSmall = (forceState !== undefined) ? forceState : !isCurrentlySmall;
+    var isCurrentlySmall = content.classList.contains("small-mode");
+    var shouldBeSmall = (forceSmall !== undefined) ? forceSmall : !isCurrentlySmall;
 
-    var infos = content.getElementsByClassName("agent-info");
-    var cards = content.getElementsByClassName("agent-card");
-
-    if (shouldBeSmall) {
-      // === SMALL MODE: Arrange avatars + emojis horizontally in a single row ===
-      content.style.display = "flex";
-      content.style.flexDirection = "row";
-      content.style.flexWrap = "wrap";
-      content.style.gap = "14px";
-      content.style.padding = "0.5em 0";
-      
-      icon.className = "glyphicon glyphicon-chevron-down";
-
-      // Hide text details
-      for (var i = 0; i < infos.length; i++) {
-        infos[i].style.display = "none";
-      }
-      // Collapse card borders/backgrounds to show purely the avatar elements
-      for (var i = 0; i < cards.length; i++) {
-        cards[i].style.padding = "0";
-        cards[i].style.background = "transparent";
-        cards[i].style.border = "none";
-        cards[i].style.boxShadow = "none";
-        cards[i].style.marginBottom = "0";
-      }
-    } else {
-      // === FULL MODE: Restore standard card list stack ===
-      content.style.display = "block";
-      content.style.flexDirection = "";
-      content.style.flexWrap = "";
-      content.style.gap = "";
-      content.style.padding = "";
-      
-      icon.className = "glyphicon glyphicon-chevron-up";
-
-      // Show text details again
-      for (var i = 0; i < infos.length; i++) {
-        infos[i].style.display = "block";
-      }
-      // Clearing inline styles seamlessly snaps them back to the original CSS definitions[cite: 1]
-      for (var i = 0; i < cards.length; i++) {
-        cards[i].style.padding = "";
-        cards[i].style.background = "";
-        cards[i].style.border = "";
-        cards[i].style.boxShadow = "";
-        cards[i].style.marginBottom = "";
-      }
-    }
+    content.classList.toggle("small-mode", shouldBeSmall);
+    icon.className = shouldBeSmall
+      ? "glyphicon glyphicon-chevron-down"
+      : "glyphicon glyphicon-chevron-up";
   }
 
-  function toggleTeachersSection(forceState) {
-    var content = document.getElementById("teachers_section_content");
-    var icon = document.getElementById("teachers_toggle_icon");
-    if (!content || !icon) return;
-
-    // Track if we are currently in the horizontal small-mode layout
-    var isCurrentlySmall = (content.style.display === "flex");
-    var shouldBeSmall = (forceState !== undefined) ? forceState : !isCurrentlySmall;
-
-    var infos = content.getElementsByClassName("agent-info");
-    var cards = content.getElementsByClassName("agent-card");
-
-    if (shouldBeSmall) {
-      // === SMALL MODE: Arrange avatars + emojis horizontally in a single row ===
-      content.style.display = "flex";
-      content.style.flexDirection = "row";
-      content.style.flexWrap = "wrap";
-      content.style.gap = "14px";
-      content.style.padding = "0.5em 0";
-      
-      icon.className = "glyphicon glyphicon-chevron-down";
-
-      // Hide text details
-      for (var i = 0; i < infos.length; i++) {
-        infos[i].style.display = "none";
-      }
-      // Collapse card borders/backgrounds to show purely the avatar elements
-      for (var i = 0; i < cards.length; i++) {
-        cards[i].style.padding = "0";
-        cards[i].style.background = "transparent";
-        cards[i].style.border = "none";
-        cards[i].style.boxShadow = "none";
-        cards[i].style.marginBottom = "0";
-      }
-    } else {
-      // === FULL MODE: Restore standard card list stack ===
-      content.style.display = "block";
-      content.style.flexDirection = "";
-      content.style.flexWrap = "";
-      content.style.gap = "";
-      content.style.padding = "";
-      
-      icon.className = "glyphicon glyphicon-chevron-up";
-
-      // Show text details again
-      for (var i = 0; i < infos.length; i++) {
-        infos[i].style.display = "block";
-      }
-      // Clearing inline styles seamlessly snaps them back to the original CSS definitions[cite: 1]
-      for (var i = 0; i < cards.length; i++) {
-        cards[i].style.padding = "";
-        cards[i].style.background = "";
-        cards[i].style.border = "";
-        cards[i].style.boxShadow = "";
-        cards[i].style.marginBottom = "";
-      }
-    }
+  // Kept as thin named wrappers since main_script.html calls this one by
+  // name when active conversations appear/disappear.
+  function toggleStudentsSection(forceSmall) {
+    toggleSection('students', forceSmall);
+  }
+  function toggleTeachersSection(forceSmall) {
+    toggleSection('teachers', forceSmall);
   }
 </script>
 {% endblock content %}
