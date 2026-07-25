@@ -42,7 +42,7 @@ jobs:
       - name: Start Frontend Server
         run: |
           cd environment/frontend_server
-          python3 manage.py runserver 0.0.0.0:8000 &
+          python3 manage.py runserver &
           # Wait a few seconds to ensure Django is up and running
           sleep 5
 
@@ -50,7 +50,6 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           KEY_OWNER: ${{ vars.KEY_OWNER }}
-          PYTHONUNBUFFERED: "1"
         run: |
           cd reverie/backend_server
           python3 run_ci.py \
