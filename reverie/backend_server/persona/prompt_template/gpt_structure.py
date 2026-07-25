@@ -9,13 +9,23 @@ import random
 import time 
 from openai import OpenAI
 from utils import *
+import threading
+
 
 # 1. Initialize the modern OpenAI client
 # Assumes openai_api_key is still imported from utils.py
 client = OpenAI(api_key=openai_api_key, base_url="https://openrouter.ai/api/v1")
 
+_last_call_lock = threading.Lock()
+_last_call_time = [0.0]
+MIN_INTERVAL = 0.3  # seconds between calls; tune to your OpenRouter tier's rate limit
+
 def temp_sleep(seconds=0.1):
-  time.sleep(seconds)
+  with _last_call_lock:
+    elapsed = time.time() - _last_call_time[0]
+    wait = max(0, MIN_INTERVAL - elapsed) or seconds
+    time.sleep(wait)
+    _last_call_time[0] = time.time()
 
 def ChatGPT_single_request(prompt): 
   temp_sleep()
