@@ -42,7 +42,7 @@ jobs:
       - name: Start Frontend Server
         run: |
           cd environment/frontend_server
-          python3 manage.py runserver &
+          python3 manage.py runserver 127.0.0.1:8000 &
           # Wait a few seconds to ensure Django is up and running
           sleep 5
 

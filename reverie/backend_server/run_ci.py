@@ -18,6 +18,11 @@ driver = webdriver.Chrome(
     options=chrome_options
 )
 
+# Open your Django frontend page
+driver.get("http://127.0.0.1:8000/simulator_home")
+print("Frontend page loaded successfully in background.")
+
+
 # --- 2. Start Reverie Simulation ---
 forked_sim = sys.argv[1]
 new_sim = sys.argv[2]
@@ -29,10 +34,6 @@ child.logfile = sys.stdout
 
 child.expect_exact("Enter option:")
 child.sendline(f"call -- load history {history_file}")
-
-# Open your Django frontend page
-driver.get("http://localhost:8000/simulator_home")
-print("Frontend page loaded successfully in background.")
 
 child.expect_exact("Enter option:")
 child.sendline("run 1")
