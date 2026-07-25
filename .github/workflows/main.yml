@@ -49,3 +49,12 @@ jobs:
             "${{ github.event.inputs.new_sim }}" \
             "${{ github.event.inputs.history_file }}" \
             "${{ github.event.inputs.steps_count }}"
+
+      - name: Upload Simulation Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulation-output-${{ github.event.inputs.new_sim }}
+          path: |
+            environment/frontend_server/storage/
+          retention-days: 7
