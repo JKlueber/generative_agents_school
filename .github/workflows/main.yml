@@ -56,5 +56,5 @@ jobs:
         with:
           name: simulation-output-${{ github.event.inputs.new_sim }}
           path: |
-            environment/frontend_server/storage/
+            environment/frontend_server/storage/${{ github.event.inputs.new_sim }}
           retention-days: 7

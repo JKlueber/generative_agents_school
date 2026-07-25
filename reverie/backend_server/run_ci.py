@@ -21,9 +21,9 @@ child.sendline(new_sim)
 child.expect_exact("Enter option:")
 child.sendline("headless on")
 
-# # 3. Wait for main reverie prompt, then load history
-# child.expect_exact("Enter option:")
-# child.sendline(f"call -- load history {history_file}")
+# 3. Wait for main reverie prompt, then load history
+child.expect_exact("Enter option:")
+child.sendline(f"call -- load history {history_file}")
 
 # 4. Step 1 (warmup)
 child.expect_exact("Enter option:")
