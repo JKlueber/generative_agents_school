@@ -23,6 +23,7 @@ on:
 jobs:
   run-simulation:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
 
     steps:
       - name: Checkout code
@@ -40,6 +41,7 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           KEY_OWNER: ${{ vars.KEY_OWNER }}
+          PYTHONUNBUFFERED: "1"
         run: |
           pip install pexpect
           cd reverie/backend_server
