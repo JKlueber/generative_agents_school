@@ -110,6 +110,15 @@ class ReverieServer:
     # don't peg the CPU.
     self.server_sleep = 0.1
 
+    # HEADLESS MODE:
+    # When True, start_server() does not wait for the frontend to report
+    # persona tile positions after each step. Instead it writes the
+    # environment file for the *next* step itself, using the tile each
+    # persona.move() just decided on -- standing in for the frontend's
+    # process_environment POST. Lets `run N` advance with no browser
+    # attached (e.g. in CI).
+    self.headless = False
+
     # SIGNALING THE FRONTEND SERVER:
     # curr_sim_code.json / curr_step.json communicate the current sim code
     # and step to the frontend. The step file is removed as soon as the
@@ -118,6 +127,28 @@ class ReverieServer:
       outfile.write(json.dumps({"sim_code": self.sim_code}, indent=2))
     with open(f"{fs_temp_storage}/curr_step.json", "w") as outfile:
       outfile.write(json.dumps({"step": self.step}, indent=2))
+
+
+  def _write_headless_environment(self, next_step, movements):
+    """
+    Headless-mode helper: writes storage/<sim_code>/environment/<next_step>.json
+    directly from the movement decisions we just made. Each persona is
+    placed exactly on the tile persona.move() chose as their next step --
+    there's no pixel-level animation to simulate here, so this is a 1:1
+    substitute for what the frontend would have posted.
+    """
+    sim_folder = f"{fs_storage}/{self.sim_code}"
+    environment = dict()
+    for persona_name, move_info in movements["persona"].items():
+      x, y = move_info["movement"]
+      environment[persona_name] = {
+        "maze": self.maze.maze_name,
+        "x": x,
+        "y": y,
+      }
+    env_file = f"{sim_folder}/environment/{next_step}.json"
+    with open(env_file, "w") as outfile:
+      outfile.write(json.dumps(environment, indent=2))
 
 
   def save(self):
@@ -296,6 +327,13 @@ class ReverieServer:
         curr_move_file = f"{sim_folder}/movement/{self.step}.json"
         with open(curr_move_file, "w") as outfile:
           outfile.write(json.dumps(movements, indent=2))
+
+        # HEADLESS MODE: synthesize next step's environment file ourselves
+        # instead of waiting for the frontend to post one.
+        if self.headless:
+          next_env_file = f"{sim_folder}/environment/{self.step + 1}.json"
+          if not check_if_file_exists(next_env_file):
+            self._write_headless_environment(self.step + 1, movements)
 
         self.step += 1
         self.curr_time += datetime.timedelta(seconds=self.sec_per_step)
@@ -572,6 +610,16 @@ class ReverieServer:
           # Services interview requests only; used to power interviews
           # during a replay session (see views.py).
           self.start_interview_only_server()
+
+        elif sim_command_lower == "headless on":
+          self.headless = True
+          print("Headless mode enabled -- backend will self-advance "
+                "without waiting for a frontend.")
+
+        elif sim_command_lower == "headless off":
+          self.headless = False
+          print("Headless mode disabled -- backend will wait for "
+                "frontend environment updates again.")
 
         else:
           # Dispatch to the first matching prefix handler.
