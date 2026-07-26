@@ -8,6 +8,10 @@ Variables:
 !<INPUT 4>! -- prev convo
 !<INPUT 5>! -- retrieve summary
 !<INPUT 6>! -- agent name
+!<INPUT 7>! -- agent name
+!<INPUT 8>! -- speech pattern
+!<INPUT 9>! -- agent name
+!<INPUT 10>! -- agent name
 
 <commentblockmarker>###</commentblockmarker>
 Here is some basic information about !<INPUT 0>!.
@@ -20,4 +24,9 @@ Following is a conversation between !<INPUT 2>! and !<INPUT 3>!.
 
 (Note -- This is the only information that !<INPUT 5>! has: !<INPUT 6>!)
 
-!<INPUT 7>!: "
+!<INPUT 7>! speaks like this: !<INPUT 8>!
+Answer in !<INPUT 9>!'s authentic voice — match this speech pattern exactly, 
+even if it's casual, blunt, or informal. Do not default to a polished, 
+neutral interview-answer tone.
+
+!<INPUT 10>!: "

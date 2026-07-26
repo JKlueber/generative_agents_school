@@ -39,24 +39,34 @@ def ChatGPT_single_request(prompt):
 # #####################[SECTION 1: CHATGPT-3 STRUCTURE] ######################
 # ============================================================================
 
-def GPT4_request(prompt): 
+def GPT4_request(prompt, gpt_param=None): 
   temp_sleep()
   try: 
-    completion = client.chat.completions.create(
-      model="gpt-4o", # Upgraded from gpt-4 to the faster, cheaper gpt-4o
-      messages=[{"role": "user", "content": prompt}]
-    )
+    params = {
+      "model": "gpt-4o",
+      "messages": [{"role": "user", "content": prompt}],
+    }
+    if gpt_param:
+      params["temperature"] = gpt_param.get("temperature", 0.8)
+      params["frequency_penalty"] = gpt_param.get("frequency_penalty", 0)
+      params["presence_penalty"] = gpt_param.get("presence_penalty", 0)
+    completion = client.chat.completions.create(**params)
     return completion.choices[0].message.content
   except Exception as e: 
     print (f"ChatGPT ERROR: {e}")
     return "ChatGPT ERROR"
-
-def ChatGPT_request(prompt): 
+  
+def ChatGPT_request(prompt, gpt_param=None): 
   try: 
-    completion = client.chat.completions.create(
-      model="gpt-3.5-turbo", 
-      messages=[{"role": "user", "content": prompt}]
-    )
+    params = {
+      "model": "gpt-3.5-turbo",
+      "messages": [{"role": "user", "content": prompt}],
+    }
+    if gpt_param:
+      params["temperature"] = gpt_param.get("temperature", 0.8)
+      params["frequency_penalty"] = gpt_param.get("frequency_penalty", 0)
+      params["presence_penalty"] = gpt_param.get("presence_penalty", 0)
+    completion = client.chat.completions.create(**params)
     return completion.choices[0].message.content
   except Exception as e: 
     print (f"ChatGPT ERROR: {e}")
@@ -110,12 +120,29 @@ def ChatGPT_safe_generate_response(prompt, example_output, special_instruction, 
       pass
   return False
 
-def ChatGPT_safe_generate_response_OLD(prompt, repeat=3, fail_safe_response="error", func_validate=None, func_clean_up=None, verbose=False): 
+def ChatGPT_safe_generate_response_OLD(prompt, repeat=3, fail_safe_response="error", func_validate=None, func_clean_up=None, verbose=False, *, gpt_param=None): 
   if verbose: print ("CHAT GPT PROMPT\n", prompt)
 
   for i in range(repeat): 
     try: 
-      curr_gpt_response = ChatGPT_request(prompt).strip()
+      curr_gpt_response = ChatGPT_request(prompt, gpt_param).strip()
+      if func_validate(curr_gpt_response, prompt=prompt): 
+        return func_clean_up(curr_gpt_response, prompt=prompt)
+      if verbose: 
+        print (f"---- repeat count: {i}\n", curr_gpt_response)
+    except: 
+      pass
+  print ("FAIL SAFE TRIGGERED") 
+  return fail_safe_response
+
+def GPT4_safe_generate_response_OLD(prompt, repeat=3, fail_safe_response="error", 
+                                     func_validate=None, func_clean_up=None, 
+                                     verbose=False, *, gpt_param=None): 
+  if verbose: print ("GPT4 PROMPT\n", prompt)
+
+  for i in range(repeat): 
+    try: 
+      curr_gpt_response = GPT4_request(prompt, gpt_param).strip()
       if func_validate(curr_gpt_response, prompt=prompt): 
         return func_clean_up(curr_gpt_response, prompt=prompt)
       if verbose: 
@@ -191,6 +218,7 @@ def get_embedding(text, model="text-embedding-3-small"):
   # 5. Updated embeddings API syntax
   response = client.embeddings.create(input=[text], model=model)
   return response.data[0].embedding
+
 
 
 

@@ -13,8 +13,13 @@ Variables:
 !<INPUT 9>! -- persona name
 !<INPUT 10>! -- target persona name
 !<INPUT 11>! -- persona name
-!<INPUT 12>! -- persona name
-!<INPUT 13>! -- persona name
+!<INPUT 12>! -- speech pattern
+!<INPUT 13>! -- target persona name
+!<INPUT 14>! -- persona name
+!<INPUT 15>! -- persona name
+!<INPUT 16>! -- persona name
+!<INPUT 17>! -- persona name
+!<INPUT 18>! -- persona name
 <commentblockmarker>###</commentblockmarker>
 Context for the task: 
 
@@ -39,8 +44,22 @@ Current Context:
 ---
 Task: Given the above, what should !<INPUT 9>! say to !<INPUT 10>! next in the conversation? And did it end the conversation?
 
+IMPORTANT: 
+- !<INPUT 11>! must speak in their authentic voice: !<INPUT 12>!. 
+  Do not default to neutral, polite, or "textbook" phrasing — 
+  match the vocabulary, sentence length, and tone described above, even if it sounds informal or blunt.
+- Do NOT repeat a topic, story, or phrase that already appeared earlier in this conversation. 
+  Move the conversation forward — react to what !<INPUT 13>! just said, rather than 
+  reintroducing an earlier tangent.
+- If !<INPUT 14>! has already made a point (e.g. already refused, already reminded the other 
+  person of something), do not restate it in the same way again — either drop it, escalate 
+  it, or respond differently now that it's already been said once.
+- If !<INPUT 15>! has made the same point more than once already, consider ending the 
+  conversation naturally (e.g. walking away, changing the subject conclusively, or 
+  disengaging) rather than repeating it again.
+
 Output format: Output a json of the following format: 
 {
-"!<INPUT 11>!": "<!<INPUT 12>!'s utterance>",
-"Did the conversation end with !<INPUT 13>!'s utterance?": "<json Boolean>"
+"!<INPUT 16>!": "<!<INPUT 17>!'s utterance>",
+"Did the conversation end with !<INPUT 18>!'s utterance?": "<json Boolean>"
 }

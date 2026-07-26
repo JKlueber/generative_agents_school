@@ -5,11 +5,13 @@ Variables:
 !<INPUT 1>! -- persona name
 !<INPUT 2>! -- persona name
 !<INPUT 3>! -- persona name
+!<INPUT 4>! -- speech pattern
+!<INPUT 5>! -- persona name
 
 <commentblockmarker>###</commentblockmarker>
 [Conversation]
 !<INPUT 0>!
 
-Write down if there is anything from the conversation that !<INPUT 1>! need to remember for her planning, from !<INPUT 2>!'s perspective, in a full sentence.
+Write down if there is anything from the conversation that !<INPUT 1>! might have found interesting from !<INPUT 2>!'s perspective, in a full sentence, phrased the way !<INPUT 3>! would actually think it (speech pattern: !<INPUT 4>!).
 
-"!<INPUT 3>!
+"!<INPUT 5>!

@@ -42,6 +42,7 @@ class Scratch:
     self.learned = None
     # L2 external implementation. 
     self.currently = None
+    self.speech_pattern = None
     self.lifestyle = None
     self.living_area = None
 
@@ -181,6 +182,7 @@ class Scratch:
       self.innate = scratch_load["innate"]
       self.learned = scratch_load["learned"]
       self.currently = scratch_load["currently"]
+      self.speech_pattern = scratch_load.get("speech_pattern", "")
       self.lifestyle = scratch_load["lifestyle"]
       self.living_area = scratch_load["living_area"]
 
@@ -259,6 +261,7 @@ class Scratch:
     scratch["innate"] = self.innate
     scratch["learned"] = self.learned
     scratch["currently"] = self.currently
+    scratch["speech_pattern"] = self.speech_pattern
     scratch["lifestyle"] = self.lifestyle
     scratch["living_area"] = self.living_area
 
@@ -408,6 +411,7 @@ class Scratch:
     commonset += f"Innate traits: {self.innate}\n"
     commonset += f"Learned traits: {self.learned}\n"
     commonset += f"Currently: {self.currently}\n"
+    commonset += f"Speech pattern: {self.speech_pattern}\n"
     commonset += f"Lifestyle: {self.lifestyle}\n"
     commonset += f"Daily plan requirement: {self.daily_plan_req}\n"
     commonset += f"Current Date: {self.curr_time.strftime('%A %B %d')}\n"
@@ -441,6 +445,8 @@ class Scratch:
   def get_str_currently(self): 
     return self.currently
 
+  def get_str_speech_pattern(self):
+    return self.speech_pattern
 
   def get_str_lifestyle(self): 
     return self.lifestyle

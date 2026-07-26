@@ -516,14 +516,6 @@ def run_gpt_prompt_action_sector(action_description,
     else: 
       prompt_input += [""]
 
-    # School time constraint
-    curr_time = persona.scratch.curr_time
-    if curr_time:
-        curr_hour = curr_time.hour
-        curr_weekday = curr_time.weekday() 
-        if (8 <= curr_hour < 12 or 13 <= curr_hour < 14) and curr_weekday in [0, 1, 2, 3, 4]:
-            prompt_input += ["IMPORTANT: It is school hours. You must stay in the classroom at Bauhaus Gymnasium."]
-
 
     # MAR 11 TEMP
     accessible_sector_str = persona.s_mem.get_str_accessible_sectors(act_world)
@@ -2554,7 +2546,10 @@ def run_gpt_prompt_generate_next_convo_line(persona, interlocutor_desc, prev_con
                     prev_convo, 
                     persona.scratch.name,
                     retrieved_summary, 
-                    persona.scratch.name,]
+                    persona.scratch.name,
+                    persona.scratch.get_str_speech_pattern(),
+                    persona.scratch.name,
+                    persona.scratch.name]
     return prompt_input
   
   def __func_clean_up(gpt_response, prompt=""):
@@ -2662,7 +2657,8 @@ def run_gpt_prompt_generate_whisper_inner_thought(persona, whisper, test_input=N
 
 def run_gpt_prompt_planning_thought_on_convo(persona, all_utt, test_input=None, verbose=False): 
   def create_prompt_input(persona, all_utt, test_input=None): 
-    prompt_input = [all_utt, persona.scratch.name, persona.scratch.name, persona.scratch.name]
+    prompt_input = [all_utt, persona.scratch.name, persona.scratch.name, persona.scratch.name,
+                    persona.scratch.get_str_speech_pattern(), persona.scratch.name]
     return prompt_input
   
   def __func_clean_up(gpt_response, prompt=""):
@@ -2699,7 +2695,8 @@ def run_gpt_prompt_planning_thought_on_convo(persona, all_utt, test_input=None, 
 
 def run_gpt_prompt_memo_on_convo(persona, all_utt, test_input=None, verbose=False): 
   def create_prompt_input(persona, all_utt, test_input=None): 
-    prompt_input = [all_utt, persona.scratch.name, persona.scratch.name, persona.scratch.name]
+    prompt_input = [all_utt, persona.scratch.name, persona.scratch.name, persona.scratch.name,
+                    persona.scratch.get_str_speech_pattern(), persona.scratch.name]
     return prompt_input
   
   def __func_clean_up(gpt_response, prompt=""):
@@ -2847,6 +2844,8 @@ def run_gpt_generate_iterative_chat_utt(maze, init_persona, target_persona, retr
     curr_arena= f"{maze.access_tile(persona.scratch.curr_tile)['arena']}"
     curr_location = f"{curr_arena} in {curr_sector}"
 
+    speech_pattern = init_persona.scratch.get_str_speech_pattern()
+
     retrieved_str = ""
     for key, vals in retrieved.items(): 
       for v in vals: 
@@ -2860,9 +2859,12 @@ def run_gpt_generate_iterative_chat_utt(maze, init_persona, target_persona, retr
       convo_str = "[The conversation has not started yet -- start it!]"
 
     init_iss = f"Here is Here is a brief description of {init_persona.scratch.name}.\n{init_persona.scratch.get_str_iss()}"
+
     prompt_input = [init_iss, init_persona.scratch.name, retrieved_str, prev_convo_insert,
       curr_location, curr_context, init_persona.scratch.name, target_persona.scratch.name,
       convo_str, init_persona.scratch.name, target_persona.scratch.name,
+      init_persona.scratch.name, speech_pattern, target_persona.scratch.name,
+      init_persona.scratch.name, init_persona.scratch.name,
       init_persona.scratch.name, init_persona.scratch.name,
       init_persona.scratch.name
       ]
@@ -2909,13 +2911,11 @@ def run_gpt_generate_iterative_chat_utt(maze, init_persona, target_persona, retr
   prompt = generate_prompt(prompt_input, prompt_template)
   print (prompt)
   fail_safe = get_fail_safe() 
-  output = ChatGPT_safe_generate_response_OLD(prompt, 3, fail_safe,
-                        __chat_func_validate, __chat_func_clean_up, verbose)
+  gpt_param = {"temperature": 0.9, "frequency_penalty": 0.6, "presence_penalty": 0.6}
+  output = GPT4_safe_generate_response_OLD(prompt, 3, fail_safe,
+                        __chat_func_validate, __chat_func_clean_up, verbose, gpt_param=gpt_param)
   print (output)
-  
-  gpt_param = {"engine": "text-davinci-003", "max_tokens": 50, 
-               "temperature": 0.8, "top_p": 1, "stream": False,
-               "frequency_penalty": 2, "presence_penalty": 2, "stop": None}
+
   return output, [output, prompt, gpt_param, prompt_input, fail_safe]
 
 
