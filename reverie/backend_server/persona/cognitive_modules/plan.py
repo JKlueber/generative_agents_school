@@ -618,13 +618,25 @@ def _determine_action(persona, maze):
   act_desp, act_dura = persona.scratch.f_daily_schedule[curr_index] 
 
 
+  SCHOOL_SECTOR = "Bauhaus Gymnasium"
+  SCHOOL_ARENA = "classroom"
+
+  def is_school_hours(curr_time):
+      return (curr_time.weekday() in [0,1,2,3,4] and
+              ((8 <= curr_time.hour < 12) or (13 <= curr_time.hour < 14)))
 
   # Finding the target location of the action and creating action-related
   # variables.
   act_world = maze.access_tile(persona.scratch.curr_tile)["world"]
-  # act_sector = maze.access_tile(persona.scratch.curr_tile)["sector"]
-  act_sector = generate_action_sector(act_desp, persona, maze)
-  act_arena = generate_action_arena(act_desp, persona, maze, act_world, act_sector)
+
+  if is_school_hours(persona.scratch.curr_time):
+      act_sector = SCHOOL_SECTOR
+      act_arena = SCHOOL_ARENA
+  else:
+    # act_sector = maze.access_tile(persona.scratch.curr_tile)["sector"]
+    act_sector = generate_action_sector(act_desp, persona, maze)
+    act_arena = generate_action_arena(act_desp, persona, maze, act_world, act_sector)
+
   act_address = f"{act_world}:{act_sector}:{act_arena}"
   act_game_object = generate_action_game_object(act_desp, act_address,
                                                 persona, maze)
