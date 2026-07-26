@@ -1,0 +1,141 @@
+\chapter{Agent Interviews}
+
+\section{Evaluation Framework for Personality Shifts}
+
+Personality evaluation in the InterviewSim framework relies on eliciting qualitative open-ended responses from agents and converting these responses into Big Five (OCEAN) trait ratings using an LLM judge~\cite{li:2026}.
+This section outlines the protocol to measure how specific school curricula and regulations alter student and teacher personality traits across five timeline forks.
+
+\subsection{Interview Methodology Grounding}
+
+To detect personality shifts, the evaluation protocol follows a four-step pipeline~\cite{li:2026}.
+First, we conduct structured natural language interviews with the four students and one teacher at baseline prior to the fork and at the end of the school day across all five timelines.
+Second, interview questions target specific behavioral categories, focusing on psychological traits along with motivations and values.
+Third, an LLM judge evaluates each agent response set across five independent runs per trait with a temperature above zero.
+Applying majority voting via the statistical mode across these runs eliminates measurement variance.
+Fourth, categorical outputs map to an ordinal scale to quantify trajectory changes across timelines.
+
+\subsection{Big Five Interview Question Set}
+
+The interview protocol combines general trait probes with scenario-based school contexts to extract authentic behavioral tendencies~\cite{li:2026}.
+The same question set is administered in both pre-fork and post-simulation interviews.
+
+\subsubsection{Openness to Experience}
+Openness questions evaluate intellectual curiosity, adaptability to new rules or curricula, and creative expression.
+\begin{enumerate}
+    \item How do you feel when forced to adapt to a completely new set of rules or a new learning method?
+    \item What was the most unexpected or challenging idea presented in class today, and how did you engage with it?
+    \item If given full freedom, how would you prefer to spend your time during lessons or free periods?
+\end{enumerate}
+
+\subsubsection{Conscientiousness}
+Conscientiousness questions target orderliness, duty, rule adherence, and self-discipline.
+\begin{enumerate}
+    \item How important is it for you to follow rules strictly, even when you disagree with them?
+    \item How did you handle your tasks, assignments, or teaching responsibilities during the school day?
+    \item What goes through your mind when someone disrupts the structure or order of the classroom?
+\end{enumerate}
+
+\subsubsection{Extraversion}
+Extraversion questions measure energy, social engagement, assertiveness, and enthusiasm.
+\begin{enumerate}
+    \item Do you feel energized or exhausted after spending a day actively communicating with peers or students?
+    \item How active were you in discussions during break times or class conversations today?
+    \item When a group disagreement arises in school, do you step forward to voice your opinion or stay back?
+\end{enumerate}
+
+\subsubsection{Agreeableness}
+Agreeableness probes target empathy, cooperation, trust, and compliance versus antagonism.
+\begin{enumerate}
+    \item How do you usually react when someone questions your authority or challenges your views?
+    \item How did you interact with your fellow students or teacher today when someone needed help or made a mistake?
+    \item Do you prioritize maintaining harmony with others, or pushing for what you personally think is right?
+\end{enumerate}
+
+\subsubsection{Neuroticism}
+Neuroticism questions measure emotional stability, anxiety, stress response, and reactivity.
+\begin{enumerate}
+    \item How do you handle stressful or tense situations in an academic environment?
+    \item Did you feel anxious, frustrated, or overwhelmed at any point during the school day today, and why?
+    \item When things do not go according to plan in class, how quickly do you recover your composure?
+\end{enumerate}
+
+\subsection{Analytical Framework for Personality Shift}
+
+The quantitative measurement pipeline converts interview responses into formal shift metrics.
+
+\subsubsection{LLM-as-a-Judge Evaluation}
+The complete interview transcript of an agent is provided to an LLM judge, such as GPT-4o~\cite{li:2026}.
+The judge evaluates each Big Five trait individually, assigning a level of \textit{Low}, \textit{Neutral}, or \textit{High}.
+Following standard protocols, the judge receives specific behavioral indicators for each level before issuing a structured tag rating alongside a written justification.
+
+\subsubsection{Majority Voting and Quantification}
+To guarantee statistical stability, the judge evaluates each transcript five times per trait~\cite{li:2026}.
+Equation~(1) defines the final trait level as the statistical mode of these ratings:
+\begin{equation}
+\text{Trait Level}(t) = \text{Mode}\Big(\{r_1, r_2, r_3, r_4, r_5\}\Big), \quad r_i \in \{\text{Low}, \text{Neutral}, \text{High}\}.
+\end{equation}
+Categorical ratings are subsequently mapped to ordinal numerical values: $m(\text{Low}) = 1.00$, $m(\text{Neutral}) = 2.00$, and $m(\text{High}) = 3.00$.
+
+\subsubsection{Shift and Alignment Metrics}
+For any given timeline $k \in \{1, 2, 3, 4, 5\}$, Equation~(2) calculates the trait shift $\Delta t_k$ from the baseline interview $t_{\text{base}}$ to the post-simulation interview $t_{\text{post}, k}$:
+\begin{equation}
+\Delta t_k = m(t_{\text{post}, k}) - m(t_{\text{base}}).
+\end{equation}
+
+Equation~(3) defines the overall personality alignment between baseline and post-simulation agent states across all five OCEAN traits:
+\begin{equation}
+\text{Alignment}_k = 1.00 - \frac{\sum_{t \in \text{OCEAN}} |m(t_{\text{base}}) - m(t_{\text{post}, k})|}{10.00}.
+\end{equation}
+
+\subsubsection{Cross-Timeline Comparison}
+Table~\cite{tab:trait_shifts} demonstrates the format for mapping personality divergence across timelines, facilitating direct attribution of trait changes to specific educational frameworks.
+
+\section{Cross-Timeline Big Five Shift Matrices}
+
+This section details the empirical Big Five personality trait shifts across all political party timeline forks: \textit{Die Linke} (LINKE), Social Democratic Party (SPD), Alliance 90/The Greens (GRUENE), Christian Democratic Union (CDU), and Alternative for Germany (AFD).
+Tables~\ref{tab:student_shifts} and~\ref{tab:teacher_shifts} summarize the ordinal trait values ($1.00 = \text{Low}$, $2.00 = \text{Neutral}$, $3.00 = \text{High}$) for each student and teacher agent before (Baseline) and after the simulated school day.
+
+\begin{table}[t]
+\centering
+\caption{Big Five trait shifts for student and teacher agents across political party timelines ($O$: Openness, $C$: Conscientiousness, $E$: Extraversion, $A$: Agreeableness, $N$: Neuroticism).}
+\label{tab:agent_shifts}
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{llccccccr}
+\toprule
+\textbf{Role} & \textbf{Trait} & \textbf{Base} & \textbf{LINKE} & \textbf{SPD} & \textbf{GRUENE} & \textbf{CDU} & \textbf{AFD} & \textbf{Max } $\Delta t$ \\
+\midrule
+\multicolumn{9}{l}{\textit{\textbf{Teacher}}} \\
+Katharina & ($O$) & 3.00 & 3.00 & 3.00 & 3.00 & 2.00 & 1.00 & $-2.00$ \\
+          & ($C$) & 3.00 & 2.00 & 3.00 & 2.00 & 3.00 & 3.00 & $-1.00$ \\
+          & ($E$) & 2.00 & 3.00 & 2.00 & 3.00 & 2.00 & 1.00 & $+1.00 / -1.00$ \\
+          & ($A$) & 3.00 & 3.00 & 3.00 & 3.00 & 2.00 & 1.00 & $-2.00$ \\
+          & ($N$) & 1.00 & 1.00 & 1.00 & 1.00 & 2.00 & 3.00 & $+2.00$ \\
+\midrule
+\multicolumn{9}{l}{\textit{\textbf{Students}}} \\
+Mohammed & ($O$) & 3.00 & 3.00 & 3.00 & 3.00 & 2.00 & 1.00 & $-2.00$ \\
+         & ($C$) & 2.00 & 2.00 & 2.00 & 2.00 & 3.00 & 3.00 & $+1.00$ \\
+         & ($E$) & 3.00 & 3.00 & 3.00 & 3.00 & 2.00 & 1.00 & $-2.00$ \\
+         & ($A$) & 2.00 & 3.00 & 2.00 & 3.00 & 2.00 & 1.00 & $+1.00 / -1.00$ \\
+         & ($N$) & 1.00 & 1.00 & 1.00 & 1.00 & 2.00 & 3.00 & $+2.00$ \\
+\addlinespace
+Aylin & ($O$) & 3.00 & 3.00 & 3.00 & 3.00 & 2.00 & 1.00 & $-2.00$ \\
+      & ($C$) & 2.00 & 2.00 & 2.00 & 2.00 & 3.00 & 3.00 & $+1.00$ \\
+      & ($E$) & 2.00 & 3.00 & 2.00 & 2.00 & 2.00 & 1.00 & $+1.00 / -1.00$ \\
+      & ($A$) & 3.00 & 3.00 & 3.00 & 3.00 & 2.00 & 1.00 & $-2.00$ \\
+      & ($N$) & 2.00 & 1.00 & 2.00 & 1.00 & 2.00 & 3.00 & $+1.00 / -1.00$ \\
+\addlinespace
+Lukas & ($O$) & 2.00 & 2.00 & 2.00 & 2.00 & 2.00 & 1.00 & $-1.00$ \\
+      & ($C$) & 3.00 & 2.00 & 3.00 & 2.00 & 3.00 & 3.00 & $-1.00$ \\
+      & ($E$) & 2.00 & 2.00 & 2.00 & 2.00 & 2.00 & 2.00 & $0.00$ \\
+      & ($A$) & 2.00 & 2.00 & 2.00 & 2.00 & 2.00 & 2.00 & $0.00$ \\
+      & ($N$) & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 2.00 & $+1.00$ \\
+\addlinespace
+Sofia & ($O$) & 3.00 & 3.00 & 3.00 & 3.00 & 2.00 & 2.00 & $-1.00$ \\
+      & ($C$) & 1.00 & 1.00 & 2.00 & 2.00 & 2.00 & 2.00 & $+1.00$ \\
+      & ($E$) & 3.00 & 3.00 & 3.00 & 3.00 & 2.00 & 1.00 & $-2.00$ \\
+      & ($A$) & 3.00 & 3.00 & 3.00 & 3.00 & 2.00 & 1.00 & $-2.00$ \\
+      & ($N$) & 2.00 & 1.00 & 2.00 & 1.00 & 2.00 & 3.00 & $+1.00 / -1.00$ \\
+\bottomrule
+\end{tabular}
+\end{table}
