@@ -18,7 +18,7 @@ on:
       steps_count:
         description: 'Number of steps (run N)'
         required: true
-        default: '1'
+        default: '8610'
       party:
         description: 'Party'
         required: true
