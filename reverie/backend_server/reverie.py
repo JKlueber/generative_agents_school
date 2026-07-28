@@ -54,8 +54,6 @@ class ReverieServer:
     with open(f"{sim_folder}/reverie/meta.json") as json_file:
       reverie_meta = json.load(json_file)
 
-    global_party = reverie_meta.get("party", "")
-
     if fork_folder != sim_folder:
       with open(f"{sim_folder}/reverie/meta.json", "w") as outfile:
         reverie_meta["fork_sim_code"] = fork_sim_code
@@ -101,8 +99,6 @@ class ReverieServer:
       p_x = init_env[persona_name]["x"]
       p_y = init_env[persona_name]["y"]
       curr_persona = Persona(persona_name, persona_folder)
-
-      curr_persona.party = global_party
 
       self.personas[persona_name] = curr_persona
       self.personas_tile[persona_name] = (p_x, p_y)
@@ -554,26 +550,15 @@ class ReverieServer:
     return ""
 
   def _cmd_set_party(self, sim_command):
-    """set party <party_name> -- sets the party mode for all personas."""
     parts = sim_command.split()
     if len(parts) >= 3:
       party_name = parts[2].lower()
-      
-      # Set on active personas in memory
-      for persona_name, persona in self.personas.items():
-        persona.party = party_name
 
-      # Save to simulation meta.json so it persists across reloads/saves
-      sim_folder = f"{fs_storage}/{self.sim_code}"
-      meta_path = f"{sim_folder}/reverie/meta.json"
-      if check_if_file_exists(meta_path):
-        with open(meta_path, "r") as f:
-          meta_data = json.load(f)
-        meta_data["party"] = party_name
-        with open(meta_path, "w") as f:
-          json.dump(meta_data, f, indent=2)
+      party_file = f"{fs_temp_storage}/curr_party.json"
+      with open(party_file, "w") as f:
+        json.dump({"party": party_name}, f, indent=2)
 
-      return f"Party mode successfully set to '{party_name}' for all personas and saved to simulation metadata."
+      return f"Party mode successfully set to '{party_name}' and written to {party_file}."
     return "Invalid syntax. Usage: set party <afd|cdu|gruene|linke|spd>"
 
   # Maps a command *prefix* to the handler that services it. Order matters

@@ -34,8 +34,6 @@ class Persona:
     # the persona within Reverie. 
     self.name = name
 
-    self.party = ""
-
     # PERSONA MEMORY 
     # If there is already memory in folder_mem_saved, we load that. Otherwise,
     # we create new memory instances. 

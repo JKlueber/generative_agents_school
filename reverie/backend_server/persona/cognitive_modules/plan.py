@@ -16,6 +16,21 @@ from persona.prompt_template.run_gpt_prompt import *
 from persona.cognitive_modules.retrieve import *
 from persona.cognitive_modules.converse import *
 
+import json
+from utils import fs_temp_storage  # add this import if not already present
+
+def get_current_party():
+  """
+  Reads the active party mode from temp_storage/curr_party.json. 
+  Falls back to "" if the file is missing or malformed.
+  """
+  party_file = f"{fs_temp_storage}/curr_party.json"
+  try:
+    with open(party_file) as f:
+      return json.load(f).get("party", "").strip().lower()
+  except Exception:
+    return ""
+
 ##############################################################################
 # CHAPTER 2: Generate
 ##############################################################################
@@ -666,8 +681,7 @@ def _determine_action(persona, maze):
   # variables.
   act_world = maze.access_tile(persona.scratch.curr_tile)["world"]
 
-  # Retrieve the party attribute assigned to the persona, defaulting to empty string
-  current_party = getattr(persona, "party", "")
+  current_party = get_current_party()
 
   if is_school_hours(persona.scratch.curr_time, party=current_party):
       act_sector = SCHOOL_SECTOR
