@@ -5,6 +5,7 @@ forked_sim = sys.argv[1]
 new_sim = sys.argv[2]
 history_file = sys.argv[3]
 steps = sys.argv[4]
+party = sys.argv[5]
 
 # Set timeout=None to allow long-running simulations
 child = pexpect.spawn("python3 reverie.py", encoding="utf-8", timeout=None)
@@ -20,6 +21,9 @@ child.sendline(new_sim)
 # 2. Enable headless mode so the backend doesn't wait on a frontend
 child.expect_exact("Enter option:")
 child.sendline("headless on")
+
+child.expect_exact("Enter option:")
+child.sendline(f"set party {party}")
 
 # 3. Wait for main reverie prompt, then load history
 child.expect_exact("Enter option:")

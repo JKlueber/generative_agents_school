@@ -621,15 +621,55 @@ def _determine_action(persona, maze):
   SCHOOL_SECTOR = "Bauhaus Gymnasium"
   SCHOOL_ARENA = "classroom"
 
-  def is_school_hours(curr_time):
-      return (curr_time.weekday() in [0,1,2,3,4] and
-              ((8 <= curr_time.hour < 12) or (13 <= curr_time.hour < 14)))
+  def is_school_hours(curr_time, party=""):
+    if curr_time.weekday() >= 5:  # Weekend check
+        return False
 
-  # Finding the target location of the action and creating action-related
+    minutes = curr_time.hour * 60 + curr_time.minute
+    party = party.strip().lower()
+
+    if party == "afd":
+        # 08:00 - 14:30
+        return 480 <= minutes < 870
+
+    elif party == "cdu":
+        if curr_time.weekday() == 2:  # Wednesday: 08:00 - 12:25 (Day in Practice)
+            return 790 <= minutes < 930
+        # 08:00 - 15:30, excluding lunch 12:25 - 13:10
+        in_school = 480 <= minutes < 930
+        is_lunch = 745 <= minutes < 790
+        return in_school and not is_lunch
+
+    elif party == "gruene":
+        # 08:00 - 16:00, excluding lunch 11:30 - 12:30
+        in_school = 480 <= minutes < 960
+        is_lunch = 690 <= minutes < 750
+        return in_school and not is_lunch
+
+    elif party == "linke":
+        # 08:00 - 15:00, excluding lunch 11:20 - 12:00
+        in_school = 480 <= minutes < 900
+        is_lunch = 680 <= minutes < 720
+        return in_school and not is_lunch
+
+    elif party == "spd":
+        # 09:00 - 16:00, excluding lunch 12:10 - 13:00
+        in_school = 540 <= minutes < 960
+        is_lunch = 730 <= minutes < 780
+        return in_school and not is_lunch
+
+    else:
+        # Default fallback (08:00-12:00, 13:00-14:00)
+        return (8 <= curr_time.hour < 12) or (13 <= curr_time.hour < 14)
+
+# Finding the target location of the action and creating action-related
   # variables.
   act_world = maze.access_tile(persona.scratch.curr_tile)["world"]
 
-  if is_school_hours(persona.scratch.curr_time):
+  # Retrieve the party attribute assigned to the persona, defaulting to empty string
+  current_party = getattr(persona, "party", "")
+
+  if is_school_hours(persona.scratch.curr_time, party=current_party):
       act_sector = SCHOOL_SECTOR
       act_arena = SCHOOL_ARENA
   else:

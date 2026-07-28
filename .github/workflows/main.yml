@@ -10,15 +10,19 @@ on:
       new_sim:
         description: 'Name of new simulation'
         required: true
-        default: 'run_test'
+        default: 'run_linke'
       history_file:
         description: 'History CSV path'
         required: true
-        default: 'the_ville/agent_history_init_n5_school_afd.csv'
+        default: 'the_ville/agent_history_init_n5_school_linke.csv'
       steps_count:
         description: 'Number of steps (run N)'
         required: true
         default: '1'
+      steps_count:
+        description: 'Party'
+        required: true
+        default: 'linke'
 
 jobs:
   run-simulation:
@@ -48,7 +52,8 @@ jobs:
             "${{ github.event.inputs.forked_sim }}" \
             "${{ github.event.inputs.new_sim }}" \
             "${{ github.event.inputs.history_file }}" \
-            "${{ github.event.inputs.steps_count }}"
+            "${{ github.event.inputs.steps_count }}" \
+            "${{ github.event.inputs.party }}"
 
       - name: Upload Simulation Results
         if: always()
