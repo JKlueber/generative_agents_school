@@ -63,7 +63,7 @@ def run_gpt_prompt_wake_up_hour(persona, test_input=None, verbose=False):
     return True
 
   def get_fail_safe(): 
-    fs = 8
+    fs = 7
     return fs
 
   gpt_param = {"engine": "text-davinci-002", "max_tokens": 5, 
@@ -395,13 +395,17 @@ def run_gpt_prompt_task_decomp(persona,
     curr_min_slot = curr_min_slot[1:]   
 
     if len(curr_min_slot) > total_expected_min: 
-      last_task = curr_min_slot[60]
-      for i in range(1, 6): 
-        curr_min_slot[-1 * i] = last_task
+        # Guard against the magic index 60 being out of range for short
+        # schedules -- clamp to the last valid index instead of assuming
+        # there are at least 61 entries.
+        safe_idx = min(60, len(curr_min_slot) - 1)
+        last_task = curr_min_slot[safe_idx]
+        for i in range(1, min(6, len(curr_min_slot)) + 1): 
+            curr_min_slot[-1 * i] = last_task
     elif len(curr_min_slot) < total_expected_min: 
-      last_task = curr_min_slot[-1]
-      for i in range(total_expected_min - len(curr_min_slot)):
-        curr_min_slot += [last_task]
+        last_task = curr_min_slot[-1] if curr_min_slot else ["asleep", 0]
+        for i in range(total_expected_min - len(curr_min_slot)):
+            curr_min_slot += [last_task]
 
     cr_ret = [["dummy", -1],]
     for task, task_index in curr_min_slot: 
@@ -469,11 +473,14 @@ def run_gpt_prompt_task_decomp(persona,
   for fi_task, fi_duration in fin_output: 
     ftime_sum += fi_duration
   
-  # print ("for debugging... line 365", fin_output)
-  fin_output[-1][1] += (duration - ftime_sum)
-  output = fin_output 
-
-
+  # Guard against fin_output being empty (e.g. every task overshot
+  # duration on the first item) -- previously this raised an uncaught
+  # IndexError that killed the whole backend process mid-run.
+  if fin_output: 
+      fin_output[-1][1] += (duration - ftime_sum)
+  else:
+      fin_output = [[task_decomp[0][0] if task_decomp else "idle", duration]]
+  output = fin_output
 
   task_decomp = output
   ret = []
