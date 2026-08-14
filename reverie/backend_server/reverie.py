@@ -561,11 +561,49 @@ class ReverieServer:
       return f"Party mode successfully set to '{party_name}' and written to {party_file}."
     return "Invalid syntax. Usage: set party <afd|cdu|gruene|linke|spd>"
 
+  def _cmd_survey(self, sim_command):
+    """survey <persona name> -- runs the scripted BFI-2 personality survey
+    against the persona in the terminal and saves the answers to a json 
+    file under storage/<sim_code>/survey/."""
+    persona_name = sim_command[len("survey"):].strip()
+    if persona_name not in self.personas:
+      return f"Unknown persona: {persona_name}"
+
+    persona = self.personas[persona_name]
+    print(f"\nStarting BFI-2 survey with {persona_name}...\n")
+
+    results = []
+    for i, statement in enumerate(BFI2_ITEMS):
+      question = f"I see myself as someone who {statement}."
+      print(f"{i+1}. {question}")
+      print("   (1) Disagree strongly   (2) Disagree a little   "
+            "(3) Neither agree nor disagree   (4) Agree a little   "
+            "(5) Agree strongly")
+      rating = generate_survey_rating(persona, statement)
+      print(f"   -> {persona_name}'s answer: {rating}\n")
+      results += [{"question": question, "rating": rating}]
+
+    sim_folder = f"{fs_storage}/{self.sim_code}"
+    survey_dir = f"{sim_folder}/survey"
+    os.makedirs(survey_dir, exist_ok=True)
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    out_file = f"{survey_dir}/{persona_name.replace(' ', '_')}_{timestamp}.json"
+    with open(out_file, "w") as outfile:
+      outfile.write(json.dumps({
+        "persona_name": persona_name,
+        "survey": "BFI-2",
+        "sim_time": self.curr_time.strftime("%B %d, %Y, %H:%M:%S"),
+        "answers": results
+      }, indent=2))
+
+    return f"Survey complete. Saved to {out_file}"
+
   # Maps a command *prefix* to the handler that services it. Order matters
   # for prefixes that could otherwise collide (none currently do, but keep
   # longer/more specific prefixes above shorter ones if you add any).
   _PREFIX_COMMANDS = [
     ("run", "_cmd_run"),
+    ("survey", "_cmd_survey"),
     ("print persona schedule", "_cmd_print_persona_schedule"),
     ("print all persona schedule", "_cmd_print_all_persona_schedule"),
     ("print hourly org persona schedule", "_cmd_print_hourly_org_persona_schedule"),

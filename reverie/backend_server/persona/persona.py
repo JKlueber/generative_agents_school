@@ -246,9 +246,14 @@ class Persona:
       """
       return interview(self, question, target_time)
     
-
-
-
+  def survey(self, survey_name="bfi10"):
+      """
+      Runs a scripted personality survey against the persona and returns the
+      list of {"statement", "rating"} answers.
+      """
+      if survey_name == "bfi10":
+        return run_bfi2_survey(self)
+      return []
 
 
 

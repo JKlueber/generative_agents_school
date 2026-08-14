@@ -2927,6 +2927,44 @@ def run_gpt_generate_iterative_chat_utt(maze, init_persona, target_persona, retr
 
 
 
+def run_gpt_prompt_survey_rating(persona, statement, test_input=None, verbose=False):
+  def create_prompt_input(persona, statement, test_input=None):
+    prompt_input = [persona.scratch.get_str_iss(),
+                    persona.scratch.name,
+                    statement]
+    return prompt_input
+
+  def __chat_func_clean_up(gpt_response, prompt=""):
+    return int(gpt_response)
+
+  def __chat_func_validate(gpt_response, prompt=""):
+    try:
+      val = int(gpt_response)
+      return 1 <= val <= 5
+    except:
+      return False
+
+  def get_fail_safe():
+    return 3
+
+  prompt_template = "persona/prompt_template/v3_ChatGPT/survey_bfi2_v1.txt"
+  prompt_input = create_prompt_input(persona, statement, test_input)
+  prompt = generate_prompt(prompt_input, prompt_template)
+  example_output = "4"
+  special_instruction = ("The output should ONLY contain ONE integer value "
+                          "on the scale of 1 to 5.")
+  fail_safe = get_fail_safe()
+  output = ChatGPT_safe_generate_response(prompt, example_output, special_instruction, 3,
+                                          fail_safe, __chat_func_validate,
+                                          __chat_func_clean_up, verbose)
+  if output == False:
+    output = fail_safe
+
+  if debug or verbose:
+    print_run_prompts(prompt_template, persona, {}, prompt_input, prompt, output)
+
+  return output, [output, prompt, {}, prompt_input, fail_safe]
+
 
 
 

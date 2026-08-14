@@ -323,6 +323,88 @@ def generate_interview_response(persona, line, target_time=None):
 def interview(persona, question, target_time=None): 
   return generate_interview_response(persona, question, target_time)
 
+BFI2_ITEMS = [
+    "Is outgoing, sociable.",  # 1
+    "Is compassionate, has a soft heart.",  # 2
+    "Tends to be disorganized.",  # 3
+    "Is relaxed, handles stress well.",  # 4
+    "Has few artistic interests.",  # 5
+    "Has an assertive personality.",  # 6
+    "Is respectful, treats others with respect.",  # 7
+    "Tends to be lazy.",  # 8
+    "Stays optimistic after experiencing a setback.",  # 9
+    "Is curious about many different things.",  # 10
+    "Rarely feels excited or eager.",  # 11
+    "Tends to find fault with others.",  # 12
+    "Is dependable, steady.",  # 13
+    "Is moody, has up and down mood swings.",  # 14
+    "Is inventive, finds clever ways to do things.",  # 15
+    "Tends to be quiet.",  # 16
+    "Feels little sympathy for others.",  # 17
+    "Is systematic, likes to keep things in order.",  # 18
+    "Can be tense.",  # 19
+    "Is fascinated by art, music, or literature.",  # 20
+    "Is dominant, acts as a leader.",  # 21
+    "Starts arguments with others.",  # 22
+    "Has difficulty getting started on tasks.",  # 23
+    "Feels secure, comfortable with self.",  # 24
+    "Avoids intellectual, philosophical discussions.",  # 25
+    "Is less active than other people.",  # 26
+    "Has a forgiving nature.",  # 27
+    "Can be somewhat careless.",  # 28
+    "Is emotionally stable, not easily upset.",  # 29
+    "Has little creativity.",  # 30
+    "Is sometimes shy, introverted.",  # 31
+    "Is helpful and unselfish with others.",  # 32
+    "Keeps things neat and tidy.",  # 33
+    "Worries a lot.",  # 34
+    "Values art and beauty.",  # 35
+    "Finds it hard to influence people.",  # 36
+    "Is sometimes rude to others.",  # 37
+    "Is efficient, gets things done.",  # 38
+    "Often feels sad.",  # 39
+    "Is complex, a deep thinker.",  # 40
+    "Is full of energy.",  # 41
+    "Is suspicious of others' intentions.",  # 42
+    "Is reliable, can always be counted on.",  # 43
+    "Keeps their emotions under control.",  # 44
+    "Has difficulty imagining things.",  # 45
+    "Is talkative.",  # 46
+    "Can be cold and uncaring.",  # 47
+    "Leaves a mess, doesn't clean up.",  # 48
+    "Rarely feels anxious or afraid.",  # 49
+    "Thinks poetry and plays are boring.",  # 50
+    "Prefers to have others take charge.",  # 51
+    "Is polite, courteous to others.",  # 52
+    "Is persistent, works until the task is finished.",  # 53
+    "Tends to feel depressed, blue.",  # 54
+    "Has little interest in abstract ideas.",  # 55
+    "Shows a lot of enthusiasm.",  # 56
+    "Assumes the best about people.",  # 57
+    "Sometimes behaves irresponsibly.",  # 58
+    "Is temperamental, gets emotional easily.",  # 59
+    "Is original, comes up with new ideas.",  # 60
+]
+
+def generate_survey_rating(persona, statement, target_time=None):
+  # target_time isn't used by the rating prompt itself, but kept for a
+  # consistent signature with generate_interview_response / interview().
+  return run_gpt_prompt_survey_rating(persona, statement)[0]
+
+def run_bfi2_survey(persona):
+  """
+  Runs the scripted BFI-2 personality survey against a persona, asking 
+  each of the 60 statements and getting back a 1-5 rating.
+
+  OUTPUT: 
+    A list of dicts: [{"statement": ..., "rating": ...}, ...]
+  """
+  results = []
+  for statement in BFI2_ITEMS:
+    rating = generate_survey_rating(persona, statement)
+    results += [{"statement": statement, "rating": rating}]
+  return results
+
 
 
 

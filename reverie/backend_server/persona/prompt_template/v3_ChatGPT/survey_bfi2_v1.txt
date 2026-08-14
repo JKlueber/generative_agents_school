@@ -1,0 +1,23 @@
+survey_bfi2_v1.txt
+
+Variables: 
+!<INPUT 0>! -- persona ISS
+!<INPUT 1>! -- persona name
+!<INPUT 2>! -- statement
+
+<commentblockmarker>###</commentblockmarker>
+Here is a brief description of !<INPUT 1>!.
+!<INPUT 0>!
+
+You are answering a personality questionnaire as !<INPUT 1>!, in character, based on the description above.
+
+Statement: "I see myself as someone who !<INPUT 2>!"
+
+On a scale of 1 to 5, how much does !<INPUT 1>! agree with this statement about themselves?
+1 = Disagree strongly
+2 = Disagree a little
+3 = Neither agree nor disagree
+4 = Agree a little
+5 = Agree strongly
+
+Rate (return a number between 1 and 5):
