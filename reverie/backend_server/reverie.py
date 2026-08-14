@@ -563,8 +563,9 @@ class ReverieServer:
 
   def _cmd_survey(self, sim_command):
     """survey <persona name> -- runs the scripted BFI-2 personality survey
-    against the persona in the terminal and saves the answers to a json 
-    file under storage/<sim_code>/survey/."""
+    against the persona in the terminal, retrieving relevant memories for
+    each statement, and saves the answers to a json file under
+    storage/<sim_code>/survey/."""
     persona_name = sim_command[len("survey"):].strip()
     if persona_name not in self.personas:
       return f"Unknown persona: {persona_name}"
@@ -579,9 +580,16 @@ class ReverieServer:
       print("   (1) Disagree strongly   (2) Disagree a little   "
             "(3) Neither agree nor disagree   (4) Agree a little   "
             "(5) Agree strongly")
-      rating = generate_survey_rating(persona, statement)
+
+      rating, context = generate_survey_rating(persona, statement, self.curr_time)
+      print(f"   -> retrieved memory context: {context}")
       print(f"   -> {persona_name}'s answer: {rating}\n")
-      results += [{"question": question, "rating": rating}]
+
+      results += [{
+        "question": question,
+        "rating": rating,
+        "retrieved_context": context,
+      }]
 
     sim_folder = f"{fs_storage}/{self.sim_code}"
     survey_dir = f"{sim_folder}/survey"

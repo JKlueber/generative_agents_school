@@ -386,25 +386,44 @@ BFI2_ITEMS = [
     "Is original, comes up with new ideas.",  # 60
 ]
 
-def generate_survey_rating(persona, statement, target_time=None):
-  # target_time isn't used by the rating prompt itself, but kept for a
-  # consistent signature with generate_interview_response / interview().
-  return run_gpt_prompt_survey_rating(persona, statement)[0]
-
-def run_bfi2_survey(persona):
+def generate_survey_rating(persona, statement, target_time=None, n_count=15):
   """
-  Runs the scripted BFI-2 personality survey against a persona, asking 
-  each of the 60 statements and getting back a 1-5 rating.
+  Retrieves memories relevant to the given BFI-2 statement and uses them,
+  along with the persona's ISS, to answer the statement on a 1-5 scale.
+  """
+  query = f"I see myself as someone who {statement}"
+
+  # Retrieve relevant events/thoughts for this specific statement, same
+  # mechanism used for interview answers.
+  retrieved = new_retrieve(persona, [query], n_count, target_time)[query]
+
+  # Summarize into a compact context block the rating prompt can use.
+  if retrieved:
+    summarized_idea = generate_summarize_ideas(persona, retrieved, query)
+  else:
+    summarized_idea = "No particularly relevant memories come to mind."
+
+  rating = run_gpt_prompt_survey_rating(persona, statement, summarized_idea)[0]
+  return rating, summarized_idea
+
+
+def run_bfi2_survey(persona, target_time=None):
+  """
+  Runs the scripted BFI-2 personality survey against a persona, retrieving
+  relevant memories for each statement before rating it 1-5.
 
   OUTPUT: 
-    A list of dicts: [{"statement": ..., "rating": ...}, ...]
+    A list of dicts: [{"statement", "rating", "retrieved_context"}, ...]
   """
   results = []
   for statement in BFI2_ITEMS:
-    rating = generate_survey_rating(persona, statement)
-    results += [{"statement": statement, "rating": rating}]
+    rating, context = generate_survey_rating(persona, statement, target_time)
+    results += [{
+      "statement": statement,
+      "rating": rating,
+      "retrieved_context": context,
+    }]
   return results
-
 
 
 

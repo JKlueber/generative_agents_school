@@ -717,10 +717,19 @@ def run_gpt_prompt_action_arena(action_description,
   output = safe_generate_response(prompt, gpt_param, 5, fail_safe,
                                    __func_validate, __func_clean_up)
   print (output)
-  # y = f"{act_world}:{act_sector}"
-  # x = [i.strip() for i in persona.s_mem.get_str_accessible_sector_arenas(y).split(",")]
-  # if output not in x: 
-  #   output = random.choice(x)
+
+  # NEW: validate against the actual accessible arenas for this sector,
+  # falling back to a valid choice if the model hallucinated one that
+  # doesn't exist (e.g. "cafeteria" when only {hallway, classroom, library}
+  # are valid). Without this, an invalid arena silently propagates into
+  # act_address and later blows up in get_str_accessible_arena_game_objects.
+  y = f"{act_world}:{act_sector}"
+  x = [i.strip() for i in persona.s_mem.get_str_accessible_sector_arenas(y).split(",")]
+  if output not in x:
+    if x:
+      output = random.choice(x)
+    else:
+      output = fail_safe
 
   if debug or verbose: 
     print_run_prompts(prompt_template, persona, gpt_param, 
@@ -2927,9 +2936,11 @@ def run_gpt_generate_iterative_chat_utt(maze, init_persona, target_persona, retr
 
 
 
-def run_gpt_prompt_survey_rating(persona, statement, test_input=None, verbose=False):
-  def create_prompt_input(persona, statement, test_input=None):
+def run_gpt_prompt_survey_rating(persona, statement, retrieved_context, test_input=None, verbose=False):
+  def create_prompt_input(persona, statement, retrieved_context, test_input=None):
     prompt_input = [persona.scratch.get_str_iss(),
+                    persona.scratch.name,
+                    retrieved_context,
                     persona.scratch.name,
                     statement]
     return prompt_input
@@ -2948,7 +2959,7 @@ def run_gpt_prompt_survey_rating(persona, statement, test_input=None, verbose=Fa
     return 3
 
   prompt_template = "persona/prompt_template/v3_ChatGPT/survey_bfi2_v1.txt"
-  prompt_input = create_prompt_input(persona, statement, test_input)
+  prompt_input = create_prompt_input(persona, statement, retrieved_context, test_input)
   prompt = generate_prompt(prompt_input, prompt_template)
   example_output = "4"
   special_instruction = ("The output should ONLY contain ONE integer value "
@@ -2964,7 +2975,6 @@ def run_gpt_prompt_survey_rating(persona, statement, test_input=None, verbose=Fa
     print_run_prompts(prompt_template, persona, {}, prompt_input, prompt, output)
 
   return output, [output, prompt, {}, prompt_input, fail_safe]
-
 
 
 

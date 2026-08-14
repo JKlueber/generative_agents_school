@@ -3,17 +3,22 @@ survey_bfi2_v1.txt
 Variables: 
 !<INPUT 0>! -- persona ISS
 !<INPUT 1>! -- persona name
-!<INPUT 2>! -- statement
+!<INPUT 2>! -- retrieved memory context
+!<INPUT 3>! -- persona name
+!<INPUT 4>! -- statement
 
 <commentblockmarker>###</commentblockmarker>
 Here is a brief description of !<INPUT 1>!.
 !<INPUT 0>!
 
-You are answering a personality questionnaire as !<INPUT 1>!, in character, based on the description above.
+Here are some relevant memories from !<INPUT 1>!'s life that may inform how they see themselves:
+!<INPUT 2>!
 
-Statement: "I see myself as someone who !<INPUT 2>!"
+You are answering a personality questionnaire as !<INPUT 3>!, in character, based on the description and memories above. Let the memories inform your answer where relevant, but you don't need to reference them directly.
 
-On a scale of 1 to 5, how much does !<INPUT 1>! agree with this statement about themselves?
+Statement: "I see myself as someone who !<INPUT 4>!"
+
+On a scale of 1 to 5, how much does !<INPUT 3>! agree with this statement about themselves?
 1 = Disagree strongly
 2 = Disagree a little
 3 = Neither agree nor disagree
