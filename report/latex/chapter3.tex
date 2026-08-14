@@ -1,1 +1,49 @@
-\chapter{Setting the Environment} \label{settingTheEnvironment}
+\chapter{Methodology}\label{methodology}
+
+\section{Framework and Setup}
+
+This project builds on the generative agents framework introduced by \citeauthor{park:2023}~\cite{park:2023}, which provides the foundation for building agents with persistent memory, daily planning, and natural language conversation. We extend this framework with a school setting called Goethe Gymnasium, where one teacher agent and four student agents interact with each other during a school day. To test the impact of political ideology on agent behaviour, we create five parallel school environments, each based on the 2024 Thuringian election program of one of the following political parties: \textit{Die Linke}, \textit{SPD}, \textit{B\"{u}ndnis 90/Die Gr\"{u}nen}, \textit{CDU}, and \textit{AfD}.
+
+\section{Agent Design}
+
+Each agent is defined by a configuration file that describes their name, age, personality, daily schedule, and background knowledge. The teacher agent Katharina Weber is assigned a different teaching style and classroom philosophy in each party environment. The four student agents --- Sofia Petrova, Mohammed Idrissi, Lukas Schneider, and Aylin Demir --- each have different personalities and academic backgrounds. In each of the five environments only the school setting changes, which represents a different political school context. This allows us to observe how agents adapt their behaviour according to the political framework they are placed in.
+
+\section{Party Environment Implementation}
+
+The party-specific environments were implemented based on a systematic comparison of the five Thuringian party programs across five categories: school system and structure, grading and assessment, instruction and pedagogical concepts, digitalization and media, and inclusion and language support (see Appendix~\ref{appendix:table}). Each agent receives a history file describing background knowledge about their school --- including school rules, the educational concept followed, the grading system used, and the cultural values promoted --- that reflects the educational program of the assigned party. For example, agents in the \textit{Die Linke} environment know that school starts no earlier than 9:00\,AM, grades are replaced by individual feedback, and homework is reduced, while agents in the \textit{CDU} environment know that conduct grades (\textit{Kopfnoten}) are evaluated, the BLF exam must be passed, and traditional German spelling rules are strictly enforced. The teacher agent's daily schedule and classroom behaviour were also modified to reflect each party's vision of how a teacher should operate.
+
+\section{Simulation and Interviews}
+
+Each simulation runs for a full simulated school day. Before the simulation begins, all student agents are interviewed using a set of predefined questions covering their school experience, sense of fairness, academic confidence, and personal values. After the school day is completed, the same agents are interviewed again with the same set of post-simulation questions. The interview responses are generated based on each agent's personal memory and current state at the time of the interview. By comparing the pre and post interview responses across the five party environments, we aim to identify how the political school environment influences the agents' expressed behaviour and attitudes.
+
+\subsection{Interview Methodology Grounding}
+To detect personality shifts, the evaluation protocol follows a four-step pipeline~\cite{li:2026}.
+First, we conduct structured natural language interviews with the four students and one teacher at baseline prior to the fork and at the end of the school day across all five timelines.
+Second, interview questions target specific behavioral categories, focusing on psychological traits along with motivations and values.
+Third, an LLM judge evaluates each agent response set across five independent runs per trait with a temperature above zero.
+Applying majority voting via the statistical mode across these runs eliminates measurement variance.
+Fourth, categorical outputs map to an ordinal scale to quantify trajectory changes across timelines.
+
+\subsubsection{LLM-as-a-Judge Evaluation}
+The complete interview transcript of an agent is provided to an LLM judge, such as GPT-4o~\cite{li:2026}.
+The judge evaluates each Big Five trait individually, assigning a level of \textit{Low}, \textit{Neutral}, or \textit{High}.
+Following standard protocols, the judge receives specific behavioral indicators for each level before issuing a structured tag rating alongside a written justification.
+
+\subsubsection{Majority Voting and Quantification}
+To guarantee statistical stability, the judge evaluates each transcript five times per trait~\cite{li:2026}.
+Equation~(1) defines the final trait level as the statistical mode of these ratings:
+\begin{equation}
+\text{Trait Level}(t) = \text{Mode}\Big(\{r_1, r_2, r_3, r_4, r_5\}\Big), \quad r_i \in \{\text{Low}, \text{Neutral}, \text{High}\}.
+\end{equation}
+Categorical ratings are subsequently mapped to ordinal numerical values: $m(\text{Low}) = 1.00$, $m(\text{Neutral}) = 2.00$, and $m(\text{High}) = 3.00$.
+
+\subsubsection{Shift and Alignment Metrics}
+For any given timeline $k \in \{1, 2, 3, 4, 5\}$, Equation~(2) calculates the trait shift $\Delta t_k$ from the baseline interview $t_{\text{base}}$ to the post-simulation interview $t_{\text{post}, k}$:
+\begin{equation}
+\Delta t_k = m(t_{\text{post}, k}) - m(t_{\text{base}}).
+\end{equation}
+
+Equation~(3) defines the overall personality alignment between baseline and post-simulation agent states across all five OCEAN traits:
+\begin{equation}
+\text{Alignment}_k = 1.00 - \frac{\sum_{t \in \text{OCEAN}} |m(t_{\text{base}}) - m(t_{\text{post}, k})|}{10.00}.
+\end{equation}
