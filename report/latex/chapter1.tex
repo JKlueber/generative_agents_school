@@ -25,19 +25,11 @@ Since antiquity, older generations have transmitted knowledge, skills, and cultu
 
 However, formal education is inherently value-laden; decisions regarding what knowledge is essential and how classrooms should be governed are fundamental political questions~\cite{apple:2004}. 
 In democratic systems such as Germany, state governments determine educational policies, curriculum frameworks, and school structures. 
-Political parties hold sharply contrasting visions of educational priorities:
-\begin{itemize}
-    \item \textbf{Die Linke} emphasizes social equality, advocating for comprehensive, non-selective schooling and the elimination of educational barriers.
-    \item \textbf{SPD} focuses on equal opportunity, educational mobility, and state-supported foundational skills.
-    \item \textbf{Bündnis 90/Die Grünen} prioritizes climate education, social inclusion, modern pedagogy, and democratic participation.
-    \item \textbf{CDU} maintains a traditional view centered on performance standards, discipline, and the classic multi-track school system.
-    \item \textbf{AfD} advocates for traditional performance ideals, national cultural preservation, and strict ideological neutrality in the classroom.
-\end{itemize}
-
+Political parties hold sharply contrasting visions of educational priorities.
 In practice, democratic coalition building forces political parties to compromise, meaning that pure ideological platforms are rarely observed in isolation within real-world classrooms. 
 Evaluating how these uncompromised party programs independently affect student well-being, social dynamics, and developmental trajectories presents a methodological challenge.
 
 To overcome real-world policy blurring and isolate party-specific educational visions, this project constructs a simulated educational environment using the generative agents architecture introduced by~\citeauthor{park:2023} \cite{park:2023}. 
 By instantiating autonomous LLM-driven agents within a controlled sandbox environment, we translate the distinct educational programs of \textit{Die Linke}, \textit{SPD}, \textit{Die Grünen}, \textit{CDU}, and \textit{AfD} into explicit school rules and classroom curricula. 
-Holding the baseline environment constant, we fork a single initial state into five parallel timelines, simulating a full school day under each party's distinct regime. 
-To evaluate the impact of each party framework, we conduct structured interviews with student agents before the simulation fork and after the completion of the simulated school day, probing variations in their emotional state, peer relationships, and academic perceptions.
+Holding the baseline environment constant, we fork a single initial state into five parallel timelines, simulating a school day under each party's distinct regime. 
+To evaluate the impact of each party framework, we administer the Big Five Inventory-2 (BFI-2) to student agents before the simulation fork and after the completion of the simulated school day to assess shifts in their personality traits.
