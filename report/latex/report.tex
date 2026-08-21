@@ -73,6 +73,14 @@
     \st{\scriptsize\,#1}{\color{blue}\scriptsize\,#2}%
   }
 
+\usepackage{titlesec}
+
+\titleformat{\chapter}[hang]
+  {\normalfont\huge\bfseries} % Formatting of the heading
+  {\thechapter}               % Chapter number (prints "1" instead of "Chapter 1")
+  {1em}                       % Space between number and title
+  {}                          % Code before the title text
+
 % Create links in the pdf document
 % Hyperref has some incompatibilities with other packages
 % Some other packages must be loaded before, some after hyperref
@@ -107,12 +115,12 @@ This is the \LaTeX{} template for Bachelor and Master theses at Webis. This temp
 \include{chapter4}
 \include{chapter5}
 
+\printbibliography
+
 \include{appendixA}
 
 % Bibliography
 % \bibliographystyle{alpha} % requires package natbib. An alternative is apalike
 % \bibliography{literature}    % load file literature.bib
-
-\printbibliography
 
 \end{document}

@@ -1,6 +1,7 @@
 \chapter{Analysis}
+\label{analysis}
 
-\subsection{Direction and consistency across environments}
+\section{Group-Level Effects} \label{sec:group-level}
 
 Two patterns stand out. First, Open-Mindedness rises significantly in every single party environment ($\Delta$ between 0.65 and 0.83, all $p_t<0.05$), making it the only domain with a uniformly significant effect across the full political spectrum represented in the simulation. Second, every environment moves every domain in the same direction: all five parties increase Extraversion, Agreeableness, Conscientiousness, and Open-Mindedness relative to base, and all five decrease Neg.\ Emotionality. No party reverses the sign of any domain. This uniformity suggests that part of the measured effect may be attributable to a general simulation exposure effect, meaning agents becoming more socially confident and less anxious simply from having lived through a structured school day and interacted with peers, independent of which party's policies governed that day rather than a purely party-specific ideological effect. We return to this as a limitation in Chapter~\ref{limitations}.
 
@@ -16,79 +17,40 @@ Where the parties differ is in magnitude and in which domains cross the signific
 
 Conscientiousness is the one domain that never reaches significance in any environment, despite positive point estimates throughout (0.31--0.40). Given paired Cohen's $d$ values in the 0.6--1.0 range, this looks like a power problem rather than a null effect: the true shift is plausibly non-zero, but $n=4$ students is not enough to detect a medium effect size reliably.
 
-\section{Individual-Level Variation}
-\label{sec:individual-level}
+\section{Individual-Level Variation} \label{sec:individual-level}
 
 Group means can mask substantial disagreement between agents. Figure~\ref{fig:individual-heatmap} breaks the domain shifts down by agent (including the teacher, Katharina Weber) and environment.
 
-\begin{figure}[htbp]
+\begin{figure}[htb]
 \centering
 \includegraphics[width=\textwidth]{figures/individual_shift_heatmap.png}
 \caption{Individual domain shifts (environment $-$ base) by agent. Katharina Weber is the teacher agent; the remaining four rows are the students used in Table~\ref{tab:paired-stats}.}
 \label{fig:individual-heatmap}
 \end{figure}
 
-\begin{figure}[htbp]
+\subsection*{Within-Party Divergence}
+When examining variance across party environments, the \textbf{Gr\"une} condition generated the highest degree of within-group divergence among agents. Under Gr\"une, Conscientiousness exhibited a $1.42$-point spread, ranging from a decline of $-0.42$ for Aylin Demir to a peak increase of $+1.00$ for Sofia Petrova. Similarly, Extraversion in the Gr"une environment ranged widely from a negligible $+0.08$ for Sofia Petrova to a dramatic $+1.08$ spike for Mohammed Idrissi. The \textbf{CDU} environment likewise induced polarized behavioral adaptations, particularly within Agreeableness ($-0.17$ for Aylin versus $+0.83$ for Katharina) and Conscientiousness ($-0.25$ for Aylin versus $+0.75$ for Lukas). In contrast, the \textbf{Linke} and \textbf{SPD} environments yielded the lowest within-party divergence, fostering relatively uniform positive shifts in Open-Mindedness and Agreeableness across all student and teacher personas.
+
+\subsection*{Environment-Driven Persona Transformations}
+At the individual interaction level, specific party environments acted as distinct catalysts for persona transformation, interacting directly with each agent's baseline design:
+
+\begin{itemize}
+    \item \textbf{Katharina Weber (Teacher):} Experienced the highest overall transformation across all agents (mean absolute shift of $0.57$). As the sole teacher figure, her baseline profile adapted most dynamically to the group dynamics, propelled by massive surges in Open-Mindedness that peaked under the \textbf{SPD} environment ($+1.50$, average $+1.27$) and heightened Agreeableness maximized within \textbf{Gr\"une} ($+1.00$, average $+0.72$).
+    \item \textbf{Lukas Schneider (Introvert, quiet):} Despite his quiet and introverted baseline, Lukas closely mirrored the teacher's overall level of change as the second most transformed agent (mean absolute shift of $0.56$). His reserved disposition gave way to pronounced cognitive flexibility, exhibiting maximum Open-Mindedness shifts in the ideologically polar environments of \textbf{AfD} ($+1.33$) and \textbf{Linke} ($+1.25$), alongside a strong surge in Conscientiousness under \textbf{Gr\"une} ($+0.83$, average $+0.70$).
+    \item \textbf{Mohammed Idrissi (Unmotivated, bothered):} Characterized at baseline as unmotivated and bothered, Mohammed demonstrated a moderate overall shift (mean absolute shift of $0.49$). His transformation was driven by selective social activation, where the \textbf{Gr\"une} ($+1.08$) and \textbf{CDU} ($+0.92$) environments induced his sharpest Extraversion boosts, directly counteracting his passive baseline persona.
+    \item \textbf{Sofia Petrova (Extrovert, talkative):} Designed as an outgoing and expressive baseline persona, Sofia proved comparatively resilient to structural changes overall (mean absolute shift of $0.37$). Instead of altering her high sociability, party environments redirected her energy into task orientation, achieving her peak Conscientiousness increase under \textbf{Gr\"une} ($+1.00$) and her greatest reduction in Negative Emotionality within \textbf{CDU} ($-0.50$).
+    \item \textbf{Aylin Demir (Motivated, structured):} Defined at baseline as highly organized and goal-driven, Aylin was the most stable agent overall (mean absolute shift of $0.33$). Paradoxically, the simulated party environments eroded her core baseline strengths, yielding a consistent drop in Conscientiousness across every single condition (average $-0.28$, sharpest decline of $-0.42$ under \textbf{Gr\"une}) even as \textbf{Gr\"une} brought out her highest Agreeableness ($+0.67$).
+\end{itemize}
+
+\section{Facet-Level Detail} \label{sec:facet-level}
+
+Figure~\ref{fig:facet-radar} disaggregates the five domains into their 15 constituent BFI-2 facets, plotting the group-mean facet profile for each environment against the base measurement.
+
+The facet view shows that the domain-level Open-Mindedness effect is carried primarily by \emph{Intellectual Curiosity} and \emph{Aesthetic Sensitivity}, which separate most clearly from the base profile across all five environments, while \emph{Creative Imagination} shows a smaller gap. Within Agreeableness, \emph{Respectfulness} shows the largest and most consistent separation from base of the three facets, plausibly reflecting that a full day inside any of the five structured party environments, each with its own explicit classroom rules, increases agents' expressed respect for those rules and for the teacher, while \emph{Trust} moves by comparatively less. Within Conscientiousness, \emph{Organization} separates from base more than \emph{Productiveness} or \emph{Responsibility}, consistent with the domain-level result being real but individually noisy (Section~\ref{sec:individual-level}). The Negative Emotionality facets move together as a block, with \emph{Depression} showing the clearest environment-vs-base gap and \emph{Anxiety} the smallest, matching the domain-level finding that the overall Neg.\ Emotionality decrease is modest but directionally consistent.
+
+\begin{figure}[htb]
 \centering
-\includegraphics[width=\textwidth]{figures/spread_boxplot.png}
-\caption{Spread of individual student shifts per domain, one panel per environment.}
-\label{fig:spread}
-\end{figure}
-
-Three observations follow from the individual-level view. First, the teacher
-agent, Katharina Weber, consistently shows the \emph{largest} Open-Mindedness
-shift of any agent in every environment (1.00--1.50), well above the student
-range (0.33--1.33). Since her role and daily schedule were rewritten for
-each party to reflect that party's pedagogical philosophy, this is expected:
-she is the agent most directly exposed to the ideological content of each
-environment, and it registers most strongly on her open-mindedness score.
-
-Second, the boxplots in Figure~\ref{fig:spread} show that
-\textbf{Conscientiousness has the widest interquartile spread of any domain
-in most environments} (e.g.\ CDU ranges from about $-0.5$ to $+0.75$), which
-explains why it never reaches significance in Table~\ref{tab:paired-stats}
-despite consistently positive medians: individual agents respond quite
-differently to the same environment. Neg.\ Emotionality and Open-Mindedness,
-by contrast, show comparatively tight, one-sided distributions (nearly all
-individual shifts negative for Neg.\ Emotionality and positive for
-Open-Mindedness), which is why those two domains yield the clearest
-significant effects.
-
-Third, no single student is a uniform outlier: each of the four students
-(Sofia Petrova, Mohammed Idrissi, Lukas Schneider, Aylin Demir) shows at
-least one domain/environment combination with a shift near zero or slightly
-negative, even in domains where the group mean is strongly positive, e.g.\
-Aylin Demir's Conscientiousness shift is negative in four of the five
-environments while the group mean is positive throughout. This indicates
-that the group-level effects in Section~4.1 are driven by a majority
-tendency rather than by unanimous agreement among agents.
-
-\section{Facet-Level Detail}
-
-Figure~\ref{fig:facet-radar} disaggregates the five domains into their 15
-constituent BFI-2 facets, plotting the group-mean facet profile for each
-environment against the base measurement.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.75\textwidth]{figures/facet_radar.png}
+\includegraphics[width=\textwidth]{figures/facet_radar.png}
 \caption{Group-average BFI-2 facet profile per environment (15 facets, base vs.\ five party environments).}
 \label{fig:facet-radar}
 \end{figure}
-
-The facet view shows that the domain-level Open-Mindedness effect is carried
-primarily by \emph{Intellectual Curiosity} and \emph{Aesthetic Sensitivity},
-which separate most clearly from the base profile across all five
-environments, while \emph{Creative Imagination} shows a smaller gap. Within
-Agreeableness, \emph{Respectfulness} shows the largest and most consistent
-separation from base of the three facets — plausibly reflecting that a full
-day inside any of the five structured party environments, each with its own
-explicit classroom rules, increases agents' expressed respect for
-those rules and for the teacher — while \emph{Trust} moves by comparatively
-less. Within Conscientiousness, \emph{Organization} separates from base more
-than \emph{Productiveness} or \emph{Responsibility}, consistent with the
-domain-level result being real but individually noisy (Section~4.2). The
-Negative Emotionality facets move together as a block, with \emph{Depression}
-showing the clearest environment-vs-base gap and \emph{Anxiety} the
-smallest, matching the domain-level finding that the overall Neg.\
-Emotionality decrease is modest but directionally consistent.
