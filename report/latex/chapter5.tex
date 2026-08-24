@@ -1,28 +1,18 @@
 \chapter{Summary and Limitations}
 \label{limitations}
 
-Across all five simulated party environments, student agents' expressed Big Five profiles shifted in the same direction:
-\begin{itemize}
-\item higher Extraversion,
-\item higher Agreeableness,
-\item higher Conscientiousness,
-\item higher Open-Mindedness,
-\item lower Negative Emotionality,
-\end{itemize}
-relative to the pre-simulation baseline, with reliable
-statistical significance concentrated in Open-Mindedness (all five parties),
-Agreeableness (AfD, Gr\"une, Linke), Extraversion (AfD, SPD), and Neg.\
-Emotionality (Gr\"une, Linke). 
+Across all five simulated party environments, student agents' expressed Big Five profiles shifted in the same direction with higher Extraversion, higher Agreeableness, higher Conscientiousness, higher Open-Mindedness and lower Negative Emotionality relative to the pre-simulation baseline. Reliable statistical significance is concentrated in Open-Mindedness (all five parties), Agreeableness (AfD, Gr\"une, Linke), Extraversion (AfD, SPD), and Neg.\ Emotionality (Gr\"une, Linke). 
 
 Linke produced the strongest pro-social effect (largest Agreeableness gain, largest Neg.\ Emotionality drop), consistent with its low-pressure, non-selective programme, while CDU produced the fewest significant shifts overall, consistent with its stability- and discipline-oriented programme. SPD's environment stood out for the largest Open-Mindedness gain, and AfD unexpectedly combined the largest Extraversion gain with significant Agreeableness and Open-Mindedness gains despite its traditional, discipline-focused platform.
 
 This last result, together with the fact that no domain reverses sign in any environment, is a reason for caution rather than a straightforward finding about AfD's programme specifically. 
 
-Two limitations must be taken into account for interpretation:
+Three limitations must be taken into account for interpretation:
 
 \begin{enumerate}
-\item \textbf{Sample size.} The paired analysis rests on $n=4$ students per environment. This is enough to detect very large effects (Open-Mindedness, $d>1.6$ throughout) but underpowered for the medium effects seen in Conscientiousness, and it limits the Wilcoxon test to a small set of possible $p$-values, several of which never reach $p<0.05$ regardless of effect size.
-\item \textbf{Uniform direction across parties.} Every environment shifted every domain the same way, which is consistent with a general "day in a structured simulated school with peers" effect that is at least partly independent of the specific party programme. The between-party differences we report are therefore best read as differences in \emph{magnitude} on top of a shared baseline exposure effect, not as fully independent, party-caused effects.
+\item \textbf{Sample size.} The paired analysis rests on $n=4$ students per environment. This may be enough to detect very large effects (Open-Mindedness, $d>1.6$ throughout) but underpowered for the medium effects seen in Conscientiousness, and it limits the Wilcoxon test to a small set of possible $p$-values, several of which never reach $p<0.05$ regardless of effect size.
+\item \textbf{Uniform direction across parties.} Every environment shifted every domain the same way, which is consistent with a general "day in a structured simulated school with peers" effect that is at least partly independent of the specific party programme. The between-party differences we report are therefore best read as differences in magnitude on top of a shared baseline exposure effect, not as fully independent, party-caused effects.
+\item \textbf{Time and Cost limits.} To run the simulation for a school day until 12pm, each environment took approximately 4 hours, because every time the agents reflect or converse, they must generate multiple LLM responses. Those LLM calls are expensive, and the simulation is time-consuming. This limits the number of agents and the number of days we can simulate, which in turn limits statistical power and the ability to observe longer-term effects.
 \end{enumerate}
 
-Future work could extend the simulation to multiple school days per environment to test whether party-specific differences grow relative to the shared baseline effect and increase the number of student agents per timeline to improve statistical power (particularly for Conscientiousness).
+Future work could extend the simulation to multiple school days per environment to test whether party-specific differences grow relative to the shared baseline effect and increase the number of student agents per timeline to improve statistical power if the simulation time and cost can be reduced.

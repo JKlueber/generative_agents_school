@@ -1,10 +1,13 @@
 \appendix
-\chapter*{Appendix}\label{appendix}
+% Suppresses all subsequent chapters and sections from the Table of Contents
+\addtocontents{toc}{\protect\setcounter{tocdepth}{-1}}
 
-\section*{Party Policy Comparison}\label{appendix:party_policies}
+\chapter{Appendix}\label{appendix}
+
+\section{Party Policy Comparison}\label{appendix:party_policies}
 \input{party_policies_table.tex}
 
 \newpage
-\section*{Big Five Personality Shift Analysis}\label{appendix:paired_stats}
+\section{Big Five Personality Shift Analysis}\label{appendix:paired_stats}
 \input{paired_stats_table.tex}
 
