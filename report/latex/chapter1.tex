@@ -1,26 +1,6 @@
 \chapter{Introduction}
 \label{introduction}
 
-% Education represents one of the most vital goods in human society. 
-% Since the dawn of humanity, older generations have passed knowledge down to younger generations, enabling humans to build upon previous experiences and continually progress. 
-% Over time, society institutionalized knowledge transfer through schools to teach children the necessary skills to participate in civic life. 
-% However, determining who decides what is important to teach and how a classroom should be managed remains a critical question. 
-
-% In modern democracies, such as Germany, public schools follow government directives. 
-% Each political party possesses distinct ideas regarding school structure and curricular focus. 
-% Because governing coalitions must negotiate changes post-election, pure party platforms are rarely fully implemented. 
-% Nevertheless, exploring how different political parties envision educational systems remains valuable.
-
-% To make this analysis feasible and evaluate the impact of these distinct approaches on students, we build upon the generative agents framework introduced by~\citeauthor{park:2023} to construct a generative agent school. 
-% In this simulated environment, we implement party-specific educational ideas as school rules and establish corresponding curricula. 
-% By maintaining a unified base environment, we ensure consistent initial conditions across all simulations. 
-% This approach resembles initializing a single baseline state and branching it into five parallel timelines, where each timeline simulates a school day governed by a specific party program. 
-% To analyze variations in student development and well-being across these environments, we interview student agents before the parallel timeline split and after completing a school day in their assigned environment.
-
-% Education is one of the biggest goods we have in the human society. Since humans exist knowledge gets taught by the older generations to the new generations. Becuase of this the humans could collect knowledge build up on previous experiences and develop like they did. Over the time humans started to transfer knowledge in schools so children learn the important things they need to know to be part of the society in early ages.The question there is, who decides what is important to teach and how should a class run. In the modern world where a state like germany is ruled by a democratic government, a public school is following the governments intructions. Each party has ideas how to structure a school and what is important to focus on in the curriculum. After election when there is a coalition in power they still need to discuss what to change or how to organise, so the pure parties ideas wont be implemeted completly in practice. But still it is very interesting how the parties imagine a school should work and focus on. 
-
-% To make this more feasable and as well to test the impact on the students of the different approaches we build up on the generative agents paper from John Spooks a Generative Agents school. In this simulated school environment we implemeted the party's educational ideas as school rules and created different curriculums accordingly. By having the same base environment we make sure that all simulations have the same preconditions. One could imagine like having a world and splitting it into 5 different timelines each running in parallel. And in each timeline we will simulate a school day with a school environment ruled according to one party program. To see differences in how students develop and feel in school, we interview the student agents before the fork into the five different school environments and after they have finished one school day in the party specific school environment. 
-
 Education represents one of the primary pillars of human society, serving as a vital mechanism for cultural transmission, social reproduction, and civic preparation~\cite{dewey:1916, bourdieu:1970}. 
 Since antiquity, older generations have transmitted knowledge, skills, and cultural norms to younger generations, enabling societies to build upon accumulated experience and advance institutionally. Modern states formalize this process through public schooling, establishing standardized environments wherein children acquire the necessary competencies to participate in democratic life~\cite{dewey:1916}. 
 
@@ -30,7 +10,7 @@ Political parties hold sharply contrasting visions of educational priorities.
 In practice, democratic coalition building forces political parties to compromise, meaning that pure ideological platforms are rarely observed in isolation within real-world classrooms. 
 Evaluating how these uncompromised party programs independently affect student well-being, social dynamics, and personality development presents a methodological challenge.
 
-To overcome real-world policy blurring and isolate party-specific educational visions, the \textit{Generative Agents School}~\footnote{\faGithub\ Code base: \href{https://github.com/JKlueber/generative_agents_school}{github.com/JKlueber/generative\_agents\_school}} constructs a simulated educational environment using the generative agents architecture introduced by~\citeauthor{park:2023} \cite{park:2023}. 
+To overcome real-world policy blurring and isolate party-specific educational visions, the \textit{Generative Agents School}\footnote{\faGithub\ Code base: \href{https://github.com/JKlueber/generative_agents_school}{github.com/JKlueber/generative\_agents\_school}} constructs a simulated educational environment using the generative agents architecture introduced by~\citeauthor{park:2023} \cite{park:2023}. 
 By instantiating autonomous LLM-driven agents within a controlled sandbox environment, we translate the distinct educational programs of \textit{Die Linke}, \textit{SPD}, \textit{Die Grünen}, \textit{CDU}, and \textit{AfD} into explicit school rules and classroom curricula. 
 Holding the baseline environment constant, we fork a single initial state into five parallel timelines, simulating a school day under each party's distinct regime. 
 To evaluate the impact of each party framework, we administer the Big Five Inventory-2 (BFI-2) to student agents before the simulation fork and after the completion of the simulated school day to assess shifts in their personality traits.
