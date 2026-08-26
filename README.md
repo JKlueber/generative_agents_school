@@ -9,7 +9,7 @@
 
 **Generative Agents School** is a fork/extension of Stanford's [Generative Agents: Interactive Simulacra of Human Behavior](https://arxiv.org/abs/2304.03442) framework, repurposed as a small "Bauhaus Gymnasium" classroom simulation. A teacher and a handful of student personas — each with their own personality, memory, and daily schedule — go about a school day inside a Phaser-rendered map, perceiving their surroundings, planning their next actions, chatting with one another, and reflecting on what happened, all driven by an LLM.
 
-On top of the original single-simulation demo, this fork adds a **party-selection front page**: five simulations (CDU, SPD, Die Linke, Die Grüne, and AfD) are pre-seeded with different education-policy "personalities," so the same school, the same students, and the same teacher can be observed behaving differently depending on which classroom philosophy they were bootstrapped with. You can also pause a running simulation and **interview** any persona directly, in character, without disturbing the rest of the simulation.
+On top of the original single-simulation demo, this fork adds a **party-selection front page**: five simulations (CDU, SPD, Die Linke, Die Grüne, and AfD) are pre-seeded with different education-policy "personalities," so the same school, the same students, and the same teacher can be observed behaving differently depending on which classroom philosophy they were bootstrapped with. You can also pause a running simulation and **interview** any persona directly, in character, without disturbing the rest of the simulation, or run a scripted **BFI-2 personality survey** against any agent to get a quantitative read on how the simulation shaped their personality.
 
 ## How it's organized
 
@@ -93,6 +93,7 @@ At the `Enter option:` prompt you can then:
 
 - `run <N>` — advance the simulation by `N` steps
 - `call -- load history the_ville/<file>.csv` — bootstrap persona memories from a semicolon-separated history file (see `agent_history_init_n5_school_*.csv` for the five party variants)
+- `survey <persona name>` — run the scripted **BFI-2** personality survey against a persona (see [Personality survey (BFI-2)](#personality-survey-bfi-2) below)
 - `save` — checkpoint without stopping
 - `fin` — save and exit
 - `exit` — discard and exit
@@ -114,6 +115,45 @@ Replays read purely from the saved `movement/*.json` files — no backend `run` 
 
 `http://localhost:8000/replay_persona_state/<sim-code>/<step>/<persona_name_with_underscores>/` dumps a given persona's full scratch state (schedule, current action, personality) plus their associative memory (events, conversations, thoughts) as of that step — handy for debugging why an agent did what it did.
 
+## Personality survey (BFI-2)
+
+Any persona in a running simulation can be given the **BFI-2** (Big Five Inventory–2) personality questionnaire — the same 60-item instrument used in personality psychology, covering the five traits of Extraversion, Agreeableness, Conscientiousness, Negative Emotionality, and Open-Mindedness. This is useful for checking, quantitatively, how a persona's personality has drifted or solidified over the course of a simulation (e.g., comparing the same base agent across the five party forks).
+
+### Running it from the console
+
+At the `Enter option:` prompt in `reverie.py`:
+
+```
+survey <persona name>
+```
+
+For each of the 60 BFI-2 items, the survey:
+
+1. Phrases the item as a first-person statement, e.g. *"I see myself as someone who is outgoing, sociable."*
+2. Retrieves the persona's memories most relevant to that statement via the same recency/relevance/importance retrieval pipeline used elsewhere in the cognitive loop (`new_retrieve`), summarizing them into a short context block.
+3. Asks the LLM to answer **in character**, using the persona's identity stable set (ISS) and the retrieved memory context, on a 1–5 scale:
+   - 1 = Disagree strongly
+   - 2 = Disagree a little
+   - 3 = Neither agree nor disagree
+   - 4 = Agree a little
+   - 5 = Agree strongly
+
+Progress (each question, its retrieved context, and the persona's answer) is printed to the console as it runs.
+
+### Output
+
+Results are written to `storage/<sim_code>/survey/<persona_name>_<timestamp>.json`, containing the persona name, the survey name (`"BFI-2"`), the simulation time the survey was taken at, and the full list of `{question, rating, retrieved_context}` entries.
+
+### Programmatic / interview-backend use
+
+The survey logic isn't console-only. `Persona.survey(survey_name="bfi10")` (in `persona/persona.py`) runs the same BFI-2 pipeline (`converse.run_bfi2_survey`) against any `Persona` instance and returns the list of `{"statement", "rating"}` results directly, without touching the filesystem — this is what you'd call if you're driving the survey from another script or from the interview backend rather than the interactive console.
+
+Under the hood this uses:
+- `converse.BFI2_ITEMS` — the 60 scripted statements.
+- `converse.generate_survey_rating(persona, statement, target_time=None, n_count=15)` — retrieves relevant memories for a single statement and gets back `(rating, summarized_context)`.
+- `converse.run_bfi2_survey(persona, target_time=None)` — runs all 60 items and returns the full results list.
+- `run_gpt_prompt.run_gpt_prompt_survey_rating(...)` together with `persona/prompt_template/v3_ChatGPT/survey_bfi2_v1.txt` — the actual prompt/response handling for a single rating, with a fail-safe of `3` ("Neither agree nor disagree") if the model's output can't be parsed as an integer 1–5.
+
 ## Running headlessly / in CI
 
 `reverie/backend_server/run_ci.py` drives the console workflow non-interactively (fork → load history → `headless on` → `run N` → `fin`), which is what `.github/workflows/main.yml` uses to run a full simulation on a schedule or on demand via `workflow_dispatch`, uploading the resulting `storage/<sim>` folder as a build artifact. Trigger it manually from the Actions tab, supplying the forked simulation, new simulation name, history CSV, and step count.
@@ -128,6 +168,7 @@ Replays read purely from the saved `movement/*.json` files — no backend `run` 
 
 - Live/saved simulations: `environment/frontend_server/storage/<sim_code>/`
 - Compressed demo builds: `environment/frontend_server/compressed_storage/<sim_code>/` (produced by `reverie/compress_sim_storage.py`, needed for the `/demo/...` route since it bakes in per-persona sprites instead of the generic replay sprite)
+- BFI-2 survey results: `environment/frontend_server/storage/<sim_code>/survey/`
 
 ## Acknowledgements
 
