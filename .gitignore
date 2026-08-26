@@ -110,3 +110,5 @@ ENV/
 *.toc
 *.xml
 *.bcf
+
+/report/scripts/*.py
