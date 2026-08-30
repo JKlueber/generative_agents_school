@@ -1,16 +1,15 @@
 \chapter{Introduction}
 \label{introduction}
 
-Education represents one of the primary pillars of human society, serving as a vital mechanism for cultural transmission, social reproduction, and civic preparation~\cite{dewey:1916, bourdieu:1970}. 
-Since antiquity, older generations have transmitted knowledge, skills, and cultural norms to younger generations, enabling societies to build upon accumulated experience and advance institutionally. Modern states formalize this process through public schooling, establishing standardized environments wherein children acquire the necessary competencies to participate in democratic life~\cite{dewey:1916}. 
+Society relies on education to transmit culture, maintain social framework, and cultivate engaged citizens~\cite{dewey:1916, bourdieu:1970}. Modern states formalise this process through public schooling, establishing standardised environments wherein children acquire the necessary competencies to participate in democratic life~\cite{dewey:1916}. 
 
 However, formal education is inherently value-laden; decisions regarding what knowledge is essential and how classrooms should be governed are fundamental political questions~\cite{apple:2004}. 
 In democratic systems such as Germany, state governments determine educational policies, curriculum frameworks, and school structures. 
 Political parties hold sharply contrasting visions of educational priorities.
 In practice, democratic coalition building forces political parties to compromise, meaning that pure ideological platforms are rarely observed in isolation within real-world classrooms. 
-Evaluating how these uncompromised party programs independently affect student well-being, social dynamics, and personality development presents a methodological challenge.
+Evaluating how these uncompromised party programmes independently affect student well-being, social dynamics, and personality development presents a methodological challenge.
 
 To overcome real-world policy blurring and isolate party-specific educational visions, the \textit{Generative Agents School}\footnote{\faGithub\ Code base: \href{https://github.com/JKlueber/generative_agents_school}{github.com/JKlueber/generative\_agents\_school}} constructs a simulated educational environment using the generative agents architecture introduced by~\citeauthor{park:2023} \cite{park:2023}. 
-By instantiating autonomous LLM-driven agents within a controlled sandbox environment, we translate the distinct educational programs of \textit{Die Linke}, \textit{SPD}, \textit{Die Grünen}, \textit{CDU}, and \textit{AfD} into explicit school rules and classroom curricula. 
+By instantiating autonomous LLM-driven agents within a controlled sandbox environment, we translate the distinct educational programmes of \textit{Die Linke}, \textit{SPD}, \textit{B\"undnis 90/Die Gr\"unen}, \textit{CDU}, and \textit{AfD} into explicit school rules and classroom curricula. 
 Holding the baseline environment constant, we fork a single initial state into five parallel timelines, simulating a school day under each party's distinct regime. 
 To evaluate the impact of each party framework, we administer the Big Five Inventory-2 (BFI-2) to student agents before the simulation fork and after the completion of the simulated school day to assess shifts in their personality traits.
